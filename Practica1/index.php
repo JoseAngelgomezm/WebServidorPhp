@@ -48,7 +48,7 @@
 
 
         <p>
-            incluir mi foto: <input type="file" id="image" src=""></input>
+            incluir mi foto: <input type="file" id="image" accept="image/*" name="image" src=""></input>
         </p>
 
         <p>
