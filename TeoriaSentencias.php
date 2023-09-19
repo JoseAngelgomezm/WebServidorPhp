@@ -16,7 +16,13 @@
         $a = 8;
         $b=9;
         $c = $a + $b;
-        
+
+        // declaracion de constantes
+        define("PI",3.141516);
+
+        // uso de constantes
+        $d = $a * PI;
+        echo "el resultado de ".$a." * ".PI." es ".$d."";
         
         // concatenar variables
         echo "<h1>Concatenar variables</h1>";
