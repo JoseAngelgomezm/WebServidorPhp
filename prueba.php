@@ -6,6 +6,7 @@
     <title>Document</title>
 </head>
 <body>
+    <h1>Teoria elemental de PHP</h1>
     <?php
 
         // incrustar html en php
@@ -16,10 +17,13 @@
         $b=9;
         $c = $a + $b;
         
+        
         // concatenar variables
+        echo "<h1>Concatenar variables</h1>";
         echo "<p>el resultado de sumar ".$a." + ".$b." es: ".$c."</p>";
         
         // sentencias if
+        echo "<h1>Sentencias if</h1>";
         if(3>$c)
         {
             echo "<p>3 es mayor que ".$c." </p>";
@@ -33,6 +37,7 @@
         }
 
         // sentencias switch 
+        echo "<h1>Sentencias switch</h1>";
         $d=3;
         switch($d){
             case 1: $c = $a-$b;
@@ -52,13 +57,20 @@
         // valor1: Asignacion inicial
         // valor2: Condicion de salida 
         // valor3: Incremento
+        echo "<h1>Bucles for</h1>";
         for($i=0;$i<8;$i++)
         {
             echo "<p>hola numero ".$i."</p>";
         }
         
         // bucles while
-
+        echo "<h1>Bucles while</h1>";
+        $i=0;
+        while ($i<=8)
+        {
+            echo "<p>hola numero ".$i."</p>";
+            $i++;
+        }
     ?>
 </body>
 </html>
