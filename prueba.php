@@ -7,7 +7,7 @@
 </head>
 <body>
     <?php
-    
+
         // incrustar html en php
         echo "<h1>Mi primera pagina</h1>";
         
@@ -31,7 +31,34 @@
         else{
             echo "<p>3 es menor que ".$c." </p>";
         }
-    
+
+        // sentencias switch 
+        $d=3;
+        switch($d){
+            case 1: $c = $a-$b;
+            break;
+            case 2: $c = $a/$b;
+            break;
+            case 3: $c = $a*$b;
+            break;
+            default:$c= $a+$b;
+            break;
+
+        }
+
+        echo "<p> el resultado del switch es ".$c." </p>";
+        
+        // bucles for
+        // valor1: Asignacion inicial
+        // valor2: Condicion de salida 
+        // valor3: Incremento
+        for($i=0;$i<8;$i++)
+        {
+            echo "<p>hola numero ".$i."</p>";
+        }
+        
+        // bucles while
+
     ?>
 </body>
 </html>
