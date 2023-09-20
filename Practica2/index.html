@@ -10,14 +10,14 @@
 <body>
     <h1>Esta es mi super pagina</h1>
 
-    <form method="get" enctype="multipart/form-data">
+    <form action="recogida.php" method="post" enctype="multipart/form-data">
         <p>
             <label for="nombre">Nombre: </label>
             <input type="text" name="nombre" id="nombre"></input>
         </p>
 
         <p>
-            <label for="provincia"></label>
+            <label for="provincia">Nacido en: </label>
             <select name="provincia" id="provincia">
                 <option value="malaga" selected>Malaga</option>
                 <option value="cadiz">Cadiz</option>
@@ -33,9 +33,9 @@
 
         <p>
             <label for="aficiones">Aficiones: </label>
-            <input type="radio" value="deportes"></input>
-            <input type="radio" value="lectura"></input>
-            <input type="radio" value="otros"></input>
+            <input type="checkbox" name="deportes">Deportes</input>
+            <input type="checkbox" name="lectura">Lectura</input>
+            <input type="checkbox" name="otros">Otros</input>
         </p>
 
         <p>
