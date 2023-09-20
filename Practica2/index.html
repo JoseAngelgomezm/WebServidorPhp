@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Esta es mi super pagina</h1>
+
+    <form method="get" enctype="multipart/form-data">
+        <p>
+            <label for="nombre">Nombre: </label>
+            <input type="text" name="nombre" id="nombre"></input>
+        </p>
+
+        <p>
+            <label for="provincia"></label>
+            <select name="provincia" id="provincia">
+                <option value="malaga" selected>Malaga</option>
+                <option value="cadiz">Cadiz</option>
+                <option value="almeria">Almeria</option>
+            </select>
+        </p>
+
+        <p>
+            <label for="sexo">Sexo: </label>
+            <input type="radio" name="sexo" value="hombre">Hombre</input>
+            <input type="radio" name="sexo" value="mujer">Mujer</input>
+        </p>
+
+        <p>
+            <label for="aficiones">Aficiones: </label>
+            <input type="radio" value="deportes"></input>
+            <input type="radio" value="lectura"></input>
+            <input type="radio" value="otros"></input>
+        </p>
+
+        <p>
+            <label for="comentarios">Comentarios: </label>
+            <textarea name="comentarios" cols="30" rows="5"></textarea>
+        </p>
+
+
+        <p>
+            <button type="submit" name="guardar">Enviar</button>
+        </p>
+
+
+
+
+    </form>
+</body>
+
+</html>

@@ -4,4 +4,4 @@ instalar net tools : sudo apt install net-tools
 
 dar permisos a htdocs : sudo chmod a+w /opt/lampp/htdocs
 
-
+activar error console log: sudo nano /opt/lampp/etc/php.ini y cambiar display_errors=Off a display_errors=On
