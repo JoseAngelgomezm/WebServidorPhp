@@ -1,0 +1,7 @@
+iniciar servicios xampp : sudo /opt/lampp/lampp start
+
+instalar net tools : sudo apt install net-tools
+
+dar permisos a htdocs : sudo chmod a+w /opt/lampp/htdocs
+
+
