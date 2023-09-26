@@ -9,11 +9,11 @@
 
 <body>
     <?php
-    $lenguaje_cliente = array(1 => "JavaScript",  2 => "HTML",  3 => "CSS",  4 => "TypeScript", 5 => "Swift");
-    $lenguaje_servidor = array(1 => "Python", 2 => "Node.js", 3 =>"Ruby", 4 => "PHP", 5 => "Java");
+    $lenguaje_cliente = array("uno" => "JavaScript", "dos" => "HTML", "tres" => "CSS", "cuatro" => "TypeScript", "cinco" => "Swift");
+    $lenguaje_servidor = array("seis" => "Python", "siete" => "Node.js", "ocho" => "Ruby", "nueve" => "PHP", "diez" => "Java");
 
    
-
+    
     ?>
 </body>
 
