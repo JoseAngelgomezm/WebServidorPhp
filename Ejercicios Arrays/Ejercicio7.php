@@ -17,8 +17,8 @@
     $ciudades["CH"] = "Chicago";
 
 
-    foreach($ciudades as $indice => $valor){
-        echo "El indice del array que contiene como valor ".$valor." es ".$indice."";
+    foreach ($ciudades as $indice => $valor) {
+        echo "El indice del array que contiene como valor " . $valor . " es " . $indice . "";
         echo "<br>";
     }
 

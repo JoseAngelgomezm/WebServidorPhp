@@ -12,9 +12,9 @@
     $personas = array("Pedro", "Ismael", "Sonia", "Clara", "Susana", "Alfonso");
 
     echo "<ul>";
-    echo "El array de personas contiene ".count($personas)." elementos que son: ";
+    echo "El array de personas contiene " . count($personas) . " elementos que son: ";
     for ($i = 0; $i < count($personas); $i++) {
-        echo "<li>".$personas[$i]."</li>";
+        echo "<li>" . $personas[$i] . "</li>";
     }
     echo "</ul>";
 
