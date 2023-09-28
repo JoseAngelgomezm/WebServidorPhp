@@ -13,26 +13,30 @@
     $familias["Los Griffin"] = [["padre" => "Peter","madre" => "Lois","hijos" => ["hijo1" => "Crhis","hijo2" => "Meg","hijo3" => "Stewie"]]];
    
     echo "<ul>";
-        foreach($familias as $indice => $valor){
-            echo "<li>$indice</li>";
+        foreach($familias as $nombre_familia => $array_datos){
+            echo "<li>$nombre_familia</li>";
 
             echo "<ul>";
-            foreach($valor as $indice2 => $valor2){
-                
-                foreach($valor2 as $indice3 => $valor3){
-                    if(is_array($valor3)){
+            foreach($array_datos as $indice => $arrayParentescoHijos){
+    
+                foreach($arrayParentescoHijos as $parentesco => $nombre){
+                    echo "<li>$parentesco";
+                    if(is_array($nombre)){
+                        echo ":";
+
                         echo "<ul>";
-                        foreach ($valor3 as $indice4 => $valor4){
-                            echo "<li>$indice4: $valor4</li>";
+                        foreach($nombre as $numeroHijo => $nombreHijo){
+                            echo "<li>$numeroHijo: $nombreHijo</li>";
                         }
-                            
                         echo "</ul>";
+
+                    }else{
+                        echo ": $nombre";
                     }
-                    echo "<li>$indice3: $valor3</li>";
+                    echo "</li>";
                 }
             }
             echo "</ul>";
-           
         }
     echo "</ul>";
 
