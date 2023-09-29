@@ -23,7 +23,7 @@
         <p>Díme dos palabras y te diré si riman o no</p>
 
         <label for="palabra1">Primera palabra: </label>
-        <input name="palabra1" id="palabra1"><?php if(isset($_POST)) echo"$_POST["palabra1"]" ?></input>
+        <input name="palabra1" id="palabra1"><?php if(isset($_POST)) echo $_POST["palabra1"] ?></input>
         <br>
         <br>
         <label for="palabra2">Segunda palabra: </label>
