@@ -45,7 +45,7 @@ if (isset($_POST["comprobar"])) {
         $j = strlen($fraseSinEspacios) -1;
         $resultado = true;
         // comprobar que cada una de las posiciones de la frase son iguales
-        while ($i <= $j && $resultado) {
+        while ($i < $j && $resultado) {
             if ($fraseSinEspacios[$i] == $fraseSinEspacios[$j]) {
                 $resultado = true;
                 $i++;
@@ -66,7 +66,7 @@ if (isset($_POST["comprobar"])) {
 
     function quitarEspacios($unaFrase){
         $textoSinEspacios = "";
-        for($i = 0; $i < strlen($unaFrase) -1; $i++){
+        for($i = 0; $i < strlen($unaFrase); $i++){
             if($unaFrase[$i] == " "){
                 $textoSinEspacios .= "";
             }else{
