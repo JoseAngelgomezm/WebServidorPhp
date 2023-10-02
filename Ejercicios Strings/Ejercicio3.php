@@ -45,7 +45,7 @@ if (isset($_POST["comprobar"])) {
         $j = strlen($fraseSinEspacios) -1;
         $resultado = true;
         // comprobar que cada una de las posiciones de la frase son iguales
-        while ($i < $j && $resultado) {
+        while ($i <= $j && $resultado) {
             if ($fraseSinEspacios[$i] == $fraseSinEspacios[$j]) {
                 $resultado = true;
                 $i++;

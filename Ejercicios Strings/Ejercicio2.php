@@ -42,7 +42,7 @@ if (isset($_POST["comprobar"])) {
         $j = strlen($textoIntroducido) - 1;
         $correcto = true;
         // comprobar que cada posicion del string es igual
-        while ($i < $j && $correcto) {
+        while ($i <= $j && $correcto) {
             if ($textoIntroducido[$i] == $textoIntroducido[$j]) {
                 $correcto = true;
                 $i++;
