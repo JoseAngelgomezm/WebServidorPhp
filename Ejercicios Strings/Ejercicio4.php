@@ -166,9 +166,9 @@ if (isset($_POST["comprobar"])) {
         
             // Verificar repeticiones válidas
             if ($repeticiones_I > 3 || $repeticiones_V > 1 || $repeticiones_X > 3 || $repeticiones_L > 1 || $repeticiones_C > 3 || $repeticiones_D > 1 || $repeticiones_M > 3) {
-                return true; // Se repiten letras más veces de las permitidas
+                return true; 
             }else{
-                return false; // No se repiten letras más veces de las permitidas
+                return false;
             }
         
             
