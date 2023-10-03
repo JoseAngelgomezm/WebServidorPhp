@@ -35,20 +35,35 @@ if (isset($_POST["comprobar"])) {
     if (isset($_POST["comprobar"]) && !$error_texto_vacio) {
         echo "<div id ='respuesta'>";
         echo "<h1>Romanos a árabes - Resultado</h1>";
-        $traducible = true;
-        $orden_correcto = true;
-        $repetido = true;
-        $resultado = 0;
 
+        function numeroValido($textoString)
+        {
+            $traducible = true;
+            for ($i = 0; $i < strlen($textoString); $i++) {
+                // si la posicion que miramos es algun numero romano
+                if (
+                    $textoString[$i] == "I" || $textoString[$i] == "V" || $textoString[$i] == "X" ||
+                    $textoString[$i] == "L" || $textoString[$i] == "C" || $textoString[$i] == "D" ||
+                    $textoString[$i] == "M"
+                ) {
+                    $traducible = true;
+                    // Si el numero contiene algo que no sea un numero romano, decir que no se puede traducir y parar el bucle
+                } else {
+                    $traducible = false;
+                    return $traducible;
+                }
+            }
+            return $traducible;
+        }
 
         function orden_es_correcto($textoString)
         {
             $orden_correcto = true;
-            for ($i = 0; $i < strlen($textoString); $i++) {
+            for ($i = 0; $i < strlen($textoString) - 1; $i++) {
                 // variable que se reinicia para obtener el valor de las letras en la posicion
                 $valorActual = 0;
                 $valorSiguiente = 0;
-                
+
                 // segun la letra, obtendremos un valor
                 switch ($textoString[$i]) {
                     case "I":
@@ -99,8 +114,8 @@ if (isset($_POST["comprobar"])) {
                             break;
                     }
                 }
-                // si el valor actual es menor o igual al siguiente
-                if ($valorActual <= $valorSiguiente) {
+                // si el valor actual es menor o igual al siguiente y hay mas de un valor
+                if ($i + 1 < strlen($textoString) && $valorActual >= $valorSiguiente) {
                     $orden_correcto = true;
                     // sino poner el orden a false y parar el bucle 
                 } else {
@@ -112,84 +127,60 @@ if (isset($_POST["comprobar"])) {
             return $orden_correcto;
         }
 
-        function numeroValido($textoString)
-        {
-            $traducible = true;
-            for ($i = 0; $i < strlen($textoString); $i++) {
-                // si la posicion que miramos es algun numero romano
-                if (
-                    $textoString[$i] == "I" || $textoString[$i] == "V" || $textoString[$i] == "X" ||
-                    $textoString[$i] == "L" || $textoString[$i] == "C" || $textoString[$i] == "D" ||
-                    $textoString[$i] == "M"
-                ) {
-                    $traducible = true;
-                    // Si el numero contiene algo que no sea un numero romano, decir que no se puede traducir y parar el bucle
-                } else {
-                    $traducible = false;
-                    break;
-                }
-            }
-            return $traducible;
-        }
-
         function se_repite($textoString)
         {
-            $repetido = false;
-            $repeticiones_I = 4;
-            $repeticiones_V = 1;
-            $repeticiones_X = 4;
-            $repeticiones_L = 1;
-            $repeticiones_C = 4;
-            $repeticiones_D = 1;
-            $repeticiones_M = 4;
-
-
-            for ($i = 0; $i < strlen($textoString) - 1; $i++) {
-
-                if (
-                    $repeticiones_I == 0 || $repeticiones_V == 0 || $repeticiones_X == 0 || $repeticiones_L == 0 ||
-                    $repeticiones_C == 0 || $repeticiones_D == 0 || $repeticiones_M == 0
-                ) {
-                    $repetido = true;
-                    break;
+            $repeticiones_I = 0;
+            $repeticiones_V = 0;
+            $repeticiones_X = 0;
+            $repeticiones_L = 0;
+            $repeticiones_C = 0;
+            $repeticiones_D = 0;
+            $repeticiones_M = 0;
+        
+            // recorrer el string para contar las repeticiones de cada letra
+            for ($i = 0; $i < strlen($textoString); $i++) {
+                switch ($textoString[$i]) {
+                    case "I":
+                        $repeticiones_I++;
+                        break;
+                    case "V":
+                        $repeticiones_V++;
+                        break;
+                    case "X":
+                        $repeticiones_X++;
+                        break;
+                    case "L":
+                        $repeticiones_L++;
+                        break;
+                    case "C":
+                        $repeticiones_C++;
+                        break;
+                    case "D":
+                        $repeticiones_D++;
+                        break;
+                    case "M":
+                        $repeticiones_M++;
+                        break;
                 }
-                // restar las repeticiones si se ha repetido el numero
-                if ($textoString[$i] == $textoString[$i + 1]) {
-                    switch ($textoString[$i]) {
-                        case "I":
-                            $repeticiones_I--;
-                            break;
-                        case "V":
-                            $repeticiones_V--;
-                            break;
-                        case "X":
-                            $repeticiones_X--;
-                            break;
-                        case "L":
-                            $repeticiones_L--;
-                            break;
-                        case "C":
-                            $repeticiones_C--;
-                            break;
-                        case "D":
-                            $repeticiones_D--;
-                            break;
-                        case "M":
-                            $repeticiones_M--;
-                            break;
-                    }
-                }
-
-
-
             }
-            return $repetido;
+        
+            // Verificar repeticiones válidas
+            if ($repeticiones_I > 3 || $repeticiones_V > 1 || $repeticiones_X > 3 || $repeticiones_L > 1 || $repeticiones_C > 3 || $repeticiones_D > 1 || $repeticiones_M > 3) {
+                return true; // Se repiten letras más veces de las permitidas
+            }else{
+                return false; // No se repiten letras más veces de las permitidas
+            }
+        
+            
         }
 
+        // si el numero es valido, tiene el orden correcto y no se repiten las letras el maximo de veces
         if (numeroValido($numeroIntroducido) && orden_es_correcto($numeroIntroducido) && !se_repite($numeroIntroducido)) {
+            $resultado = 0;
+            // recorrer el array para obtener el valor de la letra
             for ($i = 0; $i < strlen($numeroIntroducido); $i++) {
                 $valorLetra = 0;
-                switch ($numeroIntroducido[$i + 1]) {
+                switch ($numeroIntroducido[$i]) {
                     case "I":
                         $valorLetra = 1;
                         break;
@@ -212,11 +203,14 @@ if (isset($_POST["comprobar"])) {
                         $valorLetra = 1000;
                         break;
                 }
-
+                // y obtener el resultado
                 $resultado += $valorLetra;
 
             }
+
+            // mostrar los resultado
             echo "El numero <strong>" . $numeroIntroducido . "</strong> en árabe vale: " . $resultado . "";
+            // si no se cumplen los requisitos , decir que esta mal escrito
         } else {
             echo "El numero <strong>" . $numeroIntroducido . "</strong> no es traducible, está mal escrito.";
         }
