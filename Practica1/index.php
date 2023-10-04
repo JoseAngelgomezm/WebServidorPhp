@@ -36,7 +36,7 @@
         <p>
             <label for="dni">Dni</label>
             <br />
-            <input type="text" size="10" id="dni" name="dni"></input>
+            <input type="text" placeholder="12345678" size="10" id="dni" name="dni"></input>
         </p>
 
         <p>
@@ -67,7 +67,8 @@
         </p>
 
         <p>
-            <input type="checkbox" name="suscrito"><label for="suscrito">Subscribirse al boletín de novedades</label></input>
+            <input type="checkbox" name="suscrito"><label for="suscrito">Subscribirse al boletín de
+                novedades</label></input>
         </p>
 
 
