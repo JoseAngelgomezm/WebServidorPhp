@@ -1,7 +1,13 @@
 <?php
 if (isset($_POST["enviar"])) {
-    $numeroIntroducido = trim($_POST["texto"]);
+    $numeroIntroducido = trim($_POST["numeros"]);
     $error_numero_vacio = $numeroIntroducido == "";
+    // quitar los espacios, los puntos , las comas y los guiones y comprobar si son numeros
+    $numero_sin_espacios = str_replace(" ", "",$numeroIntroducido);
+    $numero_sin_puntos = str_replace(",", "",$numero_sin_espacios);
+    $numero_sin_guiones = str_replace("-", "",$numero_sin_puntos);
+    $numero_final = str_replace(".", "",$numero_sin_guiones);
+    $error_no_numero = !is_numeric($numero_final);
 }
 
 ?>
@@ -21,8 +27,8 @@ if (isset($_POST["enviar"])) {
         <p>Escribe varios números separados por espacios y unificaré el separador decimal a puntos.</p>
         <form method="post" action="">
             <label for="numeros">Numeros: </label>
-            <input type="text" name="numeros" id="numeros" value="<?php if(isset($_POST["enviar"]) && $error_numero_vacio) echo $numeroIntroducido; ?>"></input>
-            <?php if (isset($_POST["enviar"]) && $error_numero_vacio)echo "Texto vacío";?>
+            <input type="text" name="numeros" id="numeros" value="<?php if(isset($_POST["enviar"])) echo $numeroIntroducido; ?>"></input>
+            <?php if (isset($_POST["enviar"]) && $error_numero_vacio) echo "Texto vacío"; else if(isset($_POST["enviar"]) && $error_no_numero) echo "Introduce un número";?>
             <br>
             <button name="enviar" id="enviar">Enviar</button>
         </form>
@@ -30,10 +36,11 @@ if (isset($_POST["enviar"])) {
 
     <?php
     // resultado
-    if (isset($_POST["enviar"]) && !$error_numero_vacio) {
+    if (isset($_POST["enviar"]) && !$error_numero_vacio && !$error_no_numero) {
         echo "<div id ='respuesta'>";
-        echo "<h1>Quitar acentos - Resultado</h1>";
+        echo "<h1>Unificar separador decimal - Resultado</h1>";
 
+        $resultado = str_replace(",",".",$numeroIntroducido);
         
 
         echo "Texto original:<br>" . $numeroIntroducido . "";
@@ -41,9 +48,6 @@ if (isset($_POST["enviar"])) {
         echo "Texto sin acentos:<br>";
         echo "$resultado";
         echo "</div>";
-
-
-        
     }
     ?>
 
