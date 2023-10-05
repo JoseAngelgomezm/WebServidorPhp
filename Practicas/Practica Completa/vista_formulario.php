@@ -41,8 +41,19 @@
         <p>
             <label for="dni">DNI</label>
             <br/>
-            <input type="text" name="dni" id="dni" placeholder="12345678L"></input>
+            <input type="text" name="dni" id="dni" placeholder="12345678L" value="<?php if(isset($_POST["guardar"])) echo $_POST["dni"] ?>"></input>
+            <?php
+            if(isset($_POST["guardar"]) && $error_dni){
+                if($_POST["dni"] == ""){
+                    echo"El DNI está vacio";
+                }elseif(!dni_bien_escrito(strtoupper($_POST["dni"]))){
+                    echo "El DNI no tiene un formato correcto";
+                }else{
+                    echo "DNI no existe";
+                }
+            }
             
+            ?>
         </p>
 
         <p>

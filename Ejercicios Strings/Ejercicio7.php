@@ -1,9 +1,19 @@
 <?php
 if (isset($_POST["enviar"])) {
-    $numeroIntroducido = $_POST["numeros"];
+    $numeroIntroducido = trim($_POST["numeros"]);
     $error_numero_vacio = $numeroIntroducido == 0;
-    // si el numero introducido no es un numero
-    $error_no_numero = !is_numeric($numeroIntroducido);
+    // obtener un array de numeros separados por espacio
+    $arrayNumero = explode(" ",$numeroIntroducido);
+    $error_no_numero = false;
+    // recorrer el array
+    for($i=0; $i< count($arrayNumero) ; $i++){
+        // si encuentra un numero no numerico
+        if(!is_numeric($arrayNumero[$i])){
+            // poner el error a true y parar
+            $error_no_numero = true;
+            break;
+        }
+    }
 }
 
 ?>

@@ -14,7 +14,7 @@ if (isset($_POST["guardar"])) { // compruebo errores al mandar el formulario
    
     
 
-    $error_formulario = $error_nombre || $error_apellidos || $error_contraseña || $error_sexo || $error_comentario || $error_dni || $error_imagen;
+    $error_formulario = $error_nombre || $error_apellidos || $error_contraseña || $error_sexo || $error_comentario || $error_dni;
 
 }
 
