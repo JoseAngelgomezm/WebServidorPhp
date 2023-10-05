@@ -7,7 +7,55 @@ if (isset($_POST["enviar"])) {
 }
 
 if (isset($_POST["enviar"]) && !$error_imagen_vacia) {
-    echo "pagina recogida de datos";
+// pagina con los datos de la imagen subida que se muestra si no hay errores al subir la imagen
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Datos de mi fichero imagen</h1>
+    <?php
+    // crear un id unico para esa imagen
+    $nombreNuevo = md5(uniqid(uniqid(),true));
+    // obtener la extension, separamos con explode por punto el nombre de archivo
+    $arrayNombre = explode(".",$_FILES["archivo"]["name"]);
+    $ext= "";
+    // si tiene mas de una separacion por punto, significa que en el nombre hay puntos aparte de la extension
+    // podria ser image.2.jpg
+    // si tiene mas de un punto
+    if(count($arrayNombre) > 1)
+        $ext=".".end($arrayNombre);
+   
+    $nombreNuevo.=$ext;
+    
+
+    // movemos el archivo, de la ruta temporal a una carpeta
+    @$var = move_uploaded_file($_FILES["archivo"]["tmp_name"], "images/".$nombreNuevo);
+    if($var){
+        echo "Imagen subida satisfactoriamente";
+        echo "<p><strong>Nombre: </strong>".$_FILES["archivo"]["name"]."</p>";
+        echo "<p><strong>tipo: </strong>".$_FILES["archivo"]["type"]."</p>";
+        echo "<p><strong>tamaño: </strong>".$_FILES["archivo"]["size"]."</p>";
+        echo "<p><strong>error: </strong>".$_FILES["archivo"]["error"]."</p>";
+        echo "<p><strong>Nombre temporal con el que se guarda: </strong>".$_FILES["archivo"]["tmp_name"]."</p>";
+        echo "<p><img src='images/".$nombreNuevo."' alt='Foto' title='Foto'></img>";
+    }else{
+        echo "No se ha podido mover la imagen a la carpeta destino del servidor";
+    }
+   
+
+
+    ?>
+</body>
+</html>
+
+
+
+<?php
 } else {
     ?>
 

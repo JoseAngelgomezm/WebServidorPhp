@@ -15,9 +15,8 @@
         <p>
             <label for="nombre">Nombre</label>
             <br />
-            <input type="text" id="nombre" name="nombre"
-                value="<?php if (isset($_POST["nombre"]))
-                    echo $_POST["nombre"]; ?>"></input>
+            <input type="text" id="nombre" name="nombre" value="<?php if (isset($_POST["nombre"]))
+                echo $_POST["nombre"]; ?>"></input>
             <?php
             if (isset($_POST["guardar"]) && $error_nombre) {
                 echo "<span> campo vacio</span>";
@@ -30,14 +29,20 @@
         <p>
             <label for="apellidos">Apellidos</label>
             <br />
-            <input type="text" id="apellidos" size="50" name="apellidos"
-                value="<?php if (isset($_POST["apellidos"]))
-                    echo $_POST["apellidos"]; ?>"></input>
+            <input type="text" id="apellidos" size="50" name="apellidos" value="<?php if (isset($_POST["apellidos"]))
+                echo $_POST["apellidos"]; ?>"></input>
             <?php
             if (isset($_POST["guardar"]) && $error_apellidos) {
                 echo "<span> campo vacio </span>";
             }
             ?>
+        </p>
+
+        <p>
+            <label for="dni">DNI</label>
+            <br/>
+            <input type="text" name="dni" id="dni" placeholder="12345678L"></input>
+            
         </p>
 
         <p>
@@ -54,13 +59,17 @@
         <p>
             <label for="sexo">Sexo</label>
             <br />
-            <input type="radio" <?php if (isset($_POST["sexo"]) && $_POST["sexo"] == "hombre") echo "checked"; ?> name="sexo" value="hombre"></input>
+            <input type="radio" <?php if (isset($_POST["sexo"]) && $_POST["sexo"] == "hombre")
+                echo "checked"; ?>
+                name="sexo" value="hombre"></input>
             <label for="hombre">Hombre</label>
-            <input type="radio" <?php if (isset($_POST["sexo"]) && $_POST["sexo"] == "mujer") echo "checked"; ?> name="sexo" value="mujer"></input>
+            <input type="radio" <?php if (isset($_POST["sexo"]) && $_POST["sexo"] == "mujer")
+                echo "checked"; ?>
+                name="sexo" value="mujer"></input>
             <label for="mujer">Mujer</label>
-            
+
             <?php
-            if (isset($_POST["guardar"]) && $error_sexo ) {
+            if (isset($_POST["guardar"]) && $error_sexo) {
                 echo "<span> campo vacio </span>";
             }
             ?>
@@ -70,22 +79,27 @@
         <p>
             <label for="image">incluir mi foto:</label>
             <input type="file" id="image" accept="image/*" name="image" src=""></input>
+
         </p>
 
         <p>
             <label for="provincia">Nacido en:</label>
             <select name="provincia" id="provincia">
-                <option value="malaga" <?php if(isset($_POST["guardar"]) && $_POST["provincia"] == "malaga") echo "selected";  if(!isset($_POST["guardar"])) echo "selected"; ?> >Malaga</option>
-                <option value="cadiz" <?php if(isset($_POST["guardar"]) && $_POST["provincia"] == "cadiz") echo "selected";?>>Cadiz</option>
-                <option value="almeria" <?php if(isset($_POST["guardar"])&& $_POST["provincia"] == "almeria") echo "selected";?>>Almeria</option>
+                <option value="malaga" <?php if (isset($_POST["guardar"]) && $_POST["provincia"] == "malaga")
+                    echo "selected";
+                if (!isset($_POST["guardar"]))
+                    echo "selected"; ?>>Malaga</option>
+                <option value="cadiz" <?php if (isset($_POST["guardar"]) && $_POST["provincia"] == "cadiz")
+                    echo "selected"; ?>>Cadiz</option>
+                <option value="almeria" <?php if (isset($_POST["guardar"]) && $_POST["provincia"] == "almeria")
+                    echo "selected"; ?>>Almeria</option>
             </select>
         </p>
 
         <p>
             <label for="comentarios">Comentarios:</label>
-            <textarea name="comentarios" id="comentarios" cols="50"
-                rows="10"><?php if (isset($_POST["comentarios"]))
-                    echo $_POST["comentarios"]; ?></textarea>
+            <textarea name="comentarios" id="comentarios" cols="50" rows="10"><?php if (isset($_POST["comentarios"]))
+                echo $_POST["comentarios"]; ?></textarea>
             <?php
             if (isset($_POST["guardar"]) && $error_comentario) {
                 echo "<span> campo vacio</span>";
