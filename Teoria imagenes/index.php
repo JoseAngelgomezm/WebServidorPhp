@@ -1,4 +1,5 @@
 <?php
+// control errores de imagen
 if (isset($_POST["enviar"])) {
     // cuando se sube una imagen se genera una variable llamada $_FILES
     // que contiene a su vez los arrays name, error, size, type, tmp_name                      // usado para saber si es un archivo de imagen o no, si no devuelve nada , no es una imagen
@@ -28,7 +29,7 @@ if (isset($_POST["enviar"]) && !$error_imagen_vacia) {
                 <?php
                 // si se ha ppulsado enviar y hay un error de imagen vacia
                 if (isset($_POST["enviar"]) && $error_imagen_vacia) {
-                    // si el nombre no está vacio
+                    // si el nombre no está vacio, existe una imagen
                     if ($_FILES["archivo"]["name"] != "") {
                         // avisar por los distintos errores
                         if ($_FILES["archivo"]["error"]) {
