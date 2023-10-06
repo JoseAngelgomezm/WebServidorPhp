@@ -9,7 +9,7 @@
 
 <body>
     <h1>Rellena tu CV</h1>
-    <!-- enctype para enviar archivos y el metodo post porque lleva archivos y contraseña -->
+    
     <form action="index.php" method="post" enctype="multipart/form-data">
 
         <p>
@@ -41,7 +41,7 @@
         <p>
             <label for="dni">DNI</label>
             <br/>
-            <input type="text" name="dni" id="dni" placeholder="12345678L" value="<?php if(isset($_POST["guardar"])) echo $_POST["dni"] ?>"></input>
+            <input type="text" name="dni" id="dni" placeholder="12345678L" value="<?php if(isset($_POST["dni"])) echo $_POST["dni"] ?>"></input>
             <?php
             if(isset($_POST["guardar"]) && $error_dni){
                 if($_POST["dni"] == ""){
