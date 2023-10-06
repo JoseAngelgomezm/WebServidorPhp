@@ -2,8 +2,8 @@
 if (isset($_POST["enviar"])) {
     $numeroIntroducido = trim($_POST["numeros"]);
     $error_numero_vacio = $numeroIntroducido == 0;
-    // obtener un array de numeros separados por espacio
-    $arrayNumero = explode(" ",$numeroIntroducido);
+    // obtener un array de numeros separados por espacio cambiandole las comas por puntos, porque is numeric si tiene coma no lo cuenta como numero
+    $arrayNumero = explode(" ",str_replace(",", ".", $numeroIntroducido));
     $error_no_numero = false;
     // recorrer el array
     for($i=0; $i< count($arrayNumero) ; $i++){
