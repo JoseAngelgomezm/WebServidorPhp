@@ -36,6 +36,23 @@
         // se le pasa una fecha y te da un string con los segundos que han pasado
         // hasta ese dia
         echo "<p>".strtotime("09/16/1998")."</p>";
+
+        // redondea hacia abajo
+        echo "<p>".floor(6.5)."</p>";
+        // redondea hacia arriba
+        echo "<p>".ceil(6.5)."</p>";
+
+        // imprime con 2 decimales el resultado de la multiplicacion
+        printf("<p>%.2f</p>", 5,66665*723423);
+
+        // con sprintf, podemos asignar el string que genera el printf a una variable
+        $resultado = sprintf("<p>%.2f</p>", 5,66665*723423);
+        echo $resultado;
+
+        // ejemplo, imprimir los numeros con 2 digitos, si le falta uno, lo rellena con 0
+        for($i = 1; $i<=20;$i++){
+            echo "<p>".sprintf("%02d",$i)."</p>";
+        }
         
     ?>
 </body>
