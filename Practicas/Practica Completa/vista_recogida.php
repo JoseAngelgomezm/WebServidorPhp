@@ -23,7 +23,7 @@
     echo "<p><strong>Clave: </strong>" . $_POST["contraseña"] . "</p>";
     echo "<p><strong>Nacido en: </strong>" . $_POST["provincia"] . "</p>";
     echo "<p><strong>Comentarios al respecto: </strong>" . $_POST["comentarios"] . "</p>";
-    
+
     // acceso a un radiobutton controlando que no se selecciona nada
     if (isset($_POST["sexo"])) {
         echo "<p><strong>Sexo: </strong>" . $_POST["sexo"] . "</p>";
@@ -40,29 +40,36 @@
 
     // si la imagen se ha seleccionado
     if ($_FILES["image"]["name"] != "") {
-        // obtener el nuevo nombre del archivo en md5
-        $nombreNuevo = md5(uniqid(uniqid(), true));
+        echo "<h3>Informacion de la imagen seleccionada</h3>";
         // obtener la extension, separamos con explode por punto el nombre de archivo
         $arrayNombre = explode(".", $_FILES["image"]["name"]);
         $ext = "";
-        if(count($arrayNombre) > 1){
-            $ext=".".end($arrayNombre);
+        if (count($arrayNombre) > 1) {
+            $ext = "." . end($arrayNombre);
         }
-        // mover el archivo 
-        move_uploaded_file($_FILES["image"]["tmp_name"], "images/".$nombreNuevo);
-        // mostrar los datos
-        echo "<p><strong>Nombre: </strong>" . $_FILES["image"]["name"] . "</p>";
-        echo "<p><strong>Tipo: </strong>" . $_FILES["image"]["type"] . "</p>";
-        echo "<p><strong>Error: </strong>" . $_FILES["image"]["error"] . "</p>";
-        echo "<p><strong>Tamaño: </strong>" . $_FILES["image"]["size"] . "</p>";
-        echo "<p><strong>ruta temporal: </strong>" . $_FILES["image"]["tmp_name"] . "</p>";
-        echo "<img src='images/".$nombreNuevo."'></img>";
+        // obtener el nuevo nombre del archivo en md5
+        $nombreNuevo = md5(uniqid(uniqid(), true)) . $ext;
+        // mover el archivo , controlando errores
+        @$var = move_uploaded_file($_FILES["image"]["tmp_name"], "images/" . $nombreNuevo);
+        // si no hay errores, mostrar los datos
+        if ($var) {
+            echo "<p><strong>Nombre: </strong>" . $_FILES["image"]["name"] . "</p>";
+            echo "<p><strong>Tipo: </strong>" . $_FILES["image"]["type"] . "</p>";
+            echo "<p><strong>Error: </strong>" . $_FILES["image"]["error"] . "</p>";
+            echo "<p><strong>Tamaño: </strong>" . $_FILES["image"]["size"] . "</p>";
+            echo "<p><strong>ruta temporal: </strong>" . $_FILES["image"]["tmp_name"] . "</p>";
+            echo "<img src='images/" . $nombreNuevo . "'></img>";
+            // si hay algun error, decir que no se ha podido mover la carpeta,
+            // se hace para no mostrar warning de permisos en ubuntu por ejemplo
+        } else {
+            echo "<p> No se ha podido mover la imagen a la carpeta destino</p>";
+        }
 
-    }else{ 
+    } else {
         echo "<p><strong>Imagen: </strong> no seleccionada</p>";
     }
 
-    
+
     ?>
 </body>
 

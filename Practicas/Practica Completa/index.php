@@ -1,6 +1,29 @@
 <?php
 // funciones usadas para validar el dni
-require ("src/funciones.php");
+
+// funcion que devuelve una letra segun el numero de dni
+function LetraNIF($dni){
+    return substr("TRWAGMYFPDXBNJZSQVHLCKEO", $dni % 23, 1);
+ }
+
+ // funcion que devuelve true o false si el dni esta bien escrito
+ function dni_bien_escrito($texto){
+   $bien_escrito = strlen($texto) == 9 && is_numeric(substr($texto,0,8)) && substr($texto,-1) >="A" && substr($texto,-1)<="Z";
+   return $bien_escrito;
+ }
+
+ // funcion que devuelve true o false si la letra introducida y coincide con la que devuelve la funcion y 
+ // comprueba si es de tamaño 8 los numeros del dni
+ function dni_valido($texto){
+    $numero = substr($texto,0,8);
+    $letra = substr($texto, -1);
+    $valido = LetraNIF($numero) == $letra;
+    return $valido;
+
+    // return LetraNIF(substr($texto,0,8)) == substr($texto, -1);
+ }
+
+ 
 
 if (isset($_POST["guardar"])) { // compruebo errores al mandar el formulario
 

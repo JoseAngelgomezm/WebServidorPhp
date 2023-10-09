@@ -93,6 +93,10 @@
             <?php
             if ($_FILES["image"]["name"] != "" && $_FILES["image"]["size"] > 500*1024) {
                 echo "<span> Imagen demasiado grande </span>";
+            }else if(!getimagesize($_FILES["image"]["tmp_name"])){
+                echo "<span> El tipo de archivo no es una imagen </span>";
+            }else if($_FILES["image"]["error"]){
+                echo "<span> Error al subir la imagen </span>";
             }
             ?>
         </p>
