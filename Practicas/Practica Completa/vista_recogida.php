@@ -58,6 +58,8 @@
         echo "<p><strong>ruta temporal: </strong>" . $_FILES["image"]["tmp_name"] . "</p>";
         echo "<img src='images/".$nombreNuevo."'></img>";
 
+    }else{ 
+        echo "<p><strong>Imagen: </strong> no seleccionada</p>";
     }
 
     

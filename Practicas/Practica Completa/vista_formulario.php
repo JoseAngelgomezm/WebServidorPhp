@@ -90,7 +90,11 @@
         <p>
             <label for="image">incluir mi foto:</label>
             <input type="file" id="image" accept="image/*" name="image" src=""></input>
-
+            <?php
+            if ($_FILES["image"]["name"] != "" && $_FILES["image"]["size"] > 500*1024) {
+                echo "<span> Imagen demasiado grande </span>";
+            }
+            ?>
         </p>
 
         <p>
