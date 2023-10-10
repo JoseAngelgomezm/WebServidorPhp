@@ -12,8 +12,10 @@ if(isset($_POST["calcular"])){
     $errorTamañoFecha1 = strlen($_POST["fecha1"] != 10);
     $errorTamañoFecha2 = strlen($_POST["fecha2"] != 10);
 
-    $errorSeparadorFecha1 = substr($_POST["fecha1"],2,1) != "/" || $errorSeparadorFecha1 = substr($_POST["fecha1"],5,1) != "/";
-    $errorSeparadorFecha2 = substr($_POST["fecha2"],2,1) != "/" || $errorSeparadorFecha2 = substr($_POST["fecha2"],5,1) != "/";
+    $errorSeparadorFecha1 = substr($_POST["fecha1"],2,1) != "/" && $errorSeparadorFecha1 = substr($_POST["fecha1"],5,1) != "/";
+    $errorSeparadorFecha2 = substr($_POST["fecha2"],2,1) != "/" && $errorSeparadorFecha2 = substr($_POST["fecha2"],5,1) != "/";
+
+    $errorFormatoFecha1 = is_numeric(substr($_POST["fecha1"],0,2)) && is_numeric(substr($_POST["fecha1"],0,2)) && is_numeric(substr($_POST["fecha1"],0,2));
 
     $errorFecha1 = $errorFecha1Vacia || $errorTamañoFecha1 || $errorSeparadorFecha1;
     $errorFecha2 = $errorFecha2Vacia || $errorTamañoFecha2 || $errorSeparadorFecha2;
