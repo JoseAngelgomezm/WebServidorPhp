@@ -1,24 +1,13 @@
 <?php
-// comprobar errores
+// comprobar errores de fechas
 if(isset($_POST["calcular"])){
-    // si en las fechas no hay tamaño 10
-    // si no son grupos de DD/MM/YYYY y no son numeros is_numeric(substr($_POST["fecha1"],2)
-    // si la fecha es valida
-    // si los separadores son los indicados
     // si el campo esta vacio
-    $errorFecha1Vacia = $_POST["fecha1"] == "";
-    $errorFecha2Vacia = $_POST["fecha2"] == "";
-
-    $errorTamañoFecha1 = strlen($_POST["fecha1"] != 10);
-    $errorTamañoFecha2 = strlen($_POST["fecha2"] != 10);
-
-    $errorSeparadorFecha1 = substr($_POST["fecha1"],2,1) != "/" && $errorSeparadorFecha1 = substr($_POST["fecha1"],5,1) != "/";
-    $errorSeparadorFecha2 = substr($_POST["fecha2"],2,1) != "/" && $errorSeparadorFecha2 = substr($_POST["fecha2"],5,1) != "/";
-
-    $errorFormatoFecha1 = is_numeric(substr($_POST["fecha1"],0,2)) && is_numeric(substr($_POST["fecha1"],0,2)) && is_numeric(substr($_POST["fecha1"],0,2));
-
-    $errorFecha1 = $errorFecha1Vacia || $errorTamañoFecha1 || $errorSeparadorFecha1;
-    $errorFecha2 = $errorFecha2Vacia || $errorTamañoFecha2 || $errorSeparadorFecha2;
+    // si en las fechas no hay tamaño 10
+    // si no son grupos de DD/MM/YYYY , 2 2 y 4 digitos y no son numeros is_numeric(substr($_POST["fecha1"],2)
+    // si los separadores son los indicados
+    // si la fecha es valida
+    $errorFecha1 = $_POST["fecha1"] == "" || strlen($_POST["fecha1"]) != 10 || substr($_POST["fecha1"],2,1) != '/' || substr($_POST["fecha1"],5,1) != '/' || !is_numeric(substr($_POST["fecha1"],0,2)) || !is_numeric(substr($_POST["fecha1"],3,2)) || !is_numeric(substr($_POST["fecha1"],6,4)) || !checkdate(substr($_POST["fecha1"],3,2),substr($_POST["fecha1"],0,2),substr($_POST["fecha1"],6,4));
+    $errorFecha2 = $_POST["fecha2"] == "" || strlen($_POST["fecha2"]) != 10 || substr($_POST["fecha2"],2,1) != '/' || substr($_POST["fecha2"],5,1) != '/' || !is_numeric(substr($_POST["fecha2"],0,2)) || !is_numeric(substr($_POST["fecha2"],3,2)) || !is_numeric(substr($_POST["fecha2"],6,4)) || !checkdate(substr($_POST["fecha2"],3,2),substr($_POST["fecha2"],0,2),substr($_POST["fecha2"],6,4));
     
     $error_formulario = $errorFecha1 || $errorFecha2;
 }
@@ -54,10 +43,28 @@ if(isset($_POST["calcular"])){
         </form>
     </div>
     <?php
+      
         
         if(isset($_POST["calcular"]) && !$error_formulario ){
+            // pasar las fechas a segundos desde la fecha que toma el sistema hasta hoy, dividirla en 86400 para saber los dias y redondearla hacia arriba
+            $segundosFecha1= ceil(mktime(1,0,0,substr($_POST["fecha1"],3,2),substr($_POST["fecha1"],0,2),substr($_POST["fecha1"],6,4)) / 86400);
+            $segundosFecha2= ceil(mktime(1,0,0,substr($_POST["fecha2"],3,2),substr($_POST["fecha2"],0,2),substr($_POST["fecha2"],6,4)) / 86400);
+            $resultado = 0;
+
+            // si la fecha 1 es mas grande que la fecha 2, restarle la 2 a la 1
+            if($segundosFecha1 > $segundosFecha2){
+                $resultado = ($segundosFecha1 - $segundosFecha2);
+            // sino hacerlo alreves
+            }else{
+                $resultado = ($segundosFecha2 - $segundosFecha1);
+            }
+
+            // mostrar el div con los datos de resultado
+            echo "<div id='respuesta'>";
             echo "<p>Entre las fechas ".$_POST['fecha1']." y ".$_POST['fecha2']." hay comprendidos ".$resultado." días</p>";
+            echo "</div>";
         }
+      
     ?>
 
     <style>
