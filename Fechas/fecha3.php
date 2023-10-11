@@ -42,15 +42,13 @@ if (isset($_POST["calcular"])) {
     <?php
     if (isset($_POST["calcular"]) && !$errorFormulario) {
         // pasar a segundos las 2 fechas
-        $segundosFecha1 = floor(mktime(0, 0, 0, substr($_POST["fecha1"],3,2),substr($_POST["fecha1"],0,2),substr($_POST["fecha1"],6,4)));
-        $segundosFecha2 = floor(mktime(0, 0, 0, substr($_POST["fecha2"],3,2),substr($_POST["fecha2"],0,2),substr($_POST["fecha2"],6,4)));
-
+        $segundosFecha1 = floor(mktime(0, 0, 0, (int)substr($_POST["fecha1"],5,2),(int)substr($_POST["fecha1"],8,2),(int)substr($_POST["fecha1"],1,4)));
+        $segundosFecha2 = floor(mktime(0, 0, 0, (int)substr($_POST["fecha2"],5,2),(int)substr($_POST["fecha2"],8,2),(int)substr($_POST["fecha2"],1,4)));
+        
+        $resultado = abs($segundosFecha1 - $segundosFecha2) / (86400);
         echo "<div id='respuesta'>";
-        if($segundosFecha1> $segundosFecha2){
-            $resultado = ($segundosFecha1 - $segundosFecha2) / 86400;
-        }else{
-            $resultado = ($segundosFecha2 - $segundosFecha1) / 86400;
-        }
+        echo "<h1>Respuesta - Fechas</h1>";
+        echo "Entre ".$_POST['fecha1']." y ".$_POST['fecha2']." han pasado ".$resultado." días";
         echo "</div>";
     }
     ?>
