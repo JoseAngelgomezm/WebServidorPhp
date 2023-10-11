@@ -6,8 +6,20 @@ if(isset($_POST["calcular"])){
     // si no son grupos de DD/MM/YYYY , 2 2 y 4 digitos y no son numeros is_numeric(substr($_POST["fecha1"],2)
     // si los separadores son los indicados
     // si la fecha es valida
-    $errorFecha1 = $_POST["fecha1"] == "" || strlen($_POST["fecha1"]) != 10 || substr($_POST["fecha1"],2,1) != '/' || substr($_POST["fecha1"],5,1) != '/' || !is_numeric(substr($_POST["fecha1"],0,2)) || !is_numeric(substr($_POST["fecha1"],3,2)) || !is_numeric(substr($_POST["fecha1"],6,4)) || !checkdate(substr($_POST["fecha1"],3,2),substr($_POST["fecha1"],0,2),substr($_POST["fecha1"],6,4));
-    $errorFecha2 = $_POST["fecha2"] == "" || strlen($_POST["fecha2"]) != 10 || substr($_POST["fecha2"],2,1) != '/' || substr($_POST["fecha2"],5,1) != '/' || !is_numeric(substr($_POST["fecha2"],0,2)) || !is_numeric(substr($_POST["fecha2"],3,2)) || !is_numeric(substr($_POST["fecha2"],6,4)) || !checkdate(substr($_POST["fecha2"],3,2),substr($_POST["fecha2"],0,2),substr($_POST["fecha2"],6,4));
+    function comprobarSeparadores($texto){
+        return substr($texto,2,1) != '/' || substr($texto,5,1) != '/';
+    }
+
+    function comprobarGrupoNumeros($texto){
+        return !is_numeric(substr($texto,0,2)) || !is_numeric(substr($texto,3,2)) || !is_numeric(substr($texto,6,4));
+    }
+
+    function fechaExistente ($texto){
+        return !checkdate(substr($texto["fecha1"],3,2),substr($texto,0,2),substr($texto,6,4));
+    }
+
+    $errorFecha1 = $_POST["fecha1"] == "" || strlen($_POST["fecha1"]) != 10 || comprobarSeparadores($_POST["fecha1"]) || comprobarGrupoNumeros($_POST["fecha1"]) || fechaExistente($_POST["fecha1"]);
+    $errorFecha2 = $_POST["fecha2"] == "" || strlen($_POST["fecha2"]) != 10 || comprobarSeparadores($_POST["fecha2"]) || comprobarGrupoNumeros($_POST["fecha2"]) || fechaExistente($_POST["fecha2"]);
     
     $error_formulario = $errorFecha1 || $errorFecha2;
 }
