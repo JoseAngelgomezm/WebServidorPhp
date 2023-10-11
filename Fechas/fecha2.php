@@ -26,24 +26,27 @@ if (isset($_POST["calcular"])) {
             <select name="dia1" id="dia1">
                 <?php
                 for ($i = 1; $i < 32; $i++) {
-                    echo "<option value=" . $i . ">" . $i . "</option>";
+                    if(isset($_POST["calcular"]) && $_POST["dia1"] == $i){
+                        echo "<option selected value=" . $i . ">" . $i . "</option>";
+                    }else{
+                        echo "<option value=" . $i . ">" . $i . "</option>";
+                    }
+                    
                 }
                 ?>
             </select>
             <label for="mes1">Mes1:</label>
             <select name="mes1" id="mes1">
-                <option value="1">Enero</option>
-                <option value="2">Febrero</option>
-                <option value="3">Marzo</option>
-                <option value="4">Abril</option>
-                <option value="5">Mayo</option>
-                <option value="6">Junio</option>
-                <option value="7">Julio</option>
-                <option value="8">Agosto</option>
-                <option value="9">Semptiembre</option>
-                <option value="10">Octubre</option>
-                <option value="11">Noviembre</option>
-                <option value="12">Diciembre</option>
+                <?php
+                $meses = ["1" => "Enero" , "2" =>"Febrero", "3" => "Marzo", "4" => "Abril", "5" => "Mayo", "6" => "Junio", "7" => "Julio", "8" => "Agosto", "9" => "Septiembre", "10" => "Octubre", "11" => "Noviembre", "12" => "Diciembre" ];
+                foreach($meses as $indice => $mes){
+                    if(isset($_POST["calcular"]) && $_POST["mes1"] == $indice){
+                        echo "<option selected value=". $_POST["mes1"] . ">" . $mes . "</option>";
+                    }else{
+                        echo "<option value=". $indice . ">" . $mes . "</option>";
+                    }
+                }
+                ?>
             </select>
             <label for="año1">Año1:</label>
             <select name="año1" id="año1">
@@ -53,7 +56,12 @@ if (isset($_POST["calcular"])) {
                 $añoActual = substr(date('d/m/YYYY'), 6, 4);
                 echo $añoActual;
                 for ($i = 1923; $i < $añoActual + 1; $i++) {
-                    echo "<option value=" . $i . ">" . $i . "</option>";
+                    if(isset($_POST["calcular"]) && $_POST["año1"] == $i){
+                        echo "<option selected value=" . $i . ">" . $i . "</option>";
+                    }else{
+                        echo "<option value=" . $i . ">" . $i . "</option>";
+                    }
+                    
                 }
                 ?>
             </select>
@@ -68,26 +76,30 @@ if (isset($_POST["calcular"])) {
             <p>Introduce otra fecha:</p>
             <label for="dia2">Día2:</label>
             <select name="dia2" id="dia2">
-                <?php
+            <?php
                 for ($i = 1; $i < 32; $i++) {
-                    echo "<option value=" . $i . ">" . $i . "</option>";
+                    if(isset($_POST["calcular"]) && $_POST["dia2"] == $i){
+                        echo "<option selected value=" . $i . ">" . $i . "</option>";
+                    }else{
+                        echo "<option value=" . $i . ">" . $i . "</option>";
+                    }
+                    
                 }
+                ?>
                 ?>
             </select>
             <label for="mes2">Mes2:</label>
             <select name="mes2" id="mes2">
-                <option value="1">Enero</option>
-                <option value="2">Febrero</option>
-                <option value="3">Marzo</option>
-                <option value="4">Abril</option>
-                <option value="5">Mayo</option>
-                <option value="6">Junio</option>
-                <option value="7">Julio</option>
-                <option value="8">Agosto</option>
-                <option value="9">Semptiembre</option>
-                <option value="10">Octubre</option>
-                <option value="11">Noviembre</option>
-                <option value="12">Diciembre</option>
+            <?php
+                $meses = ["1" => "Enero" , "2" =>"Febrero", "3" => "Marzo", "4" => "Abril", "5" => "Mayo", "6" => "Junio", "7" => "Julio", "8" => "Agosto", "9" => "Septiembre", "10" => "Octubre", "11" => "Noviembre", "12" => "Diciembre" ];
+                foreach($meses as $indice => $mes){
+                    if(isset($_POST["calcular"]) && $_POST["mes2"] == $indice){
+                        echo "<option selected value=". $_POST["mes2"] . ">" . $mes . "</option>";
+                    }else{
+                        echo "<option value=". $indice . ">" . $mes . "</option>";
+                    }
+                }
+                ?>
             </select>
             <label for="año2">Año2:</label>
             <select name="año2" id="año2">
@@ -97,7 +109,12 @@ if (isset($_POST["calcular"])) {
                 $añoActual = substr(date('d/m/YYYY'), 6, 4);
                 echo $añoActual;
                 for ($i = 1923; $i < $añoActual + 1; $i++) {
-                    echo "<option value=" . $i . ">" . $i . "</option>";
+                    if(isset($_POST["calcular"]) && $_POST["año2"] == $i){
+                        echo "<option selected value=" . $i . ">" . $i . "</option>";
+                    }else{
+                        echo "<option value=" . $i . ">" . $i . "</option>";
+                    }
+                   
                 }
                 ?>
             </select>
@@ -115,12 +132,12 @@ if (isset($_POST["calcular"])) {
     <?php
     if (isset($_POST["calcular"]) && !$errorFecha1 && !$errorFecha2) {
         // pasar las fechas a segundos desde la fecha que toma el sistema hasta hoy, dividirla en 86400 para saber los dias y redondearla hacia arriba
-        $segundosFecha1 = floor(mktime(1, 0, 0, (int)$_POST["mes1"], (int)$_POST["dia1"], (int)$_POST["año1"]) / 86400);
-        $segundosFecha2 = floor(mktime(1, 0, 0, (int)$_POST["mes2"], (int)$_POST["dia2"], (int)$_POST["año2"]) / 86400);
+        $segundosFecha1 = floor(mktime(1, 0, 0, (int) $_POST["mes1"], (int) $_POST["dia1"], (int) $_POST["año1"]) / 86400);
+        $segundosFecha2 = floor(mktime(1, 0, 0, (int) $_POST["mes2"], (int) $_POST["dia2"], (int) $_POST["año2"]) / 86400);
         $resultado = 0;
         // concatenar las fechas en una variable para usarlas al mostrar resultados
-        $fecha1 = $_POST['mes1']."/".$_POST['dia1']."/".$_POST['año1'];
-        $fecha2 = $_POST['mes2']."/".$_POST['dia2']."/".$_POST['año2'];
+        $fecha1 = $_POST['mes1'] . "/" . $_POST['dia1'] . "/" . $_POST['año1'];
+        $fecha2 = $_POST['mes2'] . "/" . $_POST['dia2'] . "/" . $_POST['año2'];
         // si la fecha 1 es mas grande que la fecha 2, restarle la 2 a la 1
         if ($segundosFecha1 > $segundosFecha2) {
             $resultado = ($segundosFecha1 - $segundosFecha2);
@@ -133,6 +150,8 @@ if (isset($_POST["calcular"])) {
         echo "<div id='respuesta'>";
         echo "<p>Entre las fechas " . $fecha1 . " y " . $fecha2 . " hay comprendidos " . $resultado . " días</p>";
         echo "</div>";
+
+        
     }
     ?>
 
