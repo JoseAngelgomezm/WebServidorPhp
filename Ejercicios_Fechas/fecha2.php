@@ -136,8 +136,8 @@ if (isset($_POST["calcular"])) {
         $segundosFecha2 = floor(mktime(1, 0, 0, (int) $_POST["mes2"], (int) $_POST["dia2"], (int) $_POST["año2"]) / 86400);
         $resultado = 0;
         // concatenar las fechas en una variable para usarlas al mostrar resultados
-        $fecha1 = $_POST['mes1'] . "/" . $_POST['dia1'] . "/" . $_POST['año1'];
-        $fecha2 = $_POST['mes2'] . "/" . $_POST['dia2'] . "/" . $_POST['año2'];
+        $fecha1 = $_POST['dia1'] . "/" . $_POST['mes1'] . "/" . $_POST['año1'];
+        $fecha2 = $_POST['dia2'] . "/" . $_POST['mes2'] . "/" . $_POST['año2'];
         // si la fecha 1 es mas grande que la fecha 2, restarle la 2 a la 1
         if ($segundosFecha1 > $segundosFecha2) {
             $resultado = ($segundosFecha1 - $segundosFecha2);
