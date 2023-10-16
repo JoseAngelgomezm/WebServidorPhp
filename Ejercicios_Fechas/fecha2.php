@@ -67,7 +67,7 @@ if (isset($_POST["calcular"])) {
             </select>
             <?php
             // si la fecha no existe avisar
-            if (isset($_POST["calcular"]) && $errorFecha2) {
+            if (isset($_POST["calcular"]) && $errorFecha1) {
                 echo "fecha no existe";
             }
             ?>
