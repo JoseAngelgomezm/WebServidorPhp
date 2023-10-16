@@ -1,0 +1,4 @@
+esto es la primera linea de un fichero txt
+esta es la segunda
+y esta la tercera
+ahora viene la ultima
