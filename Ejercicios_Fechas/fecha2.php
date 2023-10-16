@@ -55,7 +55,7 @@ if (isset($_POST["calcular"])) {
                 // sacar la fecha actual y quedarnos con el año
                 $añoActual = substr(date('d/m/YYYY'), 6, 4);
                 echo $añoActual;
-                for ($i = 1923; $i < $añoActual + 1; $i++) {
+                for ($i = $añoActual; $i > $añoActual - 101; $i--) {
                     if(isset($_POST["calcular"]) && $_POST["año1"] == $i){
                         echo "<option selected value=" . $i . ">" . $i . "</option>";
                     }else{
@@ -108,7 +108,7 @@ if (isset($_POST["calcular"])) {
                 // sacar la fecha actual y quedarnos con el año
                 $añoActual = substr(date('d/m/YYYY'), 6, 4);
                 echo $añoActual;
-                for ($i = 1923; $i < $añoActual + 1; $i++) {
+                for ($i = $añoActual; $i > $añoActual - 101; $i--) {
                     if(isset($_POST["calcular"]) && $_POST["año2"] == $i){
                         echo "<option selected value=" . $i . ">" . $i . "</option>";
                     }else{
