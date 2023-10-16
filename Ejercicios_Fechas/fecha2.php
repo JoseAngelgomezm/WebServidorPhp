@@ -2,8 +2,8 @@
 // comprobar errores
 if (isset($_POST["calcular"])) {
     // si la fecha no existe , es un error
-    $errorFecha1 = !checkdate((int) $_POST["mes1"], (int) $_POST["dia1"], (int) $_POST["año1"]);
-    $errorFecha2 = !checkdate((int) $_POST["mes2"], (int) $_POST["dia2"], (int) $_POST["año2"]);
+    $errorFecha1 = !checkdate($_POST["mes1"], $_POST["dia1"], $_POST["año1"]);
+    $errorFecha2 = !checkdate($_POST["mes2"], $_POST["dia2"], $_POST["año2"]);
 }
 ?>
 
@@ -132,8 +132,8 @@ if (isset($_POST["calcular"])) {
     <?php
     if (isset($_POST["calcular"]) && !$errorFecha1 && !$errorFecha2) {
         // pasar las fechas a segundos desde la fecha que toma el sistema hasta hoy, dividirla en 86400 para saber los dias y redondearla hacia arriba
-        $segundosFecha1 = floor(mktime(1, 0, 0, (int) $_POST["mes1"], (int) $_POST["dia1"], (int) $_POST["año1"]) / 86400);
-        $segundosFecha2 = floor(mktime(1, 0, 0, (int) $_POST["mes2"], (int) $_POST["dia2"], (int) $_POST["año2"]) / 86400);
+        $segundosFecha1 = floor(mktime(1, 0, 0, $_POST["mes1"], $_POST["dia1"], $_POST["año1"]) / 86400);
+        $segundosFecha2 = floor(mktime(1, 0, 0, $_POST["mes2"], $_POST["dia2"], $_POST["año2"]) / 86400);
         $resultado = 0;
         // concatenar las fechas en una variable para usarlas al mostrar resultados
         $fecha1 = $_POST['dia1'] . "/" . $_POST['mes1'] . "/" . $_POST['año1'];
