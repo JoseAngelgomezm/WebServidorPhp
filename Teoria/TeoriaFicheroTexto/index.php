@@ -57,6 +57,8 @@
         echo "<h1> Ahora se abrira </h1>";
         // para escribir usar fwrite
         fwrite($fd2,"Intento de escribir");
+        // cuando se escribe el puntero, se va al final, hay que volver al principio para mostrar
+        fseek($fd2,0);
         while($linea=fgets($fd2)){
             echo "<p>$linea</p>";
         }
