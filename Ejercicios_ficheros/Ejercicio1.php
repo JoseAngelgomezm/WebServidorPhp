@@ -20,7 +20,7 @@ if (isset($_POST["guardar"])) {
 <body>
     <h1>Ejercicio1 - Ficheros</h1>
     <form action="index.php" method="post">
-        <label for="numero">Introduce un numero</label>
+        <label for="numero">Introduce un numero entre 1 y 10</label>
         <input type="text" name="numero" id="numero" value="<?php if (isset($_POST["guardar"]))
             echo $_POST["numero"] ?>"></input>
             <br>
