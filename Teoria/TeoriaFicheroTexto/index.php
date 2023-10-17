@@ -66,6 +66,11 @@
 
     fclose($fd2); // siempre hay que cerrar el fichero al terminar
 
+    // hay una funcion que puede leer un fichero completo
+    $contenidoEntero = file_get_contents("ficheros/prueba.txt");
+    // mostrar contenido con saltos de linea
+    // echo "<pre>".$contenidoEntero."</pre>";
+    echo nl2br($contenidoEntero)
 
     ?>
 </body>
