@@ -1,6 +1,4 @@
 <?php
-
-
 // control errores
 if (isset($_POST["validar"])) {
 

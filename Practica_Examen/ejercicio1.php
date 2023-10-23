@@ -1,3 +1,15 @@
+<?php
+function myStrlen($texto){
+    $numeroCaracteres = 0;
+    $i = 0;
+    while(isset($texto[$i])) {
+        $numeroCaracteres++;
+        $i++;
+    }
+    return $numeroCaracteres;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,14 +28,7 @@
     </form>
     <?php
     if(isset($_POST["calcular"])) {
-        $cadena = $_POST["texto"];
-        $numeroCaracteres = 0;
-        $i = 0;
-        while(isset($cadena[$i])) {
-            $numeroCaracteres++;
-            $i++;
-        }
-
+        $numeroCaracteres = myStrlen($_POST["texto"]);
         echo "la cadena contiene: ".$numeroCaracteres;
     }
     ?>
