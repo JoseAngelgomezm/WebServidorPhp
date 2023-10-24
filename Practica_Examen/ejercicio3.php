@@ -3,26 +3,74 @@ if (isset($_POST["contar"])) {
     $errorTexto = trim($_POST["texto"] == "");
 }
 
+function myStrlen($texto)
+{
+    $numeroCaracteres = 0;
+    $i = 0;
+    while (isset($texto[$i])) {
+        $numeroCaracteres++;
+        $i++;
+    }
+    return $numeroCaracteres;
+}
+
 function myExplode($texto, $separador)
 {
-    $textosinEspacios = trim($texto);
-    $nLetra = 0;
     $contadorPalabra = 0;
     $arrayPalabras = [""];
-    while (isset($textosinEspacios[$nLetra])) {
+    $nLetra = 0;
+    while (isset($texto[$nLetra]) && $texto[$nLetra] == $separador) {
+        $nLetra++;
+    }
+
+    while (isset($texto[$nLetra])) {
         // si la posicion de la palabra no es el separador
-        if ($separador != $textosinEspacios[$nLetra]) {
+        if ($separador != $texto[$nLetra]) {
             // ir quedandonos con las letras de la palabra y añadiendola al array
-            $arrayPalabras[$contadorPalabra] = $arrayPalabras[$contadorPalabra] . $textosinEspacios[$nLetra];
+            $arrayPalabras[$contadorPalabra] = $arrayPalabras[$contadorPalabra] . $texto[$nLetra];
+        }
+        // si por medio se encuentra separadores unidos, saltarlos 
+        elseif ($separador == $texto[$nLetra] && isset($texto[$nLetra])) {
+            $nLetra++;
         }
         // si encontramos un separador, aumentar en 1 la posicion en la que concatenamos las letras
-        else if ($separador == $textosinEspacios[$nLetra]) {
-            $contadorPalabra ++;
+        else if ($separador == $texto[$nLetra]) {
+            $contadorPalabra++;
             $arrayPalabras[$contadorPalabra] = "";
         }
         $nLetra++;
     }
     return $arrayPalabras;
+}
+
+function explodeClase($texto, $separador)
+{
+    $arrayPalabras = [];
+    $longitudTexto = myStrlen($texto);
+    $i = 0;
+    while ($i < $longitudTexto && $texto[$i] == $separador) {
+        $i++;
+    }
+
+    if ($i < $longitudTexto) {
+        $j = 0;
+
+        for ($k = $i; $k < $longitudTexto; $k++) {
+            if ($texto[$k] != $separador) {
+                $arrayPalabras[$j] .= $texto[$k];
+
+            } else {
+                while ($k < $longitudTexto && $texto[$k] == $separador) { {
+                        $k++;
+                    }
+                    if ($k > $longitudTexto && $texto[$k] != $separador) {
+                        $arrayPalabras[$j] .= $texto[$k];
+                    }
+                    $j++;
+                }
+            }
+        }
+    }
 }
 ?>
 
@@ -69,10 +117,12 @@ function myExplode($texto, $separador)
     <?php
     if (isset($_POST["contar"]) && !$errorTexto) {
         $arrayPalabras = myExplode($_POST["texto"], $_POST["separador"]);
-        for ($i = 0; $i < count($arrayPalabras); $i++) {
-            echo $arrayPalabras[$i]." ";
-        }
+
         echo "El texto contiene " . count($arrayPalabras) . " palabras";
+
+        for ($i = 0; $i < count($arrayPalabras); $i++) {
+            echo "<p>" . $arrayPalabras[$i] . "</p>";
+        }
     }
     ?>
 </body>

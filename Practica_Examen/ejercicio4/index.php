@@ -4,5 +4,4 @@ if(file_exists("../Ficheros/horarios.txt")){
 }else{
     require "vistaNoExiste.php";
 }
-
 ?>
