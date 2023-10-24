@@ -1,7 +1,7 @@
 <?php
 // control errores
 if (isset($_POST["subir"])) {
-    $errorFichero = $_FILES["fichero"]["name"] == "" || $_FILES["fichero"]["type"] != "text/plain" || $_FILES["fichero"]["size"] > 4000 || $_FILES["fichero"]["error"];
+    $errorFichero = $_FILES["fichero"]["name"] == "" || $_FILES["fichero"]["type"] != "text/plain" || $_FILES["fichero"]["size"] > 1000000 || $_FILES["fichero"]["error"];
 }
 ?>
 <!DOCTYPE html>
@@ -22,14 +22,16 @@ if (isset($_POST["subir"])) {
     ?>
     <form action="#" method="post" enctype="multipart/form-data">
         <p>
-            <label for="file">Seleccione un archivo txt no superior a 4MB:</label>
+            <label for="file">Seleccione un archivo txt no superior a 1MB:</label>
             <input type="file" name="fichero" id="fichero"></input>
             <?php
             if (isset($_POST["subir"]) && $errorFichero) {
                 if ($_FILES["fichero"]["type"] != "") {
-                    if ($_FILES["fichero"]["type"] != "text/plain") {
+                    if($_FILES["fichero"]["name"] != "horarios.txt"){
+                        echo "<span class='error'>el fichero no tiene el nombre correcto</span>";
+                    }else if($_FILES["fichero"]["type"] != "text/plain") {
                         echo "<span class='error'>el fichero no es de texto</span>";
-                    } else if ($_FILES["fichero"]["size"] > 4000) {
+                    } else if ($_FILES["fichero"]["size"] > 1000) {
                         echo "<span class='error'>el fichero supera el tamaño de 1MB</span>";
                     } else if ($_FILES["fichero"]["error"]) {
                         echo "<span class='error'>el fichero no ha podido subirse</span>";

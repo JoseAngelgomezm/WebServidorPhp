@@ -29,10 +29,6 @@ function myExplode($texto, $separador)
             // ir quedandonos con las letras de la palabra y añadiendola al array
             $arrayPalabras[$contadorPalabra] = $arrayPalabras[$contadorPalabra] . $texto[$nLetra];
         }
-        // si por medio se encuentra separadores unidos, saltarlos 
-        elseif ($separador == $texto[$nLetra] && isset($texto[$nLetra])) {
-            $nLetra++;
-        }
         // si encontramos un separador, aumentar en 1 la posicion en la que concatenamos las letras
         else if ($separador == $texto[$nLetra]) {
             $contadorPalabra++;

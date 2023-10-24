@@ -1,18 +1,21 @@
 <?php
 function myExplode($texto, $separador)
 {
-    $textosinEspacios = trim($texto);
-    $nLetra = 0;
     $contadorPalabra = 0;
     $arrayPalabras = [""];
-    while (isset($textosinEspacios[$nLetra])) {
+    $nLetra = 0;
+    while (isset($texto[$nLetra]) && $texto[$nLetra] == $separador) {
+        $nLetra++;
+    }
+
+    while (isset($texto[$nLetra])) {
         // si la posicion de la palabra no es el separador
-        if ($separador != $textosinEspacios[$nLetra]) {
+        if ($separador != $texto[$nLetra]) {
             // ir quedandonos con las letras de la palabra y añadiendola al array
-            $arrayPalabras[$contadorPalabra] = $arrayPalabras[$contadorPalabra] . $textosinEspacios[$nLetra];
+            $arrayPalabras[$contadorPalabra] = $arrayPalabras[$contadorPalabra] . $texto[$nLetra];
         }
         // si encontramos un separador, aumentar en 1 la posicion en la que concatenamos las letras
-        else if ($separador == $textosinEspacios[$nLetra]) {
+        else if ($separador == $texto[$nLetra]) {
             $contadorPalabra++;
             $arrayPalabras[$contadorPalabra] = "";
         }
@@ -73,11 +76,14 @@ fclose($fd);
     <?php
     if (isset($_POST["ver"])) {
         $posicion = $_POST["profesor"];
-        $arrayHorariodividido = myExplode($arrayHorario[$posicion],"\t") ;
-        for($i = 1; $i< count($arrayHorariodividido); $i++) {
-            echo $arrayHorariodividido[$i]."<br>";
+        $arrayHorarioDividido = myExplode($arrayHorario[$posicion],"\t") ;
+        for($i = 1; $i< count($arrayHorarioDividido); $i++) {
+            echo $arrayHorarioDividido[$i]."<br>";
         }
+
         
+
+        echo "<h3 class='centrador'>Horario del profesor".$arrayNombres[$_POST["profesor"]]."</h3>";
         echo "<table border='1px'>";
             echo "<tr>";
                 echo "<th></th>";

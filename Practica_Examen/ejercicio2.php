@@ -1,7 +1,7 @@
 <?php
 // control errores
 if (isset($_POST["subir"])) {
-    $errorFichero = $_FILES["fichero"]["name"] == "" || $_FILES["fichero"]["type"] != "text/plain" || $_FILES["fichero"]["size"] > 1000 || $_FILES["fichero"]["error"];
+    $errorFichero = $_FILES["fichero"]["name"] == "" || $_FILES["fichero"]["type"] != "text/plain" || $_FILES["fichero"]["size"] > 1000000 || $_FILES["fichero"]["error"];
 }
 ?>
 
