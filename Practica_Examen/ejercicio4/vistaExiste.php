@@ -76,14 +76,27 @@ fclose($fd);
     <?php
     if (isset($_POST["ver"])) {
         $posicion = $_POST["profesor"];
-        $arrayHorarioDividido = myExplode($arrayHorario[$posicion],"\t") ;
-        for($i = 1; $i< count($arrayHorarioDividido); $i++) {
-            echo $arrayHorarioDividido[$i]."<br>";
+        $arrayHorarioDividido = myExplode($arrayHorario[$posicion], "\t");
+        for($i = 1 ; $i<count($arrayHorarioDividido); $i+=3) {
+            if(isset($arrayHorarioFinal[$arrayHorarioDividido[$i]][$arrayHorarioDividido[$i+1]])){
+                $arrayHorarioFinal[$arrayHorarioDividido[$i]][$arrayHorarioDividido[$i+1]] .="/".$arrayHorarioDividido[$i+2];
+            }else{
+                $arrayHorarioFinal[$arrayHorarioDividido[$i]][$arrayHorarioDividido[$i+1]] = $arrayHorarioDividido[$i+2];
+            }
+            
         }
-
         
+        
+        echo "<h3 class='centrador'>Horario del profesor: " . $arrayNombres[$_POST["profesor"]] . "</h3>";
+        $horas[1] = "8:15 - 9:15";
+        $horas[] = "9:15 - 10:15";
+        $horas[] = "9:15 - 10:15";
+        $horas[] = "10:15 - 11:15";
+        $horas[] = "11:15 - 11:45";
+        $horas[] = "11:45 - 12:45";
+        $horas[] = "12:45 - 13:45";
+        $horas[] = "13:45 - 14:45";
 
-        echo "<h3 class='centrador'>Horario del profesor".$arrayNombres[$_POST["profesor"]]."</h3>";
         echo "<table border='1px'>";
             echo "<tr>";
                 echo "<th></th>";
@@ -93,69 +106,100 @@ fclose($fd);
                 echo "<th>Jueves</th>";
                 echo "<th>viernes</th>";
             echo "</tr>";
+            for($hora = 1;$hora<=7; $hora++){
+                echo "<tr>";
+                    echo "<th>".$horas[$hora]."</th>";
+                    if($hora == 4){
+                        echo "<td colspan=5>RECREO</td>";
+                    }else{
+                        for($dia = 1;$dia<=5; $dia++){
+                            if(isset($arrayHorarioFinal[$dia][$hora])){
+                                echo "<td>".$arrayHorarioFinal[$dia][$hora]."</td>";
+                            }else{
+                                echo "<td></td>";
+                            }
+                        
+                        }
+                    }
+                echo "</tr>";
+            }
+        echo "</table>";
 
-            echo "<tr>";
-                echo "<th>8:15 - 9:15</th>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-            echo "</tr>";
 
-            echo "<tr>";
-                echo "<th>9:15 - 10:15</th>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-            echo"</tr>";
 
-            echo "<tr>";
-                echo "<th>10:15 - 11:15</th>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-            echo"</tr>";
+        echo "<br>";
+        echo "<table border='1px'>";
+        echo "<tr>";
+        echo "<th></th>";
+        echo "<th>Lunes</th>";
+        echo "<th>Martes</th>";
+        echo "<th>Miercoles</th>";
+        echo "<th>Jueves</th>";
+        echo "<th>viernes</th>";
+        echo "</tr>";
 
-            echo "<tr>";
-                echo "<th>11:15 - 11:45</th>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-            echo"</tr>";
+        echo "<tr>";
+        echo "<th>8:15 - 9:15</th>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "</tr>";
 
-            echo "<tr>";
-                echo "<th>11:45 - 12:45</th>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-            echo"</tr>";
+        echo "<tr>";
+        echo "<th>9:15 - 10:15</th>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "</tr>";
 
-            echo "<tr>";
-                echo "<th>12:45 - 13:45</th>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-            echo"</tr>";
+        echo "<tr>";
+        echo "<th>10:15 - 11:15</th>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "</tr>";
 
-            echo "<tr>";
-                echo "<th>13:45 - 14:45</th>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-                echo "<td></td>";
-            echo"</tr>";
+        echo "<tr>";
+        echo "<th>11:15 - 11:45</th>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "</tr>";
+
+        echo "<tr>";
+        echo "<th>11:45 - 12:45</th>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "</tr>";
+
+        echo "<tr>";
+        echo "<th>12:45 - 13:45</th>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "</tr>";
+
+        echo "<tr>";
+        echo "<th>13:45 - 14:45</th>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "</tr>";
         echo "</table>";
     }
     ?>
