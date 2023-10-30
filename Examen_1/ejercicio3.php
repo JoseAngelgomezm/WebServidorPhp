@@ -1,4 +1,35 @@
 <?php
+function myExplode($texto, $separador)
+{
+    $arrayPalabras[] = "";
+    $longitudTexto = strlen($texto) -1;
+    $i = 0;
+    while ($i < $longitudTexto && $texto[$i] == $separador) {
+        $i++;
+    }
+
+    if ($i < $longitudTexto) {
+        $j = 0;
+        $arrayPalabras[$j] = $texto[$i];
+        for ($i = $i +1; $i < $longitudTexto; $i++) {
+            if ($texto[$i] != $separador) {
+                $arrayPalabras[$j] .= $texto[$i];
+            } else {
+                while ($i < $longitudTexto && $texto[$i] == $separador) {
+                        $i++;
+                }
+                if ($i < $longitudTexto) {
+                    $j++;
+                    $arrayPalabras[$j] = $texto[$i];
+                }
+            }
+        }
+    }
+
+    return $arrayPalabras;
+}
+
+
 // control de errores
 if (isset($_POST["codificar"])) {
     $errorTexto = $_POST["texto"] == "";
@@ -72,7 +103,7 @@ if (isset($_POST["codificar"])) {
             die("<span>El archivo no se ha podido abrir</span>");
         } else {
             while ($linea = fgets($fp)) {
-                $datosLinea[] = explode(";", $linea);
+                $datosLinea[] = myExplode($linea, ";");
             }
         }
         fclose($fp);
@@ -96,14 +127,9 @@ if (isset($_POST["codificar"])) {
             $i++;
         }
         ;
-
+        
         echo "La palabara transformada es " . $texto;
     }
-
-
-
-
-
     ?>
 </body>
 

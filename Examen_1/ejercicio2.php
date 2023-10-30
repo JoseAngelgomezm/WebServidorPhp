@@ -1,29 +1,31 @@
 <?php
 function myExplode($texto, $separador)
 {
-    $contadorPalabra = 0;
-    $arrayPalabras = [""];
-    $nLetra = 0;
-
-    // saltartse todos los separadores del principio
-    while (isset($texto[$nLetra]) && $texto[$nLetra] == $separador) {
-        $nLetra++;
+    $arrayPalabras[] = "";
+    $longitudTexto = strlen($texto) -1;
+    $i = 0;
+    while ($i < $longitudTexto && $texto[$i] == $separador) {
+        $i++;
     }
 
-    while (isset($texto[$nLetra])) {
-        // si la posicion de la palabra no es el separador
-        if ($separador != $texto[$nLetra]) {
-            // ir quedandonos con las letras de la palabra y añadiendola al array
-            $arrayPalabras[$contadorPalabra] .= $texto[$nLetra];
-            // si no hemos llegado al final y el siguiente es un separador
+    if ($i < $longitudTexto) {
+        $j = 0;
+        $arrayPalabras[$j] = $texto[$i];
+        for ($i = $i +1; $i < $longitudTexto; $i++) {
+            if ($texto[$i] != $separador) {
+                $arrayPalabras[$j] .= $texto[$i];
+            } else {
+                while ($i < $longitudTexto && $texto[$i] == $separador) {
+                        $i++;
+                }
+                if ($i < $longitudTexto) {
+                    $j++;
+                    $arrayPalabras[$j] = $texto[$i];
+                }
+            }
         }
-        // si encontramos un separador, y no esta en la ultima posicion
-        else if ($separador == $texto[$nLetra] && $nLetra < strlen($texto)) {
-            $contadorPalabra++;
-            $arrayPalabras[$contadorPalabra] = "";
-        }
-        $nLetra++;
     }
+
     return $arrayPalabras;
 }
 

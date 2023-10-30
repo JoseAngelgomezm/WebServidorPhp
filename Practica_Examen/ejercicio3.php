@@ -41,8 +41,8 @@ function myExplode($texto, $separador)
 
 function explodeClase($texto, $separador)
 {
-    $arrayPalabras = [];
-    $longitudTexto = myStrlen($texto);
+    $arrayPalabras[] = "";
+    $longitudTexto = strlen($texto) -1;
     $i = 0;
     while ($i < $longitudTexto && $texto[$i] == $separador) {
         $i++;
@@ -50,23 +50,23 @@ function explodeClase($texto, $separador)
 
     if ($i < $longitudTexto) {
         $j = 0;
-
-        for ($k = $i; $k < $longitudTexto; $k++) {
-            if ($texto[$k] != $separador) {
-                $arrayPalabras[$j] .= $texto[$k];
-
+        $arrayPalabras[$j] = $texto[$i];
+        for ($i = $i +1; $i < $longitudTexto; $i++) {
+            if ($texto[$i] != $separador) {
+                $arrayPalabras[$j] .= $texto[$i];
             } else {
-                while ($k < $longitudTexto && $texto[$k] == $separador) { {
-                        $k++;
-                    }
-                    if ($k > $longitudTexto && $texto[$k] != $separador) {
-                        $arrayPalabras[$j] .= $texto[$k];
-                    }
+                while ($i < $longitudTexto && $texto[$i] == $separador) {
+                        $i++;
+                }
+                if ($i < $longitudTexto) {
                     $j++;
+                    $arrayPalabras[$j] = $texto[$i];
                 }
             }
         }
     }
+
+    return $arrayPalabras;
 }
 ?>
 
