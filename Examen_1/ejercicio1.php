@@ -32,7 +32,6 @@
             fwrite($fp, $i . "\n");
             ;
             $linea = "";
-            $contador = 0;
             $posicion = 0;
             
             // 26 lineas

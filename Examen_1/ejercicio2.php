@@ -1,4 +1,32 @@
 <?php
+function myExplode($texto, $separador)
+{
+    $contadorPalabra = 0;
+    $arrayPalabras = [""];
+    $nLetra = 0;
+
+    // saltartse todos los separadores del principio
+    while (isset($texto[$nLetra]) && $texto[$nLetra] == $separador) {
+        $nLetra++;
+    }
+
+    while (isset($texto[$nLetra])) {
+        // si la posicion de la palabra no es el separador
+        if ($separador != $texto[$nLetra]) {
+            // ir quedandonos con las letras de la palabra y añadiendola al array
+            $arrayPalabras[$contadorPalabra] = $arrayPalabras[$contadorPalabra] . $texto[$nLetra];
+            // si no hemos llegado al final y el siguiente es un separador
+        }
+        // si encontramos un separador, aumentar en 1 la posicion en la que concatenamos las letras
+        else if ($separador == $texto[$nLetra]) {
+            $contadorPalabra++;
+            $arrayPalabras[$contadorPalabra] = "";
+        }
+        $nLetra++;
+    }
+    return $arrayPalabras;
+}
+
 // control de errores
 if (isset($_POST["contar"])) {
     $errorTexto = $_POST["texto"] == "";
@@ -14,21 +42,6 @@ if (isset($_POST["contar"])) {
 </head>
 
 <body>
-    <?php
-    if (isset($_POST["contar"])) {
-        $numeroPalabras = 0;
-        $texto = $_POST["texto"];
-        $i = 0;
-        while (isset($texto[$i])) {
-            if ($texto[$i] == $_POST["separador"]) {
-                $i++;
-                $numeroPalabras ++;
-            }
-            $i++;
-        }
-    }
-    ?>
-
     <h1>Ejercicio 2. Contar palabras sin las vocales (a,e,i,o,u,A,E,I,O,U)</h1>
     <form action="#" method="post">
         <p>
@@ -60,11 +73,13 @@ if (isset($_POST["contar"])) {
         </p>
     </form>
     <?php
+
     if (isset($_POST["contar"]) && !$errorTexto) {
+        $arrayPalabras = myExplode($_POST["texto"], $_POST["separador"]);
         echo "<h1>Respuesta</h1>";
 
 
-        echo "Hay ".$numeroPalabras." Palabras";
+        echo "Hay " . count($arrayPalabras) . " Palabras";
     }
     ?>
 </body>
