@@ -14,11 +14,11 @@ function myExplode($texto, $separador)
         // si la posicion de la palabra no es el separador
         if ($separador != $texto[$nLetra]) {
             // ir quedandonos con las letras de la palabra y añadiendola al array
-            $arrayPalabras[$contadorPalabra] = $arrayPalabras[$contadorPalabra] . $texto[$nLetra];
+            $arrayPalabras[$contadorPalabra] .= $texto[$nLetra];
             // si no hemos llegado al final y el siguiente es un separador
         }
-        // si encontramos un separador, aumentar en 1 la posicion en la que concatenamos las letras
-        else if ($separador == $texto[$nLetra]) {
+        // si encontramos un separador, y no esta en la ultima posicion
+        else if ($separador == $texto[$nLetra] && $nLetra < strlen($texto)) {
             $contadorPalabra++;
             $arrayPalabras[$contadorPalabra] = "";
         }

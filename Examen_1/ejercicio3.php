@@ -2,8 +2,8 @@
 // control de errores
 if (isset($_POST["codificar"])) {
     $errorTexto = $_POST["texto"] == "";
-    $errorDesplazamiento = !is_numeric(trim($_POST["desplazamiento"])) || trim($_POST["desplazamiento"]) == "" || $_POST["desplazamiento"] < 1;
-    $errorArchivo = $_FILES["claves"]["name"] != "claves_cesar.txt" || $_FILES["claves"]["type"] != "text/plain" || $_FILES["claves"]["size"] > 125 * 1024;
+    $errorDesplazamiento = !is_numeric(trim($_POST["desplazamiento"])) || trim($_POST["desplazamiento"]) == "" || $_POST["desplazamiento"] < 1 || $_POST["desplazamiento"] > 25;
+    $errorArchivo = $_FILES["claves"]["name"] != "claves_cesar.txt" || $_FILES["claves"]["type"] != "text/plain" || $_FILES["claves"]["size"] > 125 * 1024 || $_FILES["claves"]["error"];
 
     $errorFormulario = $errorArchivo || $errorDesplazamiento || $errorTexto;
 }
@@ -39,7 +39,7 @@ if (isset($_POST["codificar"])) {
             <input type="text" name="desplazamiento" id="desplazamiento" value='<?php if(isset($_POST["codificar"])) echo $_POST["desplazamiento"] ?>'>
             <?php
             if (isset($_POST["codificar"]) && $errorDesplazamiento) {
-                echo "<span>Introduce un numero mayor que 0</span>";
+                echo "<span>Introduce un numero mayor que 0 y menor que 26</span>";
             }
             ?>
         </p>
