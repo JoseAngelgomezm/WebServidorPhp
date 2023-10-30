@@ -67,7 +67,7 @@ if (isset($_POST["codificar"])) {
     </form>
     <?php
     if (isset($_POST["codificar"]) && !$errorFormulario) {
-        $fp = fopen("Ficheros/claves_cesar.txt", "r");
+        @$fp = fopen("Ficheros/claves_cesar.txt", "r");
         if (!$fp) {
             die("<span>El archivo no se ha podido abrir</span>");
         } else {
