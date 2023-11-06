@@ -87,7 +87,7 @@ if (isset($_POST["nuevousuario"]) || isset($_POST["continuar"])) {
             }
 
             try {
-                $consulta = "insert into `usuarios`(`id_usuario`, `nombre`, `usuario`, `clave`, `email`) VALUES ('','[".$_POST["nombre"]."]','[".$_POST["usuario"]."]','[".$_POST["contraseña"]."]','[".$_POST["email"]."]')";
+                $consulta = "insert into usuarios(nombre, usuario, clave, email) VALUES ('".$_POST["nombre"]."','".$_POST["usuario"]."','".md5($_POST["contraseña"])."','".$_POST["email"]."')";
                 $resultado = mysqli_query($conexion, $consulta);
             }catch (Exception $e) {
                 die(errorPagina("Error insertar", "<p>Error de inserccion en la base de datos</p>"));
