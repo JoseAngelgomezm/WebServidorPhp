@@ -31,6 +31,8 @@
 <body>
     <h1>Listado de usuarios</h1>
     <?php
+
+    // conectarnos para listar los usuarios en una tabla
     try {
         $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_foro", );
         mysqli_set_charset($conexion, "UTF8");
@@ -38,6 +40,7 @@
         die("<p>no se ha podido conectar a la base de datos " . $e->getMessage() . "</p></body></html>");
     }
 
+    // hacer la consulta de los usuarios
     try {
         $consulta = "select * from usuarios";
         $resultado = mysqli_query($conexion, $consulta);
@@ -46,10 +49,11 @@
         die("Error al realizar la consulta" . $e->getMessage() . "</p></body></html>");
     }
 
-    // lectura de los datos de la bd para mostrarlos en una tablas
+    // montar la tabla
     echo "<table>";
     echo "<tr><td>Nombre de usuario</td><td>Borrar</td><td>Editar</td></tr>";
     while ($fila = mysqli_fetch_assoc($resultado)) {
+        // la tabla contiene un formulario por cada boton que nos redirige a nosotros mismos, con los resultados de cada tupla
         echo "<tr>
                 <td><form action='#' method='post'> <button class='enlace' name='usuario' id='usuario' type='submit' value='" . $fila["id_usuario"] . "'>" . $fila["nombre"] . "</button></form></td>
                 <td><form action='#' method='post'><button type='submit' id='editar' name='editar' value='" . $fila["id_usuario"] . "'><img class='enlace' src='Images/bx-pencil.svg'></button></form></td>
@@ -88,10 +92,13 @@
         echo "<form action='#' method='post'>";
         echo "<p><button type='submit'>Volver a insertar usuario</button></p>";
         echo "</form>";
+    
+
     // si se ha pulsado el boton borrar
     } else if(isset($_POST["borrar"])) {
     echo "<p>se ha pulsado borrar de ".$_POST["borrar"]."";
-
+    
+    // si se ha pulsado el boton editar
     }else if(isset($_POST["editar"])){
         echo "<p>se ha pulsado editar de ".$_POST["editar"]."</p>";
 

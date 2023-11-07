@@ -18,6 +18,7 @@ function errorPagina($titulo, $body)
 // si se han pulsado alguno de los 2 botones, el de continuar de esta pagina
 // o el boton nuevo usuario del index
 if (isset($_POST["nuevousuario"]) || isset($_POST["continuar"])) {
+
     // si se ha pulsado el boton continuar comprobar los errores
     if (isset($_POST["continuar"])) {
         $errorNombre = $_POST["nombre"] == "" || strlen($_POST["nombre"]) > 30;
@@ -41,7 +42,7 @@ if (isset($_POST["nuevousuario"]) || isset($_POST["continuar"])) {
                 mysqli_close($conexion);
                 die(errorPagina("Practica1 CRUD error", "<p>usuario No se ha podido hacer la consulta</p>"));
             }
-            // si tiene mas de 1 tupla, error de usuario sera true
+            // si tiene mas de 1 tupla el nombre de usuario ya existirá, error de usuario sera true
             $errorUsuario = mysqli_num_rows($resultado) > 0;
             mysqli_close($conexion);
         }
@@ -69,7 +70,7 @@ if (isset($_POST["nuevousuario"]) || isset($_POST["continuar"])) {
                     mysqli_close($conexion);
                     die(errorPagina("Practica1 CRUD error", "<p>email No se ha podido hacer la consulta</p>"));
                 }
-                // si tiene mas de 1 tupla, error de usuario sera true
+                // si tiene mas de 1 tupla el email ya existirá, error de email sera true
                 $errorEmail = mysqli_num_rows($resultado) > 0;
                 mysqli_close($conexion);
             }
@@ -86,6 +87,7 @@ if (isset($_POST["nuevousuario"]) || isset($_POST["continuar"])) {
                 die(errorPagina("Practica1 CRUD error", "<p>No se ha podido conectar a la base de datos</p>"));
             }
 
+            // hacer la consulta insert
             try {
                 $consulta = "insert into usuarios(nombre, usuario, clave, email) VALUES ('".$_POST["nombre"]."','".$_POST["usuario"]."','".md5($_POST["contraseña"])."','".$_POST["email"]."')";
                 $resultado = mysqli_query($conexion, $consulta);
@@ -95,12 +97,12 @@ if (isset($_POST["nuevousuario"]) || isset($_POST["continuar"])) {
 
             mysqli_close($conexion);
 
-
+            // enviarnos al index
             header("location:index.php");
         }
     }
-
     ?>
+    <!-- mostrar la web con el formulario manteniendo campos -->
     <!DOCTYPE html>
     <html lang="en">
 
@@ -184,6 +186,7 @@ if (isset($_POST["nuevousuario"]) || isset($_POST["continuar"])) {
     </html>
 
     <?php
+// si no se ha pulsado ningun boton de los requeridos enviarnos a index
 } else {
     header("location:index.php");
 }
