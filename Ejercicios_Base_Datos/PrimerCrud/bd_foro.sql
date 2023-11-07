@@ -20,8 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `bd_foro`
 --
-create database if not exists bd_foro;
-use bd_foro;
+CREATE DATABASE IF NOT EXISTS `bd_foro` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `bd_foro`;
 -- --------------------------------------------------------
 
 --
