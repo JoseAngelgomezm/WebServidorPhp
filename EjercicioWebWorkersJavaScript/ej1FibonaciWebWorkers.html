@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <p>Secuencia de Fibonacci: <output id="resultado"></output></p>
+    <button onclick="startWorker()">Start Worker</button>
+    <button onclick="stopWorker()">Stop Worker</button>
+    <p><strong>Note:</strong> Esto funciona en Firefox y Safari pero no en Chrome.</p>
+
+    <script>
+        let w;
+
+        // funcion que inicia el worker
+        const startWorker = () =>{
+            // si el worker es undefined, es que no esta iniciado
+            if(typeof(Worker) !== "undefined"){
+                // si mi variable no esta definida, es que no esta definida como worker
+                if(typeof(w) == "undefined"){
+                    // definir mi variable como worker, con el script
+                    w = new Worker("trabajador.js");
+                }
+                // si mi worker esta definido, obtener el elemento por id resultado
+                w.onmessage = function(event){
+                    document.getElementById("resultado").innerHTML=event.data;
+                }
+            // si el worker es undefined, es que no se ha podido inicialiar
+            }else{
+                document.getElementById("resultado").innerHTML = "fallo al ejecutar el web worker"
+            }
+        }
+
+        const stopWorker = () =>{
+            // terminar el worker
+            w.terminate();
+            // ponerlo undefined
+            w=undefined
+        }
+
+
+    </script>
+</body>
+
+</html>
