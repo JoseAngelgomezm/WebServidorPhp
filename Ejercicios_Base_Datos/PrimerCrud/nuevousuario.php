@@ -89,9 +89,9 @@ if (isset($_POST["nuevousuario"]) || isset($_POST["continuar"])) {
 
             // hacer la consulta insert
             try {
-                $consulta = "insert into usuarios(nombre, usuario, clave, email) VALUES ('".$_POST["nombre"]."','".$_POST["usuario"]."','".md5($_POST["contraseña"])."','".$_POST["email"]."')";
+                $consulta = "insert into usuarios(nombre, usuario, clave, email) VALUES ('" . $_POST["nombre"] . "','" . $_POST["usuario"] . "','" . md5($_POST["contraseña"]) . "','" . $_POST["email"] . "')";
                 $resultado = mysqli_query($conexion, $consulta);
-            }catch (Exception $e) {
+            } catch (Exception $e) {
                 die(errorPagina("Error insertar", "<p>Error de inserccion en la base de datos</p>"));
             }
 
@@ -180,13 +180,13 @@ if (isset($_POST["nuevousuario"]) || isset($_POST["continuar"])) {
                 <button type="submit" name="continuar">Continuar</button>
                 <button type="submit" name="volver">Volver</button>
             </p>
-
+        </form>
     </body>
 
     </html>
 
     <?php
-// si no se ha pulsado ningun boton de los requeridos enviarnos a index
+    // si no se ha pulsado ningun boton de los requeridos enviarnos a index
 } else {
     header("location:index.php");
 }
