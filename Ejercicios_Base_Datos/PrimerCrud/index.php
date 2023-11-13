@@ -47,34 +47,33 @@ if (isset($_POST["continuarEdicion"])) {
     $errorContraseña = strlen($_POST["contraseñaEdicion"]) > 15;
 
     $errorEmail = $_POST["emailEdicion"] == "" || strlen($_POST["emailEdicion"]) > 50 || !filter_var($_POST["emailEdicion"], FILTER_VALIDATE_EMAIL);
+    
     // si no hay error de email, comprobar que no este repetido
     if (!$errorEmail) {
-        // comprobar si la conexion esta abierta
-        if (!isset($conexion)) {
-            // intentar la conexion
-            try {
-                $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_foro");
-                mysqli_set_charset($conexion, "utf8");
-            } catch (Exception $e) {
-                die(errorPagina("Practica1 CRUD error", "<p>No se ha podido conectar a la base de datos</p>"));
-            }
 
-            // intentar la consulta
-            try {
-                $consulta = "select * from usuarios where usuario='" . $_POST["emailEdicion"] . "' AND id_usuario <> '" . $_POST["continuarEdicion"] . "'";
-                $resultado = mysqli_query($conexion, $consulta);
-            } catch (Exception $e) {
-                mysqli_close($conexion);
-                die(errorPagina("Practica1 CRUD error", "<p>email No se ha podido hacer la consulta comprobar email repetido</p>"));
-            }
-            // si tiene mas de 1 tupla el email ya existirá, error de email sera true
-            $errorEmail = mysqli_num_rows($resultado) > 0;
-            mysqli_close($conexion);
+        // intentar la conexion
+        try {
+            $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_foro");
+            mysqli_set_charset($conexion, "utf8");
+        } catch (Exception $e) {
+            die(errorPagina("Practica1 CRUD error", "<p>No se ha podido conectar a la base de datos</p>"));
         }
+
+        // intentar la consulta
+        try {
+            $consulta = "select * from usuarios where email='" . $_POST["emailEdicion"] . "' AND id_usuario <> '" . $_POST["continuarEdicion"] . "'";
+            $resultado = mysqli_query($conexion, $consulta);
+        } catch (Exception $e) {
+            mysqli_close($conexion);
+            die(errorPagina("Practica1 CRUD error", "<p>email No se ha podido hacer la consulta comprobar email repetido</p>"));
+        }
+        // si tiene mas de 1 tupla el email ya existirá, error de email sera true
+        $errorEmail = mysqli_num_rows($resultado) > 0;
+        mysqli_close($conexion);
+
     }
 
     $errorFormulario = $errorNombre || $errorUsuario || $errorContraseña || $errorEmail;
-
 
     // si no hay error de formulario editar los datos
     if (!$errorFormulario) {
@@ -299,7 +298,7 @@ if (isset($_POST["continuarBorrado"])) {
             $mensajeError = "Este usuario ya no existe en la base de datos";
         }
 
-        // si el error de usuario no existe aparece
+        // si el error de usuario existe mnostrar el error 
         if (isset($mensajeError)) {
             echo $mensajeError;
             // sino mostrar el formulario, que se muestra siempre que existe el boton editar y continuar editar
@@ -310,7 +309,7 @@ if (isset($_POST["continuarBorrado"])) {
                             <label for="nombre">Nombre: </label>
                             <input type="text" name="nombreEdicion" value="<?php echo $nombreUsuario ?>" maxlength="30">
                         <?php
-                        if (isset($_POST["continuar"]) && $errorNombre) {
+                        if (isset($_POST["continuarEdicion"]) && $errorNombre) {
                             if ($_POST["nombreEdicion"] == "") {
                                 echo "<span>Campo vacio</span>";
                             } else {
@@ -356,7 +355,7 @@ if (isset($_POST["continuarBorrado"])) {
                         if (isset($_POST["continuarEdicion"]) && $errorEmail) {
                             if ($_POST["emailEdicion"] == "") {
                                 echo "<span>Campo vacio</span>";
-                            } else if (strlen($_POST["emaileEdicion"]) > 50) {
+                            } else if (strlen($_POST["emailEdicion"]) > 50) {
                                 echo "<span>Tamaño erroneo</span>";
                             } else if (!filter_var($_POST["emailEdicion"], FILTER_VALIDATE_EMAIL)) {
                                 echo "<span>El email no está bien escrito</span>";
