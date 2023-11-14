@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0">
+    <title>Ej Login</title>
+</head>
+
+<body>
+    <label>Introduzca usuario y password</label>
+    <br>
+    <input type="text" name="usuario" id="usuario">
+    <br>
+    <input type="password" name="contraseña" id="contraseña">
+    <br>
+    <button type="submit" name="login" id="login" onclick=verificarCredenciales()>Log In</button>
+    <p id="solucion"></p>
+    <script>
+        const verificarCredenciales = () => {
+            let usuario = document.getElementById("usuario").value
+            let contraseña = document.getElementById("contraseña").value
+            // crear el peticion  XMHL
+            let peticion = new XMLHttpRequest()
+
+            // cuando cambie de estado, llamar a la funcion anonima para comprobar credenciales
+            peticion.onreadystatechange = function () {
+                // si la peticion tiene listo el estado 2 y status 200
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("solucion").innerHTML = this.responseText
+                }
+            }
+            peticion.open("GET", "credencialesLogin.php?usuario=" + usuario + "&contraseña=" + contraseña, true)
+            peticion.send()
+        }
+    </script>
+
+</body>
+
+</html>
