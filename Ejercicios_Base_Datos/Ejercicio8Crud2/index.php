@@ -39,63 +39,85 @@ function paginaError($mensaje)
 
 
     <?php
-     // determinar los datos de conexion
-     $host = "localhost";
-     $user = "jose";
-     $pass = "josefa";
-     $bd = "bd_cv";
+    // determinar los datos de conexion
+    $host = "localhost";
+    $user = "jose";
+    $pass = "josefa";
+    $bd = "bd_cv";
 
-    if(isset($_POST["atras"])){
+    if (isset($_POST["atras"])) {
         header("location:index.php");
     }
     // si se ha pulsado el boton guardar cambios del formulario de inserccion
-    if(isset($_POST["guardarCambios"])){
+    if (isset($_POST["guardarCambios"])) {
         // comprobar los errores
-        $errorNombre= $_POST["nombreInsercion"] == "" || strlen($_POST["nombreInsercion"]) > 50;
-        $errorUsuario= $_POST["usuarioInsercion"] == "" || strlen($_POST["usuarioInsercion"]) > 30;
-        $errorContraseña= $_POST["contraseñaInsercion"] == "" || strlen($_POST["contraseñaInsercion"]) > 50;
-        $errorDNI=  $_POST["dniInsercion"] == ""|| strlen($_POST["dniInsercion"]) > 10;
-        $errorFoto= $_FILES["imagenInsercion"]["size"] < 500 * 1024 || !getimagesize($_FILES["imagenInsercion"]["tmp_name"]);
+        $errorNombre = $_POST["nombreInsercion"] == "" || strlen($_POST["nombreInsercion"]) > 50;
+        $errorUsuario = $_POST["usuarioInsercion"] == "" || strlen($_POST["usuarioInsercion"]) > 30;
+        $errorContraseña = $_POST["contraseñaInsercion"] == "" || strlen($_POST["contraseñaInsercion"]) > 50;
+        $errorDNI = $_POST["dniInsercion"] == "" || strlen($_POST["dniInsercion"]) > 10;
 
-        $errorFormulario =  $errorNombre || $errorUsuario || $errorContraseña || $errorDNI || $errorFoto;
+        $errorFormulario = $errorNombre || $errorUsuario || $errorContraseña || $errorDNI;
+
+        // MIRAR QUE NO SE REPITA DNI ; USUARIO ; EMAIL
 
         // si no hay errores de formulario, hacer la insercion
-        if(!$errorFormulario){
+        if (!$errorFormulario) {
 
             // intentar la conexion
-            try{
+            try {
                 $conexion = mysqli_connect($host, $user, $pass, $bd);
-            }
-            catch(Exception $e){
+                mysqli_set_charset($conexion, "utf8");
+            } catch (Exception $e) {
                 die(paginaError("no se ha podido realizar la conexion en la insercion"));
             }
 
             // intentar la consulta de insercion
-            try{
-                $consulta = "INSERT INTO usuarios(usuario, clave, nombre, dni, sexo) 
-                VALUES ('".$_POST["usuarioInsercion"]."','".$_POST["contraseñaInsercion"]."','".$_POST["nombreInsercion"]."','".$_POST["dniInsercion"]."','','".$_POST["sexoInsercion"]."')";
-            }catch(Exception $e){
+            try {
+                $consulta = "INSERT INTO usuarios(usuario, clave, nombre, dni, sexo) VALUES ('" . $_POST["usuarioInsercion"] . "','" . $_POST["contraseñaInsercion"] . "','" . $_POST["nombreInsercion"] . "','" . $_POST["dniInsercion"] . "','" . $_POST["sexoInsercion"] . "')";
+                $resultado = mysqli_query($conexion, $consulta);
+            } catch (Exception $e) {
+                mysqli_close($conexion);
                 die(paginaError("no se ha podido realizar la insercion de datos"));
             }
 
             // saber si ha subido foto
-            if($_POST["imagenInsercion"]["name"] !==""){
-                // obtener la extension del archivo
-                $nombreImagenDividido = explode(".",$FILES["imagen"]["name"]);
-                $extension = end($nombreImagenDividido);
-                // moverla a la carpeta
-                try{
-                    move_uploaded_file($_FILES["imagen"]["tmp_name"],"img/".$idUsuario."");
-                }catch(Exception $e){
-                    die(paginaError("no se ha podido mover la imagen a la carpeta de destino"));
+            if ($_FILES["imagenInsercion"]["name"] !== "") {
+                // controlar errores si se ha subido la foto
+                $errorFoto = $_FILES["imagenInsercion"]["error"] || !getimagesize($_FILES["imagenInsercion"]["tmp_name"]) || $_FILES["imagenInsercion"]["size"] > 500 * 1024;
+                $errorFormulario = $errorFoto;
+
+                // si no hay error en la foto
+                if (!$errorFoto) {
+                    // obtener la extension del archivo
+                    $nombreImagenDividido = explode(".", $_FILES["imagenInsercion"]["name"]);
+                    $extension = end($nombreImagenDividido);
+
+                    // obtener el id del ultimo insertado
+                    $ultimoID = mysqli_insert_id($conexion);
+
+                    $rutaDestino = "img/" . $ultimoID . "." . $extension . "";
+
+                    // moverla a la carpeta
+                    move_uploaded_file($_FILES["imagenInsercion"]["tmp_name"], $rutaDestino);
+
+                    // poner la ruta de la foto en el ultimo usuario insertado
+                    // intentar la consulta update
+                    try {
+                        // traernos el id del ultimo usuario insertado
+                        $ultimoID = mysqli_insert_id($conexion);
+                        $consulta = "UPDATE `usuarios` SET `foto` = '$ultimoID.$extension' WHERE `id_usuario` = '$ultimoID';";
+                        $resultado = mysqli_query($conexion, $consulta);
+                    } catch (Exception $e) {
+                        mysqli_close($conexion);
+                        die(paginaError("no se ha podido realizar modificacion de los datos de la foto"));
+                    }
                 }
-               
+                mysqli_close($conexion);
             }
         }
     }
-
-    // si se ha pulsado el boton nuevo usuario
-    if (isset($_POST["nuevoUsuario"]) || isset($_POST["guardarCambios"]) && $errorFormulario) {
+    // si se ha pulsado el boton nuevo usuario o guardar cambios para insertar pero hay errores en el formulario o se pulsado el boton editar
+    if (isset($_POST["nuevoUsuario"]) || (isset($_POST["guardarCambios"]) && $errorFormulario)) {
         ?>
         <h3>Agregar Nuevo Usuario</h3>
         <form action="#" method="post" enctype="multipart/form-data">
@@ -104,7 +126,7 @@ function paginaError($mensaje)
             <br>
             <input type="text" name="nombreInsercion" maxlength="50">
             <?php
-            if($_POST["nombreInsercion"] == ""){
+            if (isset($_POST["nombreInsercion"]) && $_POST["nombreInsercion"] == "") {
                 echo "<span>El nombre no puede estar vacio</span>";
             }
             ?>
@@ -114,18 +136,18 @@ function paginaError($mensaje)
             <br>
             <input type="text" name="usuarioInsercion" maxlength="30">
             <?php
-            if($_POST["usuarioInsercion"] == ""){
+            if (isset($_POST["usuarioInsercion"]) && $_POST["usuarioInsercion"] == "") {
                 echo "<span>El usuario no puede estar vacio</span>";
             }
             ?>
             <br>
-           
+
 
             <label for="contraseñaInsercion">Contraseña:</label>
             <br>
             <input type="password" name="contraseñaInsercion" maxlength="50">
             <?php
-            if($_POST["contraseñaInsercion"] == ""){
+            if (isset($_POST["contraseñaInsercion"]) && $_POST["contraseñaInsercion"] == "") {
                 echo "<span>La contraseña no puede estar vacía</span>";
             }
             ?>
@@ -135,7 +157,7 @@ function paginaError($mensaje)
             <br>
             <input type="text" name="dniInsercion" maxlength="10">
             <?php
-            if($_POST["dniInsercion"] == ""){
+            if (isset($_POST["dniInsercion"]) && $_POST["dniInsercion"] == "") {
                 echo "<span>El DNI no puede estar vacío</span>";
             }
             ?>
@@ -149,6 +171,12 @@ function paginaError($mensaje)
 
             <label for="imagenInsercion">Incluir mi foto (MAX-500KB):</label>
             <input type="file" accept="img" name="imagenInsercion">
+            <?php
+            if (isset($errorFoto) && $errorFoto) {
+                echo "<span>Error en la subida de la foto, imagen no válida o peso mayor a 500KB";
+            }
+            ?>
+
             <br>
 
             <button type="submit" name="guardarCambios">Guardar Cambios</button>
@@ -158,9 +186,33 @@ function paginaError($mensaje)
         // si se ha pulsado el boton borrar usuario
     } else if (isset($_POST["borrarUsuario"])) {
 
-        // si se ha pulsado el boton editar usuario
-    } else if (isset($_POST["editarUsuario"])) {
+        // intentar la conexion
+        try {
+            $conexion = mysqli_connect($host, $user, $pass, $bd);
+            mysqli_set_charset($conexion, "utf8");
+        } catch (Exception $e) {
+            die(paginaError("no se ha podido realizar la conexion en la insercion"));
+        }
 
+
+        // intentar la consulta de borrado
+        try {
+            $consulta = "DELETE FROM usuarios WHERE id_usuario='" . $_POST["borrarUsuario"] . "'";
+            $resultado = mysqli_query($conexion, $consulta);
+        } catch (Exception $e) {
+            mysqli_close($conexion);
+            die(paginaError("no se ha podido realizar el borrado de datos"));
+        }
+
+        // si tiene foto de perfil, borrarla
+        if(file_exists("img/".$_POST["borrarUsuario"].".*")){
+            unlink("img/".$_POST["borrarUsuario"]."");
+        }
+
+        mysqli_close($conexion);
+        header("location:index.php");
+
+        // si se ha pulsado el boton editar usuario
     }
 
     // SIEMPRE MOSTRAR LA TABLA
@@ -200,7 +252,7 @@ function paginaError($mensaje)
         echo "<td>" . $datosUsuarios["id_usuario"] . "</td>";
         echo "<td> <img src='img/" . $datosUsuarios["foto"] . "'></td>";
         echo "<td>" . $datosUsuarios["nombre"] . "</td>";
-        echo "<td><button type='submit' name='borrarUsuario'>Borrar</button> - <button type='submit' name='editarUsuario'>Editar</button></td>";
+        echo "<td><button type='submit' name='borrarUsuario' value='" . $datosUsuarios["id_usuario"] . "'>Borrar</button> - <button type='submit' name='editarUsuario' value='" . $datosUsuarios["id_usuario"] . "'>Editar</button></td>";
         echo "</tr>";
     }
 

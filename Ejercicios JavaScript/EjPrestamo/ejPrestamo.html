@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <p>Cálculo de la cuota de un préstamos</p>
+    <input type="number" name="capital" id="capital" placeholder="Capital solicitado">
+    <br>
+    <input type="number" name="interes" id="interes" placeholder="Interés Anual">
+    <br>
+    <input type="number" name="plazo" id="plazo" placeholder="Plazo">
+    <br>
+    <button onclick=calcular()>Calcular</button>
+
+    <p id="resultado">Su cuota mensual será de : Euros</p>
+
+    <script>
+        const calcular = () => {
+            // obtener los datos de los input
+            capitalHTML = document.getElementById("capital").value
+            interesHTML = document.getElementById("interes").value
+            plazoHTML = document.getElementById("plazo").value
+
+            // crear el objeto que hara la peticion
+            let peticion = new XMLHttpRequest()
+
+            // cuando la peticion cambie de estado
+            peticion.onreadystatechange = function () {
+                // cuando el state sea 4 y el status 200(datos de peticion recibidos)
+                if (this.readyState == 4 && this.status == 200) {
+                    // obtener el id del p para mostrar el resultado
+                    document.getElementById("resultado").innerHTML = "Su cuota mensual será de :" + this.responseText + " Euros"
+                }
+
+                xmlhttp.open("GET", "resultado.php?capital="+capitalHTML+"&interes="+interesHTML+"&plazo="+plazoHTML, true);
+                // La dirección anterior corresponde a la ubicación de la página php en el servidor localhost
+                // Esta dirección podrá diferir dependiendo de la necesidad del programador.
+                xmlhttp.send();
+            }
+        }
+    </script>
+
+</body>
+</html>
