@@ -1,3 +1,40 @@
+<?php
+if (isset($_POST["atras"])) {
+    header("location:index.php");
+
+ // si se ha pulsado el boton borrar usuario
+} else if (isset($_POST["borrarUsuario"])) {
+
+    // intentar la conexion
+    try {
+        $conexion = mysqli_connect($host, $user, $pass, $bd);
+        mysqli_set_charset($conexion, "utf8");
+    } catch (Exception $e) {
+        die(paginaError("no se ha podido realizar la conexion en la insercion"));
+    }
+
+
+    // intentar la consulta de borrado
+    try {
+        $consulta = "DELETE FROM usuarios WHERE id_usuario='" . $_POST["borrarUsuario"] . "'";
+        $resultado = mysqli_query($conexion, $consulta);
+    } catch (Exception $e) {
+        mysqli_close($conexion);
+        die(paginaError("no se ha podido realizar el borrado de datos"));
+    }
+
+    // si tiene foto de perfil, borrarla
+    if (file_exists("img/" . $_POST["borrarUsuario"] . ".*")) {
+        unlink("img/" . $_POST["borrarUsuario"] . "");
+    }
+
+    mysqli_close($conexion);
+    header("location:index.php");
+}
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -45,9 +82,7 @@ function paginaError($mensaje)
     $pass = "josefa";
     $bd = "bd_cv";
 
-    if (isset($_POST["atras"])) {
-        header("location:index.php");
-    }
+
     // si se ha pulsado el boton guardar cambios del formulario de inserccion
     if (isset($_POST["guardarCambios"])) {
         // comprobar los errores
@@ -56,9 +91,40 @@ function paginaError($mensaje)
         $errorContraseña = $_POST["contraseñaInsercion"] == "" || strlen($_POST["contraseñaInsercion"]) > 50;
         $errorDNI = $_POST["dniInsercion"] == "" || strlen($_POST["dniInsercion"]) > 10;
 
-        $errorFormulario = $errorNombre || $errorUsuario || $errorContraseña || $errorDNI;
+        // MIRAR QUE NO SE REPITA DNI ; USUARIO
+        // intentar la conexion
+        try {
+            $conexion = mysqli_connect($host, $user, $pass, $bd);
+            mysqli_set_charset($conexion, "utf8");
+        } catch (Exception $e) {
+            die(paginaError("no se ha podido realizar la conexion para comprobar la repeticion de datos"));
+        }
 
-        // MIRAR QUE NO SE REPITA DNI ; USUARIO ; EMAIL
+        // realizar la consulta para ver que no se repita ni dni, ni usuario
+        try {
+            // sintaxis de la consulta
+            $consultaUsuario = "SELECT * FROM usuarios WHERE usuario = '" . $_POST["usuarioInsercion"] . "'";
+            $consultaDni = "SELECT * FROM usuarios WHERE dni = '" . $_POST["dniInsercion"] . "'";
+            // realizar las consultas para ver si estan repetidos
+            $resultadoDni = mysqli_query($conexion, $consultaDni);
+            $resultadoUsuario = mysqli_query($conexion, $consultaUsuario);
+           
+           
+
+            echo "<p>".$consultaUsuario."</p>";
+            echo "<p>".$consultaDni."</p>";
+           
+        } catch (Exception $e) {
+            mysqli_close($conexion);
+            die(paginaError("no se ha podido realizar la consulta de datos para comprobar la repeticion de datos"));
+        }
+
+        // si la consulta tiene alguna tupla, significa que estara repetido
+        $repetidoDni = mysqli_num_rows($resultadoDni) > 0;
+        $repetidoUsuario = mysqli_num_rows($resultadoUsuario) > 0;
+        
+
+        $errorFormulario = $errorNombre || $errorUsuario || $errorContraseña || $errorDNI || $repetidoUsuario || $repetidoDni;
 
         // si no hay errores de formulario, hacer la insercion
         if (!$errorFormulario) {
@@ -138,6 +204,8 @@ function paginaError($mensaje)
             <?php
             if (isset($_POST["usuarioInsercion"]) && $_POST["usuarioInsercion"] == "") {
                 echo "<span>El usuario no puede estar vacio</span>";
+            } else if ($repetidoUsuario) {
+                echo "<span>El nombre de usuario no está disponible</span>";
             }
             ?>
             <br>
@@ -159,6 +227,8 @@ function paginaError($mensaje)
             <?php
             if (isset($_POST["dniInsercion"]) && $_POST["dniInsercion"] == "") {
                 echo "<span>El DNI no puede estar vacío</span>";
+            } else if ($repetidoDni) {
+                echo "<span>El dni que ha insertado ya se encuentra registrado</span>";
             }
             ?>
             <br>
@@ -183,36 +253,39 @@ function paginaError($mensaje)
             <button type="submit" name="atras">Atrás</button>
         </form>
         <?php
-        // si se ha pulsado el boton borrar usuario
-    } else if (isset($_POST["borrarUsuario"])) {
-
+    
+      // si se ha pulsado el boton ver datos de usuario
+    } else if (isset($_POST["verDatos"])) {
         // intentar la conexion
         try {
             $conexion = mysqli_connect($host, $user, $pass, $bd);
             mysqli_set_charset($conexion, "utf8");
         } catch (Exception $e) {
-            die(paginaError("no se ha podido realizar la conexion en la insercion"));
+            die(paginaError("no se ha podido realizar la conexion para mostrar los datos del usuario"));
         }
 
-
-        // intentar la consulta de borrado
+        // intentar la consulta de listado
         try {
-            $consulta = "DELETE FROM usuarios WHERE id_usuario='" . $_POST["borrarUsuario"] . "'";
+            $consulta = "SELECT * FROM usuarios WHERE id_usuario='" . $_POST["verDatos"] . "'";
             $resultado = mysqli_query($conexion, $consulta);
         } catch (Exception $e) {
             mysqli_close($conexion);
-            die(paginaError("no se ha podido realizar el borrado de datos"));
+            die(paginaError("no se ha podido realizar la consulta de datos del usuario seleccionado"));
         }
 
-        // si tiene foto de perfil, borrarla
-        if(file_exists("img/".$_POST["borrarUsuario"].".*")){
-            unlink("img/".$_POST["borrarUsuario"]."");
+        // Mostrar los datos si se ha encontrado al usuario
+        if (mysqli_num_rows($resultado) == 1) {
+            $datosUser = mysqli_fetch_assoc($resultado);
+            echo "<p><strong>Nombre</strong>: " . $datosUser["nombre"] . "<p>";
+            echo "<p><strong>Usuario</strong>: " . $datosUser["usuario"] . "<p>";
+            echo "<p><strong>DNI</strong>: " . $datosUser["dni"] . "<p>";
+            echo "<p><strong>Sexo</strong>: " . $datosUser["sexo"] . "<p>";
+            echo "<p><strong>foto</strong>: " . $datosUser["foto"] . "<p>";
+        } else {
+            die(paginaError("El usuario que ha intentado consultar ya no se encuentra en la base de datos"));
         }
 
         mysqli_close($conexion);
-        header("location:index.php");
-
-        // si se ha pulsado el boton editar usuario
     }
 
     // SIEMPRE MOSTRAR LA TABLA
@@ -222,7 +295,7 @@ function paginaError($mensaje)
     try {
         $conexion = mysqli_connect($host, $user, $pass, $bd);
     } catch (Exception $e) {
-        die(paginaError("se ha producido un error al conectarse con la base de datos"));
+        die(paginaError("se ha producido un error al conectarse con la base de datos para listar los usuarios de entrada"));
 
     }
 
@@ -232,7 +305,7 @@ function paginaError($mensaje)
         $resultado = mysqli_query($conexion, $consulta);
     } catch (Exception $e) {
         mysqli_close($conexion);
-        die(paginaError("se ha producido un error al conectarse con la base de datos"));
+        die(paginaError("se ha producido un error al consultar para listar los usuarios de entrada"));
     }
 
     // montar la tabla, mientras tengamos tupla
@@ -251,7 +324,7 @@ function paginaError($mensaje)
         echo "<tr>";
         echo "<td>" . $datosUsuarios["id_usuario"] . "</td>";
         echo "<td> <img src='img/" . $datosUsuarios["foto"] . "'></td>";
-        echo "<td>" . $datosUsuarios["nombre"] . "</td>";
+        echo "<td><button name='verDatos' type='submit' value='" . $datosUsuarios["id_usuario"] . "'>" . $datosUsuarios["nombre"] . "</button></td>";
         echo "<td><button type='submit' name='borrarUsuario' value='" . $datosUsuarios["id_usuario"] . "'>Borrar</button> - <button type='submit' name='editarUsuario' value='" . $datosUsuarios["id_usuario"] . "'>Editar</button></td>";
         echo "</tr>";
     }
