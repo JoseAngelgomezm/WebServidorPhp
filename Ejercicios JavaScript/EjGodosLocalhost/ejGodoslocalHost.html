@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <ul id="lista"></ul>
+
+    <script>
+        // crear el objeto peticion
+        let peticion = new XMLHttpRequest();
+
+        // cuando cambie de estado, que ejecute la funcion anonima
+        peticion.onreadystatechange = (function () {
+            if (this.readyState == 4 && this.status == 200) {
+                // obtener el jason
+                let jsonObtenido = JSON.parse(this.responseText)
+
+                // obtener la ul donde poner los elementos
+                let ulHTML = document.getElementById("lista");
+
+                // recorrer el json
+                recorrerJSON(jsonObtenido.reyesgodos, ulHTML)
+
+            }
+        })
+
+        // abrir la peticion
+        peticion.open("GET", "godos.php", true)
+        // enviar la peticion
+        peticion.send()
+
+        const recorrerJSON = (json, listaHTML) => {
+            // recorrer el jason que recibimos
+            json.map(elemento => {
+                // si el elemento tiene hijos
+                if (elemento.hijos) {
+                    // montar un li
+                    let li = document.createElement("li")
+                    // montar el nodo de texto del li
+                    let textoLi = document.createTextNode(elemento.nombre)
+                    li.appendChild(textoLi);
+                    // montar la lista padre nueva, para añadirle los hijos cuando se llame
+                    let ul = document.createElement("ul")
+                    // al li montarle la ul nueva
+                    li.appendChild(ul)
+                    // montarle el li al padre que viene por la llamada
+                    listaHTML.appendChild(li)
+                    // llamarme con el elemento que contiene hijos y la lista nueva
+                    recorrerJSON(elemento.hijos, ul)
+                    // sino crear un li y añadirlo
+                } else {
+                    let liTexto = document.createTextNode(elemento)
+                    let liAppend = document.createElement("li")
+                    liAppend.appendChild(liTexto)
+                    listaHTML.appendChild(liAppend)
+                }
+            })
+        }
+
+    </script>
+</body>
+
+</html>
