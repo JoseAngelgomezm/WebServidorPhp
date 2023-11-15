@@ -1,31 +1,52 @@
 <?php
+
+// determinar los datos de conexion
+$host = "localhost";
+$user = "jose";
+$pass = "josefa";
+$bd = "bd_cv";
+
+
 if (isset($_POST["atras"])) {
     header("location:index.php");
 
- // si se ha pulsado el boton borrar usuario
-} else if (isset($_POST["borrarUsuario"])) {
-
+    // si se ha pulsado el boton borrar usuario
+} else if (isset($_POST["continuarBorrado"])) {
     // intentar la conexion
     try {
         $conexion = mysqli_connect($host, $user, $pass, $bd);
         mysqli_set_charset($conexion, "utf8");
     } catch (Exception $e) {
-        die(paginaError("no se ha podido realizar la conexion en la insercion"));
+        die(paginaError("no se ha podido realizar la conexion para confirmar el borrado"));
     }
 
+    // si el usuario tiene una foto de perfil
+    // intentar la consulta para traernos a nuestro usuario
+    try {
+        $consulta = "SELECT * FROM usuarios WHERE id_usuario='" . $_POST["continuarBorrado"] . "'";
+        $resultado = mysqli_query($conexion, $consulta);
+    } catch (Exception $e) {
+        mysqli_close($conexion);
+        die(paginaError("no se ha podido realizar la consulta para la foto en el borrado de datos"));
+    }
+
+    // obtener el valor de la foto
+    $datos = mysqli_fetch_assoc($resultado);
+    $imagen = $datos["foto"];
+
+    // si el archivo existe en nuestra que carpeta de imagenes
+    if (file_exists("img/" . $imagen)) {
+        // eliminarla
+        unlink("img/" . $imagen);
+    }
 
     // intentar la consulta de borrado
     try {
-        $consulta = "DELETE FROM usuarios WHERE id_usuario='" . $_POST["borrarUsuario"] . "'";
+        $consulta = "DELETE FROM usuarios WHERE id_usuario='" . $_POST["continuarBorrado"] . "'";
         $resultado = mysqli_query($conexion, $consulta);
     } catch (Exception $e) {
         mysqli_close($conexion);
         die(paginaError("no se ha podido realizar el borrado de datos"));
-    }
-
-    // si tiene foto de perfil, borrarla
-    if (file_exists("img/" . $_POST["borrarUsuario"] . ".*")) {
-        unlink("img/" . $_POST["borrarUsuario"] . "");
     }
 
     mysqli_close($conexion);
@@ -33,12 +54,6 @@ if (isset($_POST["atras"])) {
 }
 
 
-?>
-
-<!DOCTYPE html>
-<html lang="es">
-
-<?php
 function paginaError($mensaje)
 {
     $pagina = " <!DOCTYPE html>
@@ -57,7 +72,27 @@ function paginaError($mensaje)
     return $pagina;
 
 }
+function comprobarLetraNif($numeroDni)
+{
+    return substr("TRWAGMYFPDXBNJZSQVHLCKEO", $numeroDni % 23, 1);
+}
+function comprobarDni($cualquierDni)
+{
+    // coger los 8 primeros digitos
+    $digitos = substr($cualquierDni, 0, 8);
+    // comprobar que la letra es correcta
+    // coger la letra
+    $letra = substr($cualquierDni, -1);
+    // obtener le pasamos los digitos, nos devuelve una letra y vemos si es igual la nuestra
+    $letraValida = comprobarLetraNif($digitos) == $letra;
+
+    return $letraValida;
+}
+
 ?>
+
+<!DOCTYPE html>
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -76,55 +111,52 @@ function paginaError($mensaje)
 
 
     <?php
-    // determinar los datos de conexion
-    $host = "localhost";
-    $user = "jose";
-    $pass = "josefa";
-    $bd = "bd_cv";
-
-
     // si se ha pulsado el boton guardar cambios del formulario de inserccion
     if (isset($_POST["guardarCambios"])) {
         // comprobar los errores
         $errorNombre = $_POST["nombreInsercion"] == "" || strlen($_POST["nombreInsercion"]) > 50;
         $errorUsuario = $_POST["usuarioInsercion"] == "" || strlen($_POST["usuarioInsercion"]) > 30;
         $errorContraseña = $_POST["contraseñaInsercion"] == "" || strlen($_POST["contraseñaInsercion"]) > 50;
-        $errorDNI = $_POST["dniInsercion"] == "" || strlen($_POST["dniInsercion"]) > 10;
+        $errorDNI = $_POST["dniInsercion"] == "" || strlen($_POST["dniInsercion"]) !== 9 || (substr($_POST["dniInsercion"], -1) < "A" && substr($_POST["dniInsercion"], -1) > "Z") || !is_numeric(substr($_POST["dniInsercion"], 0, 8));
+
+        // si no hay error de dni, comprobar que sea valido
+        if (!$errorDNI) {
+            $dniValido = comprobarDni($_POST["dniInsercion"]);
+        }
 
         // MIRAR QUE NO SE REPITA DNI ; USUARIO
-        // intentar la conexion
-        try {
-            $conexion = mysqli_connect($host, $user, $pass, $bd);
-            mysqli_set_charset($conexion, "utf8");
-        } catch (Exception $e) {
-            die(paginaError("no se ha podido realizar la conexion para comprobar la repeticion de datos"));
-        }
+        // si no hay errores en usuario y dni, ver si no estan repetidos
+        if (!$errorUsuario || !$errorDNI) {
+            // intentar la conexion
+            try {
+                $conexion = mysqli_connect($host, $user, $pass, $bd);
+                mysqli_set_charset($conexion, "utf8");
+            } catch (Exception $e) {
+                die(paginaError("no se ha podido realizar la conexion para comprobar la repeticion de datos"));
+            }
 
-        // realizar la consulta para ver que no se repita ni dni, ni usuario
-        try {
-            // sintaxis de la consulta
-            $consultaUsuario = "SELECT * FROM usuarios WHERE usuario = '" . $_POST["usuarioInsercion"] . "'";
-            $consultaDni = "SELECT * FROM usuarios WHERE dni = '" . $_POST["dniInsercion"] . "'";
-            // realizar las consultas para ver si estan repetidos
-            $resultadoDni = mysqli_query($conexion, $consultaDni);
-            $resultadoUsuario = mysqli_query($conexion, $consultaUsuario);
-           
-           
+            // realizar la consulta para ver que no se repita ni dni, ni usuario
+            try {
+                // sintaxis de la consulta
+                $consultaUsuario = "SELECT * FROM usuarios WHERE usuario = '" . $_POST["usuarioInsercion"] . "'";
+                $consultaDni = "SELECT * FROM usuarios WHERE dni = '" . $_POST["dniInsercion"] . "'";
+                // realizar las consultas para ver si estan repetidos
+                $resultadoDni = mysqli_query($conexion, $consultaDni);
+                $resultadoUsuario = mysqli_query($conexion, $consultaUsuario);
+            } catch (Exception $e) {
+                mysqli_close($conexion);
+                die(paginaError("no se ha podido realizar la consulta de datos para comprobar la repeticion de datos"));
+            }
 
-            echo "<p>".$consultaUsuario."</p>";
-            echo "<p>".$consultaDni."</p>";
-           
-        } catch (Exception $e) {
+            // si la consulta tiene alguna tupla, significa que estara repetido
+            $repetidoDni = mysqli_num_rows($resultadoDni) > 0;
+            $repetidoUsuario = mysqli_num_rows($resultadoUsuario) > 0;
             mysqli_close($conexion);
-            die(paginaError("no se ha podido realizar la consulta de datos para comprobar la repeticion de datos"));
         }
 
-        // si la consulta tiene alguna tupla, significa que estara repetido
-        $repetidoDni = mysqli_num_rows($resultadoDni) > 0;
-        $repetidoUsuario = mysqli_num_rows($resultadoUsuario) > 0;
-        
 
-        $errorFormulario = $errorNombre || $errorUsuario || $errorContraseña || $errorDNI || $repetidoUsuario || $repetidoDni;
+
+        $errorFormulario = $errorNombre || $errorUsuario || $errorContraseña || $errorDNI || $repetidoUsuario || $repetidoDni || !$dniValido;
 
         // si no hay errores de formulario, hacer la insercion
         if (!$errorFormulario) {
@@ -190,8 +222,9 @@ function paginaError($mensaje)
 
             <label for="nombreInsercion">Nombre:</label>
             <br>
-            <input type="text" name="nombreInsercion" maxlength="50">
-            <?php
+            <input type="text" name="nombreInsercion" maxlength="50" value="<?php if (isset($_POST["nombreInsercion"]))
+                echo $_POST["nombreInsercion"] ?>">
+                <?php
             if (isset($_POST["nombreInsercion"]) && $_POST["nombreInsercion"] == "") {
                 echo "<span>El nombre no puede estar vacio</span>";
             }
@@ -200,11 +233,12 @@ function paginaError($mensaje)
 
             <label for="usuarioInsercion">Usuario:</label>
             <br>
-            <input type="text" name="usuarioInsercion" maxlength="30">
-            <?php
+            <input type="text" name="usuarioInsercion" maxlength="30" value="<?php if (isset($_POST["usuarioInsercion"]))
+                echo $_POST["usuarioInsercion"] ?>">
+                <?php
             if (isset($_POST["usuarioInsercion"]) && $_POST["usuarioInsercion"] == "") {
                 echo "<span>El usuario no puede estar vacio</span>";
-            } else if ($repetidoUsuario) {
+            } else if (isset($repetidoUsuario) && $repetidoUsuario) {
                 echo "<span>El nombre de usuario no está disponible</span>";
             }
             ?>
@@ -223,19 +257,24 @@ function paginaError($mensaje)
 
             <label for="dniInsercion">DNI:</label>
             <br>
-            <input type="text" name="dniInsercion" maxlength="10">
-            <?php
+            <input type="text" name="dniInsercion" maxlength="9" value="<?php if (isset($_POST["dniInsercion"]))
+                echo $_POST["dniInsercion"] ?>">
+                <?php
             if (isset($_POST["dniInsercion"]) && $_POST["dniInsercion"] == "") {
                 echo "<span>El DNI no puede estar vacío</span>";
-            } else if ($repetidoDni) {
+            } else if (isset($errorDNI) && $errorDNI) {
+                echo "<span>El dni que ha insertado no es un un formato de dni válido</span>";
+            } else if (isset($repetidoDni) && $repetidoDni) {
                 echo "<span>El dni que ha insertado ya se encuentra registrado</span>";
+            } else if (isset($dniValido) && !$dniValido) {
+                echo "<span>El dni que ha insertado no es un dni válido</span>";
             }
             ?>
             <br>
 
             <label>Sexo:</label>
             <br>
-            <input type="radio" id="hombre" name="sexoInsercion" value="hombre"><label for="hombre"> Hombre</label>
+            <input type="radio" id="hombre" name="sexoInsercion" value="hombre" checked><label for="hombre"> Hombre</label>
             <input type="radio" id="mujer" name="sexoInsercion" value="mujer"><label for="mujer"> Mujer</label>
             <br>
 
@@ -253,8 +292,8 @@ function paginaError($mensaje)
             <button type="submit" name="atras">Atrás</button>
         </form>
         <?php
-    
-      // si se ha pulsado el boton ver datos de usuario
+
+        // si se ha pulsado el boton ver datos de usuario
     } else if (isset($_POST["verDatos"])) {
         // intentar la conexion
         try {
@@ -286,6 +325,63 @@ function paginaError($mensaje)
         }
 
         mysqli_close($conexion);
+    } else if (isset($_POST["editarUsuario"])) {
+        ?>
+                <h3>Editar un Usuario Existente</h3>
+                <form action="#" method="post">
+
+                    <label for="nombreEdicion">Nombre:</label>
+                    <br>
+                    <input type="text" name="nombreEdicion" maxlength="50" value="">
+                <?php
+
+                ?>
+                    <br>
+                    <label for="usuarioEdicion">Usuario:</label>
+                    <br>
+                    <input type="text" name="usuarioEdicion" maxlength="30" value="">
+                <?php
+
+                ?>
+                    <br>
+                    <label for="contraseñaEdicion">Contraseña:</label>
+                    <br>
+                    <input type="password" name="contraseñaEdicion" maxlength="50">
+                <?php
+
+                ?>
+                    <br>
+                    <label for="dniEdicion">DNI:</label>
+                    <br>
+                    <input type="text" name="dniEdicion" maxlength="9" value="">
+                <?php
+
+                ?>
+
+                    <br>
+                    <label for="sexoEdicion">Sexo:</label>
+                    <br>
+                    <input type="text" name="sexoEdicion" value="">
+                    <br>
+
+                    <label for="imagenEdicion">Incluir mi foto (MAX-500KB):</label>
+                    <br>
+                    <input type="text" accept="img" name="imagenEdicion">
+                <?php
+                if (isset($errorFoto) && $errorFoto) {
+                    echo "<span>Error en la subida de la foto, imagen no válida o peso mayor a 500KB";
+                }
+                ?>
+
+                    <br>
+
+                    <button type="submit" name="guardarEdicion">Guardar Cambios</button>
+                    <button type="submit" name="atras">Atrás</button>
+                </form>
+        <?php
+
+    } else if (isset($_POST["borrarUsuario"])) {
+        echo "<form action='#' method='post'><p>¿Estás seguro que desea borrar el usuario " . $_POST["borrarUsuario"] . "?</p><button name='continuarBorrado' value='" . $_POST["borrarUsuario"] . "'>Borrar</button><button name='atras''>Atras</button></form>";
     }
 
     // SIEMPRE MOSTRAR LA TABLA
@@ -309,7 +405,6 @@ function paginaError($mensaje)
     }
 
     // montar la tabla, mientras tengamos tupla
-    echo "<form action='#' method='post'>";
     echo "<table border='1px'>";
     echo "<tr>";
     echo "<td>#</td>";
@@ -322,15 +417,14 @@ function paginaError($mensaje)
     while ($datosUsuarios = mysqli_fetch_assoc($resultado)) {
 
         echo "<tr>";
-        echo "<td>" . $datosUsuarios["id_usuario"] . "</td>";
-        echo "<td> <img src='img/" . $datosUsuarios["foto"] . "'></td>";
-        echo "<td><button name='verDatos' type='submit' value='" . $datosUsuarios["id_usuario"] . "'>" . $datosUsuarios["nombre"] . "</button></td>";
-        echo "<td><button type='submit' name='borrarUsuario' value='" . $datosUsuarios["id_usuario"] . "'>Borrar</button> - <button type='submit' name='editarUsuario' value='" . $datosUsuarios["id_usuario"] . "'>Editar</button></td>";
+        echo "<td><form method='post' action='#'>" . $datosUsuarios["id_usuario"] . "</form></td>";
+        echo "<td><form method='post' action='#'><img src='img/" . $datosUsuarios["foto"] . "'></form></td>";
+        echo "<td><form method='post' action='#'><button name='verDatos' type='submit' value='" . $datosUsuarios["id_usuario"] . "'>" . $datosUsuarios["nombre"] . "</button></form></td>";
+        echo "<td><form method='post' action='#'><button type='submit' name='borrarUsuario' value='" . $datosUsuarios["id_usuario"] . "'>Borrar</button> - <button type='submit' name='editarUsuario' value='" . $datosUsuarios["id_usuario"] . "'>Editar</button></form></td>";
         echo "</tr>";
     }
 
     echo "</table>";
-    echo "</form>";
     // cerrar la conexion
     mysqli_close($conexion);
 
