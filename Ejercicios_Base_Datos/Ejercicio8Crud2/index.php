@@ -181,7 +181,7 @@ function comprobarDni($cualquierDni)
             // saber si ha subido foto
             if ($_FILES["imagenInsercion"]["name"] !== "") {
                 // controlar errores si se ha subido la foto
-                $errorFoto = $_FILES["imagenInsercion"]["error"] || !getimagesize($_FILES["imagenInsercion"]["tmp_name"]) || $_FILES["imagenInsercion"]["size"] > 500 * 1024;
+                $errorFoto = !getimagesize($_FILES["imagenInsercion"]["tmp_name"]) || $_FILES["imagenInsercion"]["size"] > 500 * 1024 ||  $_FILES["imagenInsercion"]["error"];
                 $errorFormulario = $errorFoto;
 
                 // si no hay error en la foto
@@ -215,7 +215,7 @@ function comprobarDni($cualquierDni)
         }
     }
     // si se ha pulsado el boton nuevo usuario o guardar cambios para insertar pero hay errores en el formulario o se pulsado el boton editar
-    if (isset($_POST["nuevoUsuario"]) || (isset($_POST["guardarCambios"]) && $errorFormulario)) {
+    if (isset($_POST["nuevoUsuario"]) || (isset($_POST["guardarCambios"])) && $errorFormulario) {
         ?>
         <h3>Agregar Nuevo Usuario</h3>
         <form action="#" method="post" enctype="multipart/form-data">
@@ -236,10 +236,14 @@ function comprobarDni($cualquierDni)
             <input type="text" name="usuarioInsercion" maxlength="30" value="<?php if (isset($_POST["usuarioInsercion"]))
                 echo $_POST["usuarioInsercion"] ?>">
                 <?php
-            if (isset($_POST["usuarioInsercion"]) && $_POST["usuarioInsercion"] == "") {
-                echo "<span>El usuario no puede estar vacio</span>";
-            } else if (isset($repetidoUsuario) && $repetidoUsuario) {
-                echo "<span>El nombre de usuario no está disponible</span>";
+            if (isset($_POST["usuarioInsercion"])) {
+                if($_POST["usuarioInsercion"] == ""){
+                    echo "<span>El usuario no puede estar vacio</span>";
+                } else if (strlen($_POST["usuarioInsercion"]) > 50) {
+                    echo "<span>El nombre de usuario es demasiado largo</span>";
+                }else if ($repetidoUsuario) {
+                    echo "<span>El nombre de usuario no está disponible</span>";
+                }
             }
             ?>
             <br>
@@ -247,7 +251,7 @@ function comprobarDni($cualquierDni)
 
             <label for="contraseñaInsercion">Contraseña:</label>
             <br>
-            <input type="password" name="contraseñaInsercion" maxlength="50">
+            <input type="password" name="contraseñaInsercion" maxlength="15">
             <?php
             if (isset($_POST["contraseñaInsercion"]) && $_POST["contraseñaInsercion"] == "") {
                 echo "<span>La contraseña no puede estar vacía</span>";
@@ -319,41 +323,61 @@ function comprobarDni($cualquierDni)
             echo "<p><strong>Usuario</strong>: " . $datosUser["usuario"] . "<p>";
             echo "<p><strong>DNI</strong>: " . $datosUser["dni"] . "<p>";
             echo "<p><strong>Sexo</strong>: " . $datosUser["sexo"] . "<p>";
-            echo "<p><strong>foto</strong>: " . $datosUser["foto"] . "<p>";
+            echo "<p><strong>Foto:<br></strong><img src='img/" . $datosUser["foto"] . "'</img><p>";
         } else {
             die(paginaError("El usuario que ha intentado consultar ya no se encuentra en la base de datos"));
         }
 
         mysqli_close($conexion);
     } else if (isset($_POST["editarUsuario"])) {
+        // intentar la conexion para consultar los datos del usuario seleccionado
+        try {
+            $conexion = mysqli_connect($host, $user, $pass, $bd);
+            mysqli_set_charset($conexion, "utf8");
+        } catch (Exception $e) {
+            die(paginaError("no se ha podido realizar la conexion para editar los datos del usuario"));
+        }
+
+        // intentar la consulta para mostrar los datos del usuario seleccionado en el formulario
+        try{
+            $consulta = "SELECT * FROM `usuarios` WHERE `id_usuario` = '".$_POST["editarUsuario"]."'";
+            $resultado = mysqli_query($conexion, $consulta);
+        }catch (Exception $e) {
+            mysqli_close($conexion);
+            die(paginaError("no se ha podido realizar la consulta para para editar los datos del usuario"));
+        }
+
+        $datosUser = mysqli_fetch_assoc($resultado);
+        mysqli_close($conexion);
+
         ?>
                 <h3>Editar un Usuario Existente</h3>
                 <form action="#" method="post">
 
-                    <label for="nombreEdicion">Nombre:</label>
+                    <label for="nombreEdicion" >Nombre:</label>
                     <br>
-                    <input type="text" name="nombreEdicion" maxlength="50" value="">
+                    <input type="text" name="nombreEdicion" maxlength="50" value="<?php echo $datosUser["nombre"]?>">
                 <?php
 
                 ?>
                     <br>
                     <label for="usuarioEdicion">Usuario:</label>
                     <br>
-                    <input type="text" name="usuarioEdicion" maxlength="30" value="">
+                    <input type="text" name="usuarioEdicion" maxlength="30" value="<?php echo $datosUser["usuario"] ?>">
                 <?php
 
                 ?>
                     <br>
                     <label for="contraseñaEdicion">Contraseña:</label>
                     <br>
-                    <input type="password" name="contraseñaEdicion" maxlength="50">
+                    <input type="password" name="contraseñaEdicion" maxlength="15" placeholder="Contraseña no visible, introduce una nueva para cambiarla">
                 <?php
 
                 ?>
                     <br>
                     <label for="dniEdicion">DNI:</label>
                     <br>
-                    <input type="text" name="dniEdicion" maxlength="9" value="">
+                    <input type="text" name="dniEdicion" maxlength="9" value="<?php echo $datosUser["dni"] ?>">
                 <?php
 
                 ?>
@@ -361,21 +385,21 @@ function comprobarDni($cualquierDni)
                     <br>
                     <label for="sexoEdicion">Sexo:</label>
                     <br>
-                    <input type="text" name="sexoEdicion" value="">
+                    <input type="text" name="sexoEdicion" value="<?php echo $datosUser["sexo"] ?>">
                     <br>
 
-                    <label for="imagenEdicion">Incluir mi foto (MAX-500KB):</label>
+                    <label for="imagenEdicion">Foto:</label>
                     <br>
-                    <input type="text" accept="img" name="imagenEdicion">
+                    <input type="text" accept="img" name="imagenEdicion" value="<?php echo $datosUser["foto"]?>">
+                    <br>
+                    <img src='img/<?php echo $datosUser["foto"]?>'>
                 <?php
-                if (isset($errorFoto) && $errorFoto) {
-                    echo "<span>Error en la subida de la foto, imagen no válida o peso mayor a 500KB";
-                }
+                
                 ?>
 
                     <br>
 
-                    <button type="submit" name="guardarEdicion">Guardar Cambios</button>
+                    <button type="submit" name="guardarEdicion" value="<?php $_POST["editarUsuario"] ?>">Guardar Cambios</button>
                     <button type="submit" name="atras">Atrás</button>
                 </form>
         <?php
