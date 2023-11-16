@@ -35,7 +35,7 @@ if (isset($_POST["atras"])) {
     $imagen = $datos["foto"];
 
     // si el archivo existe en nuestra que carpeta de imagenes
-    if (file_exists("img/" . $imagen)) {
+    if (file_exists("img/" . $imagen) && $imagen != "no_imagen.jpg") {
         // eliminarla
         unlink("img/" . $imagen);
     }
