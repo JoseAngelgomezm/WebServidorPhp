@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOTONERA GODOS</title>
+</head>
+
+<body>
+    <button onclick="llama('godos')">GODOS</button>
+    <button onclick="llama('normandos')">NORMANDOS</button>
+    <div id="botonera"></div>
+    <script>
+        /*
+        var newButton = document.createElement("button");
+        newButton.innerHTML = "AMALARICO";
+        let ul = document.createElement("ul");
+        let li = document.createElement("li");
+        ul.appendChild(li)
+        li.appendChild(newButton)
+        document.body.appendChild(ul);
+        Array.isArray(e) // true si e es un array y false en caso
+        contrario.*/
+
+        const llama = (seleccionArray) => {
+
+            // declarar la peticion
+            let peticion = new XMLHttpRequest()
+
+            // cuando este listo para cambiar de estado
+            peticion.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    // parsear el array
+                    jsonPedido = JSON.parse(this.responseText)
+                    // cuando tenga los datos, mostrarlos
+                    mostrarArray(jsonPedido, document.getElementById("botonera"))
+
+                }
+            }
+            peticion.open("GET", "examen.php?godos=" + seleccionArray, true)
+            peticion.send()
+        }
+
+        const mostrarArray = (arrayRecorrer, elementoHTML) => {
+            // borrar lo que hay en el elemento padre
+            elementoHTML.innerHTML = ""
+            // recorrer el array que me llega
+            arrayRecorrer.map(elemento => {
+                // si la posicion que estoy recorriendo es un array
+                if (Array.isArray(elemento)) {
+                    // crear un li
+                    let li = document.createElement("li")
+                    // crear un ul
+                    let ul = document.createElement("ul")
+                    // engacharl al li la ul
+                    li.appendChild(ul)
+                    // enganchar li al padre
+                    elementoHTML.appendChild(li)
+                    // volver a llamarme con el elemento que es un array y la lista creada
+                    // que está vacia
+                    mostrarArray(elemento, ul)
+                } else {
+                    // aqui se recorreran todos los elementos, entrara en todos
+                    // crear el boton
+                    let boton = document.createElement("button")
+                    boton.innerHTML = elemento
+                    // crear el li
+                    let li = document.createElement("li")
+                    // al li engancharle el boton
+                    li.appendChild(boton)
+                    // enganchar el li al padre
+                    elementoHTML.appendChild(li)
+                }
+            })
+
+
+        }
+    </script>
+</body>
+
+</html>
