@@ -51,6 +51,8 @@ if (isset($_POST["atras"])) {
 
     mysqli_close($conexion);
     header("location:index.php");
+} else if (isset($_POST["continuarEdicion"])) {
+
 }
 
 
@@ -181,7 +183,7 @@ function comprobarDni($cualquierDni)
             // saber si ha subido foto
             if ($_FILES["imagenInsercion"]["name"] !== "") {
                 // controlar errores si se ha subido la foto
-                $errorFoto = !getimagesize($_FILES["imagenInsercion"]["tmp_name"]) || $_FILES["imagenInsercion"]["size"] > 500 * 1024 ||  $_FILES["imagenInsercion"]["error"];
+                $errorFoto = !getimagesize($_FILES["imagenInsercion"]["tmp_name"]) || $_FILES["imagenInsercion"]["size"] > 500 * 1024 || $_FILES["imagenInsercion"]["error"];
                 $errorFormulario = $errorFoto;
 
                 // si no hay error en la foto
@@ -237,11 +239,11 @@ function comprobarDni($cualquierDni)
                 echo $_POST["usuarioInsercion"] ?>">
                 <?php
             if (isset($_POST["usuarioInsercion"])) {
-                if($_POST["usuarioInsercion"] == ""){
+                if ($_POST["usuarioInsercion"] == "") {
                     echo "<span>El usuario no puede estar vacio</span>";
                 } else if (strlen($_POST["usuarioInsercion"]) > 50) {
                     echo "<span>El nombre de usuario es demasiado largo</span>";
-                }else if ($repetidoUsuario) {
+                } else if ($repetidoUsuario) {
                     echo "<span>El nombre de usuario no está disponible</span>";
                 }
             }
@@ -329,7 +331,7 @@ function comprobarDni($cualquierDni)
         }
 
         mysqli_close($conexion);
-    } else if (isset($_POST["editarUsuario"])) {
+    } else if (isset($_POST["editarUsuario"]) || isset($_POST["guardarEdicion"]) && $errorEdicion) {
         // intentar la conexion para consultar los datos del usuario seleccionado
         try {
             $conexion = mysqli_connect($host, $user, $pass, $bd);
@@ -339,10 +341,10 @@ function comprobarDni($cualquierDni)
         }
 
         // intentar la consulta para mostrar los datos del usuario seleccionado en el formulario
-        try{
-            $consulta = "SELECT * FROM `usuarios` WHERE `id_usuario` = '".$_POST["editarUsuario"]."'";
+        try {
+            $consulta = "SELECT * FROM `usuarios` WHERE `id_usuario` = '" . $_POST["editarUsuario"] . "'";
             $resultado = mysqli_query($conexion, $consulta);
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             mysqli_close($conexion);
             die(paginaError("no se ha podido realizar la consulta para para editar los datos del usuario"));
         }
@@ -354,9 +356,9 @@ function comprobarDni($cualquierDni)
                 <h3>Editar un Usuario Existente</h3>
                 <form action="#" method="post">
 
-                    <label for="nombreEdicion" >Nombre:</label>
+                    <label for="nombreEdicion">Nombre:</label>
                     <br>
-                    <input type="text" name="nombreEdicion" maxlength="50" value="<?php echo $datosUser["nombre"]?>">
+                    <input type="text" name="nombreEdicion" maxlength="50" value="<?php echo $datosUser["nombre"] ?>">
                 <?php
 
                 ?>
@@ -370,7 +372,8 @@ function comprobarDni($cualquierDni)
                     <br>
                     <label for="contraseñaEdicion">Contraseña:</label>
                     <br>
-                    <input type="password" name="contraseñaEdicion" maxlength="15" placeholder="Contraseña no visible, introduce una nueva para cambiarla">
+                    <input type="password" name="contraseñaEdicion" maxlength="15"
+                        placeholder="Contraseña no visible, introduce una nueva para cambiarla">
                 <?php
 
                 ?>
@@ -390,11 +393,11 @@ function comprobarDni($cualquierDni)
 
                     <label for="imagenEdicion">Foto:</label>
                     <br>
-                    <input type="text" accept="img" name="imagenEdicion" value="<?php echo $datosUser["foto"]?>">
+                    <input type="text" accept="img" name="imagenEdicion" value="<?php echo $datosUser["foto"] ?>">
                     <br>
-                    <img src='img/<?php echo $datosUser["foto"]?>'>
+                    <img src='img/<?php echo $datosUser["foto"] ?>'>
                 <?php
-                
+
                 ?>
 
                     <br>
