@@ -213,7 +213,7 @@ function comprobarDni($cualquierDni)
                 mysqli_close($conexion);
             }
         }
-        
+
     } else if (isset($_POST["borrarFoto"])) {
         if ($_POST["fotoEdicion"] != "no_imagen.jpg") {
             // intentar la conexion
