@@ -51,8 +51,6 @@ if (isset($_POST["atras"])) {
 
     mysqli_close($conexion);
     header("location:index.php");
-} else if (isset($_POST["continuarEdicion"])) {
-
 }
 
 
@@ -113,7 +111,7 @@ function comprobarDni($cualquierDni)
 
 
     <?php
-    // si se ha pulsado el boton guardar cambios del formulario de inserccion
+    // BOTON GUARDAR CAMBIOS INSERCION -------------------
     if (isset($_POST["guardarCambios"])) {
         // comprobar los errores
         $errorNombre = $_POST["nombreInsercion"] == "" || strlen($_POST["nombreInsercion"]) > 50;
@@ -215,6 +213,140 @@ function comprobarDni($cualquierDni)
                 mysqli_close($conexion);
             }
         }
+        
+    } else if (isset($_POST["borrarFoto"])) {
+        if ($_POST["fotoEdicion"] != "no_imagen.jpg") {
+            // intentar la conexion
+            try {
+                $conexion = mysqli_connect($host, $user, $pass, $bd);
+                mysqli_set_charset($conexion, "utf8");
+            } catch (Exception $e) {
+                die(paginaError("no se ha podido realizar la conexion en el borrado de la foto"));
+            }
+
+
+            // poner la ruta de la foto en el id del que acabamos de modificar
+            // intentar la consulta update
+            try {
+                $consulta = "UPDATE `usuarios` SET `foto` = 'no_imagen.jpg' WHERE `id_usuario` = '" . $_POST["borrarFoto"] . "'";
+                $resultado = mysqli_query($conexion, $consulta);
+            } catch (Exception $e) {
+                mysqli_close($conexion);
+                die(paginaError("no se ha podido realizar modificacion de los datos de la foto"));
+            }
+            mysqli_close($conexion);
+            unlink("img/" . $_POST["fotoEdicion"] . "");
+            echo "imagen eliminada con exito";
+        } else {
+            echo "el usuario ya no tiene foto";
+        }
+    }
+
+    // BOTON GUARDAR DATOS EDITADOS----------------------------------
+    else if (isset($_POST["guardarEdicion"])) {
+        // control de errores de edicion
+    
+        // comprobar los errores
+        $errorNombre = $_POST["nombreEdicion"] == "" || strlen($_POST["nombreEdicion"]) > 50;
+        $errorUsuario = $_POST["usuarioEdicion"] == "" || strlen($_POST["usuarioEdicion"]) > 30;
+        $errorContraseña = strlen($_POST["contraseñaEdicion"]) > 50;
+        $errorDNI = $_POST["dniEdicion"] == "" || strlen($_POST["dniEdicion"]) !== 9 || (substr($_POST["dniEdicion"], -1) < "A" && substr($_POST["dniEdicion"], -1) > "Z") || !is_numeric(substr($_POST["dniEdicion"], 0, 8));
+
+        // si no hay error de dni, comprobar que sea valido
+        if (!$errorDNI) {
+            $dniValido = comprobarDni($_POST["dniEdicion"]);
+        }
+
+        // MIRAR QUE NO SE REPITA DNI ; USUARIO
+        // si no hay errores en usuario y dni, ver si no estan repetidos
+        if (!$errorUsuario || !$errorDNI) {
+            // intentar la conexion
+            try {
+                $conexion = mysqli_connect($host, $user, $pass, $bd);
+                mysqli_set_charset($conexion, "utf8");
+            } catch (Exception $e) {
+                die(paginaError("no se ha podido realizar la conexion para comprobar la repeticion de datos en la actualizacion de datos"));
+            }
+
+            // realizar la consulta para ver que no se repita ni dni, ni usuario
+            try {
+                // sintaxis de la consulta
+                $consultaUsuario = "SELECT * FROM usuarios WHERE usuario = '" . $_POST["usuarioEdicion"] . "'  AND id_usuario != '" . $_POST["guardarEdicion"] . "'";
+                $consultaDni = "SELECT * FROM usuarios WHERE dni = '" . $_POST["dniEdicion"] . "' AND id_usuario != '" . $_POST["guardarEdicion"] . "'";
+                // realizar las consultas para ver si estan repetidos
+                $resultadoDni = mysqli_query($conexion, $consultaDni);
+                $resultadoUsuario = mysqli_query($conexion, $consultaUsuario);
+            } catch (Exception $e) {
+                mysqli_close($conexion);
+                die(paginaError("no se ha podido realizar la consulta de datos para comprobar la repeticion de datos en la actualizacion de datos"));
+            }
+
+            // si la consulta tiene alguna tupla, significa que estara repetido
+            $repetidoDni = mysqli_num_rows($resultadoDni) > 0;
+            $repetidoUsuario = mysqli_num_rows($resultadoUsuario) > 0;
+            mysqli_close($conexion);
+        }
+
+
+
+        $errorFormularioEdicion = $errorNombre || $errorUsuario || $errorContraseña || $errorDNI || $repetidoDni || $repetidoUsuario || !$dniValido;
+
+        // si no hay errores de formulario, hacer la edicion
+        if (!$errorFormularioEdicion) {
+            // intentar la conexion
+            try {
+                $conexion = mysqli_connect($host, $user, $pass, $bd);
+                mysqli_set_charset($conexion, "utf8");
+            } catch (Exception $e) {
+                die(paginaError("no se ha podido realizar la conexion en la actualizacion de datos (update)"));
+            }
+
+            // intentar la consulta de insercion
+            try {
+                $consulta = "UPDATE usuarios SET id_usuario='" . $_POST["guardarEdicion"] . "', usuario='" . $_POST["usuarioEdicion"] . "',clave='" . $_POST["contraseñaEdicion"] . "',nombre='" . $_POST["nombreEdicion"] . "',dni='" . $_POST["dniEdicion"] . "',sexo='" . $_POST["sexoEdicion"] . "' WHERE id_usuario='" . $_POST["guardarEdicion"] . "'";
+                $resultado = mysqli_query($conexion, $consulta);
+            } catch (Exception $e) {
+                mysqli_close($conexion);
+                die(paginaError("no se ha podido realizar la edicion de datos update"));
+            }
+            echo "cambios realizados con exito";
+        }
+
+        // saber si ha subido foto
+        if ($_FILES["imagenEdicion"]["name"] !== "") {
+            // controlar errores si se ha subido la foto
+            $errorFoto = !getimagesize($_FILES["imagenEdicion"]["tmp_name"]) || $_FILES["imagenEdicion"]["size"] > 500 * 1024 || $_FILES["imagenEdicion"]["error"];
+            $errorFormularioEdicion = $errorFoto;
+
+            // si no hay error en la foto
+            if (!$errorFoto) {
+                // obtener la extension del archivo
+                $nombreImagenDividido = explode(".", $_FILES["imagenEdicion"]["name"]);
+                $extension = end($nombreImagenDividido);
+
+                $rutaDestino = "img/" . $_POST["guardarEdicion"] . "." . $extension . "";
+
+                // si el usuario tiene un imagen
+                if (file_exists("img/" . $_POST["fotoEdicion"] . "") && $_POST["fotoEdicion"] != "no_imagen.jpg") {
+                    unlink("img/" . $_POST["fotoEdicion"] . "");
+                }
+
+                // moverla a la carpeta
+                move_uploaded_file($_FILES["imagenEdicion"]["tmp_name"], $rutaDestino);
+
+                // poner la ruta de la foto en el id del que acabamos de modificar
+                // intentar la consulta update
+                try {
+                    $consulta = "UPDATE `usuarios` SET `foto` = '" . $_POST["guardarEdicion"] . ".$extension' WHERE `id_usuario` = '" . $_POST["guardarEdicion"] . "'";
+                    $resultado = mysqli_query($conexion, $consulta);
+                } catch (Exception $e) {
+                    mysqli_close($conexion);
+                    die(paginaError("no se ha podido realizar modificacion de los datos de la foto"));
+                }
+                mysqli_close($conexion);
+                echo "imagen modificada con exito";
+            }
+        }
     }
     // si se ha pulsado el boton nuevo usuario o guardar cambios para insertar pero hay errores en el formulario o se pulsado el boton editar
     if (isset($_POST["nuevoUsuario"]) || (isset($_POST["guardarCambios"])) && $errorFormulario) {
@@ -293,7 +425,6 @@ function comprobarDni($cualquierDni)
             ?>
 
             <br>
-
             <button type="submit" name="guardarCambios">Guardar Cambios</button>
             <button type="submit" name="atras">Atrás</button>
         </form>
@@ -331,7 +462,13 @@ function comprobarDni($cualquierDni)
         }
 
         mysqli_close($conexion);
-    } else if (isset($_POST["editarUsuario"]) || isset($_POST["guardarEdicion"]) && $errorEdicion) {
+    } else if (isset($_POST["editarUsuario"]) || (isset($_POST["guardarEdicion"]) && $errorFormularioEdicion)) {
+        if (isset($_POST["editarUsuario"])) {
+            $idUsuario = $_POST["editarUsuario"];
+        } else {
+            $idUsuario = $_POST["guardarEdicion"];
+        }
+
         // intentar la conexion para consultar los datos del usuario seleccionado
         try {
             $conexion = mysqli_connect($host, $user, $pass, $bd);
@@ -342,32 +479,51 @@ function comprobarDni($cualquierDni)
 
         // intentar la consulta para mostrar los datos del usuario seleccionado en el formulario
         try {
-            $consulta = "SELECT * FROM `usuarios` WHERE `id_usuario` = '" . $_POST["editarUsuario"] . "'";
+            $consulta = "SELECT * FROM `usuarios` WHERE `id_usuario` = '" . $idUsuario . "'";
             $resultado = mysqli_query($conexion, $consulta);
         } catch (Exception $e) {
             mysqli_close($conexion);
             die(paginaError("no se ha podido realizar la consulta para para editar los datos del usuario"));
         }
 
+
         $datosUser = mysqli_fetch_assoc($resultado);
         mysqli_close($conexion);
 
         ?>
                 <h3>Editar un Usuario Existente</h3>
-                <form action="#" method="post">
+                <form action="#" method="post" enctype="multipart/form-data">
 
                     <label for="nombreEdicion">Nombre:</label>
                     <br>
-                    <input type="text" name="nombreEdicion" maxlength="50" value="<?php echo $datosUser["nombre"] ?>">
+                    <input type="text" name="nombreEdicion" maxlength="50" value="<?php if (isset($_POST["guardarEdicion"])) {
+                        echo $_POST["nombreEdicion"];
+                    } else {
+                        echo $datosUser["nombre"];
+                    } ?>">
                 <?php
-
+                if (isset($_POST["nombreEdicion"]) && $_POST["nombreEdicion"] == "") {
+                    echo "<span>El nombre no puede estar vacio</span>";
+                }
                 ?>
                     <br>
                     <label for="usuarioEdicion">Usuario:</label>
                     <br>
-                    <input type="text" name="usuarioEdicion" maxlength="30" value="<?php echo $datosUser["usuario"] ?>">
+                    <input type="text" name="usuarioEdicion" maxlength="30" value="<?php if (isset($_POST["guardarEdicion"])) {
+                        echo $_POST["usuarioEdicion"];
+                    } else {
+                        echo $datosUser["usuario"];
+                    } ?>">
                 <?php
-
+                if (isset($_POST["usuarioEdicion"])) {
+                    if ($_POST["usuarioEdicion"] == "") {
+                        echo "<span>El usuario no puede estar vacio</span>";
+                    } else if (strlen($_POST["usuarioEdicion"]) > 50) {
+                        echo "<span>El nombre de usuario es demasiado largo</span>";
+                    } else if ($repetidoUsuario) {
+                        echo "<span>El nombre de usuario no está disponible</span>";
+                    }
+                }
                 ?>
                     <br>
                     <label for="contraseñaEdicion">Contraseña:</label>
@@ -375,34 +531,52 @@ function comprobarDni($cualquierDni)
                     <input type="password" name="contraseñaEdicion" maxlength="15"
                         placeholder="Contraseña no visible, introduce una nueva para cambiarla">
                 <?php
-
+                if (isset($_POST["contraseñaInsercion"]) && $_POST["contraseñaInsercion"] == "") {
+                    echo "<span>La contraseña no puede estar vacía</span>";
+                }
                 ?>
                     <br>
                     <label for="dniEdicion">DNI:</label>
                     <br>
-                    <input type="text" name="dniEdicion" maxlength="9" value="<?php echo $datosUser["dni"] ?>">
+                    <input type="text" name="dniEdicion" maxlength="9" value="<?php if (isset($_POST["guardarEdicion"])) {
+                        echo $_POST["dniEdicion"];
+                    } else {
+                        echo $datosUser["dni"];
+                    } ?>">
                 <?php
-
+                if (isset($_POST["dniEdicion"]) && $_POST["dniEdicion"] == "") {
+                    echo "<span>El DNI no puede estar vacío</span>";
+                } else if (isset($errorDNI) && $errorDNI) {
+                    echo "<span>El dni que ha insertado no es un un formato de dni válido</span>";
+                } else if (isset($repetidoDni) && $repetidoDni) {
+                    echo "<span>El dni que ha insertado ya se encuentra registrado</span>";
+                } else if (isset($dniValido) && !$dniValido) {
+                    echo "<span>El dni que ha insertado no es un dni válido</span>";
+                }
                 ?>
+                    <br>
+                    <label>Sexo:</label>
+                    <br>
+                    <input type="radio" id="hombre" name="sexoEdicion" value="hombre" <?php if ($datosUser["sexo"] == "hombre")
+                        echo "checked" ?>><label for="hombre"> Hombre</label>
+                        <input type="radio" id="mujer" name="sexoEdicion" value="mujer" <?php if ($datosUser["sexo"] == "mujer")
+                        echo "checked" ?>><label for="mujer"> Mujer</label>
 
-                    <br>
-                    <label for="sexoEdicion">Sexo:</label>
-                    <br>
-                    <input type="text" name="sexoEdicion" value="<?php echo $datosUser["sexo"] ?>">
-                    <br>
-
-                    <label for="imagenEdicion">Foto:</label>
-                    <br>
-                    <input type="text" accept="img" name="imagenEdicion" value="<?php echo $datosUser["foto"] ?>">
-                    <br>
-                    <img src='img/<?php echo $datosUser["foto"] ?>'>
+                        <br>
+                        <label for="imagenEdicion">Cambiar la foto (MAX-500KB):</label>
+                        <input type="file" accept="img" name="imagenEdicion">
                 <?php
-
-                ?>
-
+                    if (isset($errorFoto) && $errorFoto) {
+                        echo "<span>Error en la subida de la foto, imagen no válida o peso mayor a 500KB";
+                    }
+                    ?>
                     <br>
-
-                    <button type="submit" name="guardarEdicion" value="<?php $_POST["editarUsuario"] ?>">Guardar Cambios</button>
+                    <input type="hidden" name="fotoEdicion" value="<?php echo $datosUser["foto"] ?>">
+                    <img src="img/<?php echo $datosUser["foto"] ?>">
+                    <br>
+                    <button type="submit" name="guardarEdicion" value="<?php echo $datosUser["id_usuario"] ?>">Guardar
+                        Cambios</button>
+                    <button type="submit" name="borrarFoto" value="<?php echo $datosUser["id_usuario"] ?>">Borrar Foto</button>
                     <button type="submit" name="atras">Atrás</button>
                 </form>
         <?php
