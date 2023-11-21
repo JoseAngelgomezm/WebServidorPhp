@@ -188,15 +188,15 @@ function comprobarDni($cualquierDni)
                 if (!$errorFoto) {
                     // obtener la extension del archivo
                     $nombreImagenDividido = explode(".", $_FILES["imagenInsercion"]["name"]);
-                    $extension = end($nombreImagenDividido);
+                    // si tiene mas de un punto
+                    if (count($nombreImagenDividido) > 1) {
+                        $extension = end($nombreImagenDividido);
+                    }
 
                     // obtener el id del ultimo insertado
                     $ultimoID = mysqli_insert_id($conexion);
-
+                    // obtener la ruta de destino
                     $rutaDestino = "img/" . $ultimoID . "." . $extension . "";
-
-                    // moverla a la carpeta
-                    move_uploaded_file($_FILES["imagenInsercion"]["tmp_name"], $rutaDestino);
 
                     // poner la ruta de la foto en el ultimo usuario insertado
                     // intentar la consulta update
@@ -205,6 +205,8 @@ function comprobarDni($cualquierDni)
                         $ultimoID = mysqli_insert_id($conexion);
                         $consulta = "UPDATE `usuarios` SET `foto` = '$ultimoID.$extension' WHERE `id_usuario` = '$ultimoID';";
                         $resultado = mysqli_query($conexion, $consulta);
+                        // mover la foto a la carpeta, si falla la consulta, no la moverá
+                        move_uploaded_file($_FILES["imagenInsercion"]["tmp_name"], $rutaDestino);
                     } catch (Exception $e) {
                         mysqli_close($conexion);
                         die(paginaError("no se ha podido realizar modificacion de los datos de la foto"));
@@ -287,8 +289,6 @@ function comprobarDni($cualquierDni)
             mysqli_close($conexion);
         }
 
-
-
         $errorFormularioEdicion = $errorNombre || $errorUsuario || $errorContraseña || $errorDNI || $repetidoDni || $repetidoUsuario || !$dniValido;
 
         // si no hay errores de formulario, hacer la edicion
@@ -322,34 +322,39 @@ function comprobarDni($cualquierDni)
             if (!$errorFoto) {
                 // obtener la extension del archivo
                 $nombreImagenDividido = explode(".", $_FILES["imagenEdicion"]["name"]);
-                $extension = end($nombreImagenDividido);
-
-                $rutaDestino = "img/" . $_POST["guardarEdicion"] . "." . $extension . "";
-
-                // si el usuario tiene un imagen
-                if (file_exists("img/" . $_POST["fotoEdicion"] . "") && $_POST["fotoEdicion"] != "no_imagen.jpg") {
-                    unlink("img/" . $_POST["fotoEdicion"] . "");
+                // si tiene mas de un punto
+                if (count($nombreImagenDividido) > 1) {
+                    // obtener el ultimo
+                    $extension = end($nombreImagenDividido);
                 }
-
-                // moverla a la carpeta
-                move_uploaded_file($_FILES["imagenEdicion"]["tmp_name"], $rutaDestino);
 
                 // poner la ruta de la foto en el id del que acabamos de modificar
                 // intentar la consulta update
                 try {
                     $consulta = "UPDATE `usuarios` SET `foto` = '" . $_POST["guardarEdicion"] . ".$extension' WHERE `id_usuario` = '" . $_POST["guardarEdicion"] . "'";
                     $resultado = mysqli_query($conexion, $consulta);
+
+                    // obtener la ruta de destino de nuestro servidor
+                    $rutaDestino = "img/" . $_POST["guardarEdicion"] . "." . $extension . "";
+
+                    // si el usuario tiene un imagen borrarla
+                    if (file_exists("img/" . $_POST["fotoEdicion"] . "") && $_POST["fotoEdicion"] != "no_imagen.jpg") {
+                        unlink("img/" . $_POST["fotoEdicion"] . "");
+                    }
+
+                    // moverla a la carpeta, si la consulta falla, no la mueve
+                    move_uploaded_file($_FILES["imagenEdicion"]["tmp_name"], $rutaDestino);
                 } catch (Exception $e) {
                     mysqli_close($conexion);
                     die(paginaError("no se ha podido realizar modificacion de los datos de la foto"));
                 }
                 mysqli_close($conexion);
-                echo "imagen modificada con exito";
+                echo " y imagen modificada con exito";
             }
         }
     }
     // si se ha pulsado el boton nuevo usuario o guardar cambios para insertar pero hay errores en el formulario o se pulsado el boton editar
-    if (isset($_POST["nuevoUsuario"]) || (isset($_POST["guardarCambios"])) && $errorFormulario) {
+    if (isset($_POST["nuevoUsuario"]) || (isset($_POST["guardarCambios"]) && $errorFormulario)) {
         ?>
         <h3>Agregar Nuevo Usuario</h3>
         <form action="#" method="post" enctype="multipart/form-data">
@@ -462,11 +467,15 @@ function comprobarDni($cualquierDni)
         }
 
         mysqli_close($conexion);
-    } else if (isset($_POST["editarUsuario"]) || (isset($_POST["guardarEdicion"]) && $errorFormularioEdicion)) {
+
+        // BOTON EDITAR USUARIO O GUARDAR EDICION ----------------------------
+    } else if (isset($_POST["editarUsuario"]) || (isset($_POST["guardarEdicion"]) && $errorFormularioEdicion) || isset($_POST["borrarFoto"])) {
         if (isset($_POST["editarUsuario"])) {
             $idUsuario = $_POST["editarUsuario"];
-        } else {
+        } else if (isset($_POST["guardarEdicion"])) {
             $idUsuario = $_POST["guardarEdicion"];
+        } else {
+            $idUsuario = $_POST["borrarFoto"];
         }
 
         // intentar la conexion para consultar los datos del usuario seleccionado
@@ -520,7 +529,7 @@ function comprobarDni($cualquierDni)
                         echo "<span>El usuario no puede estar vacio</span>";
                     } else if (strlen($_POST["usuarioEdicion"]) > 50) {
                         echo "<span>El nombre de usuario es demasiado largo</span>";
-                    } else if ($repetidoUsuario) {
+                    } else if (isset($repetidoUsuario) && $repetidoUsuario) {
                         echo "<span>El nombre de usuario no está disponible</span>";
                     }
                 }
