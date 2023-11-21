@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+        function getvoto(int) {
+            xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("encuesta").innerHTML = this.responseText;
+                }
+            }
+            xmlhttp.open("GET", "votos.php?voto=" + int, true);
+            xmlhttp.send();
+        }
+    </script>
+</head>
+
+<body>
+    <div id="encuesta">
+        <h3>&iquest;Qu&eacute; equipo crees que va a ganar la liga este a&ntilde;o?</h3>
+        <form>
+            Real Madrid:
+            <input type="radio" name="voto" value="0" onclick="getvoto(this.value)">
+            <br>
+            Barcelona:
+            <input type="radio" name="voto" value="1" onclick="getvoto(this.value)">
+            <br>
+            Atl&eacute;tico de Madrid:
+            <input type="radio" name="voto" value="2" onclick="getvoto(this.value)">
+            <br>
+            Sevilla:
+            <input type="radio" name="voto" value="3" onclick="getvoto(this.value)">
+        </form>
+    </div>
+</body>
+
+</html>
