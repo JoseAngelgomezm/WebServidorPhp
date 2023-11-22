@@ -31,13 +31,20 @@ function errores($texto)
     <title>Practica 9</title>
     <style>
         img{width:200px}
-        table{margin: 0 auto; text-align: center; width:80% ; border: solid 10px lightgreen}
+        table{margin: 0 auto; text-align: center; width:70% ; border: solid 10px lightgreen}
         td{border: solid 2px black}
     </style>
 </head>
 
 <body>
+      <!-- Si se han pulsado los botones editar o borrar -->
+    <?php
+        if(isset($_POST["botonEditar"])){
 
+        }else if(isset($_POST["botonBorrar"])){
+
+        }
+    ?>
 
     <!-- SIEMPRE MOSTRAR LA TABLA -->
     <?php
@@ -62,7 +69,7 @@ function errores($texto)
 
 
     echo "<table>";
-    echo "<tr><td>idPelicula</td><td>titulo</td><td>director</td><td>sinopsis</td><td>tematica</td><td>caratula</td></tr>";
+    echo "<tr><td>idPelicula</td><td>titulo</td><td>director</td><td>sinopsis</td><td>tematica</td><td>caratula</td><td>acciones</td></tr>";
     // montar la tabla
     while ($datosUsuariosSelect = mysqli_fetch_assoc($resultadoSelect)) {
         echo "<tr>";
@@ -73,6 +80,10 @@ function errores($texto)
         echo "<td>" . $datosUsuariosSelect["sinopsis"] . "</td>";
         echo "<td>" . $datosUsuariosSelect["tematica"] . "</td>";
         echo "<td><img src='img/" . $datosUsuariosSelect["caratula"] . "'</td>";
+        echo "<td><form>
+        <button type='submit' name='botonEditar' value='".$datosUsuariosSelect["idPelicula"]."'>Borrar</button> - 
+        <button type='submit' name='botonBorrar' value='".$datosUsuariosSelect["idPelicula"]."'>Editar</button>
+        </form>";
 
         echo "</tr>";
     }
