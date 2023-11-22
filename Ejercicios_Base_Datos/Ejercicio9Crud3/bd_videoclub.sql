@@ -28,7 +28,7 @@ CREATE database if not exists bd_videoclub  DEFAULT CHARACTER SET utf8mb4 COLLAT
 -- Estructura de tabla para la tabla `películas`
 --
 
-CREATE TABLE `películas` (
+CREATE TABLE `peliculas` (
   `idPelicula` int(11) NOT NULL,
   `titulo` varchar(15) NOT NULL,
   `director` varchar(20) NOT NULL,
