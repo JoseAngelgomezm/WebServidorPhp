@@ -80,7 +80,8 @@ function errores($texto)
         echo "<td>" . $datosUsuariosSelect["sinopsis"] . "</td>";
         echo "<td>" . $datosUsuariosSelect["tematica"] . "</td>";
         echo "<td><img src='img/" . $datosUsuariosSelect["caratula"] . "'</td>";
-        echo "<td><form>
+        echo "<td>
+        <form method='post' action='#'>
         <button type='submit' name='botonEditar' value='".$datosUsuariosSelect["idPelicula"]."'>Borrar</button> - 
         <button type='submit' name='botonBorrar' value='".$datosUsuariosSelect["idPelicula"]."'>Editar</button>
         </form>";
