@@ -77,7 +77,7 @@ if (isset($_POST["borrarNota"])) {
         header("location:index.php");
         exit();
     }
-   
+
 
 
 } else if (isset($_POST["calificar"])) {
@@ -92,14 +92,20 @@ if (isset($_POST["borrarNota"])) {
 
     // necesitamos id_alu y id_asig
     try {
-        $consulta = "UPDATE notas SET nota='" . $_POST["notaModificar"] . "' WHERE cod_alu='" . $_POST["alumnos"] . "' AND cod_asig='" . $_POST["confirmarEdicion"] . "'";
+        $consulta = "INSERT INTO `notas`(`cod_alu`, `cod_asig`, `nota`) VALUES ('".$_POST["calificar"]."','".$_POST["asignaturasSinCalificar"]."','0')";
         mysqli_query($conexion, $consulta);
     } catch (Exception $e) {
         session_destroy();
-        die(errorPagina("No se ha podido conectar al intentar modificar la nota"));
+        die(errorPagina("No se ha podido insertar la nota"));
     }
 
-    
+
+    mysqli_close($conexion);
+    $_SESSION["mensaje"] = "Se ha insertado una nota con exito";
+    $_SESSION["cod_asig"] = $_POST["asignaturasSincalificar"];
+    $_SESSION["cod_alu"] = $_POST["calificar"];
+    header("location:index.php");
+    exit();
 }
 ?>
 
@@ -214,14 +220,16 @@ if (isset($_POST["borrarNota"])) {
                 echo "<td>" . $notasAlumnos["denominacion"] . "</td>";
 
                 echo "<td>";
-                if ((isset($_POST["editarNota"]) && $_POST["editarNota"] == $notasAlumnos["cod_asig"]) || (isset($_POST["confirmarEdicion"]) && $_POST["confirmarEdicion"]  == $notasAlumnos["cod_asig"])) {
-                    if(isset($_POST["editarNota"])){
-                        $nota =  $notasAlumnos["nota"];
-                    }else{
+                if ((isset($_POST["editarNota"]) && $_POST["editarNota"] == $notasAlumnos["cod_asig"]) || (isset($_POST["confirmarEdicion"]) && $_POST["confirmarEdicion"] == $notasAlumnos["cod_asig"]) || (isset($_POST["calificar"]) && $_SESSION["calificar"] == $notasAlumnos["cod_asig"])) {
+                    if (isset($_POST["editarNota"])) {
+                        $nota = $notasAlumnos["nota"];
+                    } else if(isset($_POST["notaModificar"])) {
                         $nota = $_POST["notaModificar"];
+                    }else if(isset($_POST["calificar"])){
+                        $nota = "0";
                     }
-                    echo "<input type='text' name='notaModificar' value='".$nota."'></input>";
-                    if(isset($_POST["confirmarEdicion"])){
+                    echo "<input type='text' name='notaModificar' value='" . $nota . "'></input>";
+                    if (isset($_POST["confirmarEdicion"])) {
                         echo "<br><span>nota no valida</span>";
                     }
                 } else {

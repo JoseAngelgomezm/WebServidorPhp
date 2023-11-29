@@ -23,6 +23,7 @@ function errores($texto)
 
 if (isset($_POST["atras"])) {
     header("location:index.php");
+    exit();
 
 } else if (isset($_POST["guardarEdicion"])) {
     // comprobar los errores
@@ -49,7 +50,7 @@ if (isset($_POST["atras"])) {
                     $extension = end($nombreFicheroPartes);
                 }
 
-                // crear la variable que contedra el directorio de va la imagen con su nombre
+                // crear la variable que contedra el directorio donde va la imagen con su nombre
                 $directorioDestino = "img/" . $_POST["tituloPelicula"] . "." . $extension . "";
 
                 // eliminar la foto si la tenia
@@ -80,8 +81,8 @@ if (isset($_POST["atras"])) {
                     }
 
                     // si hay foto
-                    $_SESSION["mensajeEdicion"] = "<p>Se ha modificado una pelicula con exito</p>";
-                    session_destroy();
+                    $_SESSION["mensaje"] = "<p>Se ha modificado una pelicula con exito</p>";
+                   
 
 
                 } else {
@@ -94,8 +95,8 @@ if (isset($_POST["atras"])) {
 
         } else {
             // si no hay foto
-            $_SESSION["mensajeEdicion"] = "<p>Se ha modificado una pelicula con exito, pero sin foto</p>";
-            session_destroy();
+            $_SESSION["mensaje"] = "<p>Se ha modificado una pelicula con exito, pero sin foto</p>";
+           
         }
     }
 
@@ -144,11 +145,11 @@ if (isset($_POST["atras"])) {
                 }
 
                 // crear la variable que contedra el directorio de va la imagen con su nombre
-                $directorioDestino = "img/" . $_POST["tituloPelicula"] . "." . $extension . "";
+                $directorioDestino = "img/" . $_POST["titulo"] . "." . $extension . "";
 
                 // eliminar la foto si la tenia
                 if (file_exists(".$directorioDestino.")) {
-                    unlink($_POST["tituloPelicula"] . "." . $extension);
+                    unlink($_POST["titulo"] . "." . $extension);
                 }
 
                 // Intentar moverla a nuestro directorio del servidor
@@ -169,7 +170,7 @@ if (isset($_POST["atras"])) {
 
                     // intentar la consulta de la caratula
                     try {
-                        $consultaSelect = "UPDATE peliculas SET caratula='" . $_POST["tituloPelicula"] . "." . $extension . "' WHERE idPelicula='" . $ultimoIDpelicula . "'";
+                        $consultaSelect = "UPDATE peliculas SET caratula='" . $_POST["titulo"] . "." . $extension . "' WHERE idPelicula='" . $ultimoIDpelicula . "'";
                         $resultadoSelect = mysqli_query($conexionVideoClub, $consultaSelect);
                     } catch (Exception $e) {
                         mysqli_close($conexionVideoClub);
@@ -183,15 +184,15 @@ if (isset($_POST["atras"])) {
                     echo "<p>No se ha podido mover la imagen</p>";
                 }
                 mysqli_close($conexionVideoClub);
-                $_SESSION["mensajeInsertar"] = "<p>Se ha insertado una pelicula con exito</p>";
-                session_destroy();
+                $_SESSION["mensaje"] = "<p>Se ha insertado una pelicula con exito</p>";
+               
             }
 
 
         } else {
             // si no hay foto
-            $_SESSION["mensajeInsertar"] = "<p>Se ha insertado una pelicula con exito, pero sin foto</p>";
-            session_destroy();
+            $_SESSION["mensaje"] = "<p>Se ha insertado una pelicula con exito, pero sin foto</p>";
+            
         }
     }
 }
@@ -230,12 +231,9 @@ if (isset($_POST["atras"])) {
 <body>
 
     <?php
-    if (isset($_SESSION["mensajeBorrado"])) {
-        echo $_SESSION["mensajeBorrado"];
-    } else if (isset($_SESSION["mensajeEdicion"])) {
-        echo $_SESSION["mensajeEdicion"];
-    } else if (isset($_SESSION["mensajeInsertar"])) {
-        echo $_SESSION["mensajeInsertar"];
+    if (isset($_SESSION["mensaje"])) {
+        echo $_SESSION["mensaje"];
+        session_destroy();
     }
 
     // Si se han pulsado los botones editar o borrar

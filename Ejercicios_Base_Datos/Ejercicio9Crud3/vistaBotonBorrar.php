@@ -16,7 +16,9 @@ try {
 }
 
 mysqli_close($conexionVideoClub);
-$_SESSION["mensajeBorrado"] = "<p>Se ha eliminado una pelicula con exito</p>";
-session_destroy();
+$_SESSION["mensaje"] = "<p>Se ha eliminado una pelicula con exito</p>";
+header("location:index.php");
+exit();
+
 
 ?>

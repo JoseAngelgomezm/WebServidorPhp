@@ -6,15 +6,9 @@ try {
     die(errores("No se ha podido conectar a la base de datos para editar los datos de una pelicula"));
 }
 
-if(isset($_POST["botonEditar"])){
-    $idPelicula = $_POST["botonEditar"];
-}else if(isset($_POST["guardarEdicion"])){
-    $idPelicula = $_POST["guardarEdicion"];
-}
-
 // intentar la consulta de la pelicula
 try {
-    $consultaSelect = "SELECT * from peliculas WHERE idPelicula='" . $idPelicula . "'";
+    $consultaSelect = "SELECT * from peliculas WHERE idPelicula='" . $_POST["botonEditar"] . "'";
     $resultadoSelect = mysqli_query($conexionVideoClub, $consultaSelect);
 } catch (Exception $e) {
     mysqli_close($conexionVideoClub);
