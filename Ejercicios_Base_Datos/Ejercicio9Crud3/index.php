@@ -79,6 +79,9 @@ if (isset($_POST["atras"])) {
                         die(errores("No se ha podido consultar las peliculas editar los datos de una pelicula"));
                     }
 
+                    // si hay foto
+                    $_SESSION["mensajeEdicion"] = "<p>Se ha modificado una pelicula con exito</p>";
+                    session_destroy();
 
 
                 } else {
