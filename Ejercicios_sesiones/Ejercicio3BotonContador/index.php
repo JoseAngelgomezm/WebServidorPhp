@@ -1,31 +1,37 @@
 <?php
 session_name("Ejercicio2BotonContador");
 session_start();
+
+if (!isset($_SESSION["contador"]))
+    $_SESSION["contador"] = 0;
 ?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contadores session</title>
-    <form method="post" action="comprobar.php">
-        <h2>
-            <?php
-            if (isset($_SESSION["contador"]))
-                echo $_SESSION["contador"];
-            else
-                echo "0";
-            ?>
-        </h2>
-        <button name="accion" type="submit" value="mas">Aumentar</button>
-        <button name="accion" type="submit" value="menos">Disminuir</button>
-        <button name="accion" type="submit" value="reiniciar">Reiniciar</button>
-    </form>
+    <style>
+        button.grande {
+            width: 50px;
+            height: 50px;
+        }
+
+        span {
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
-
+    <form method="post" action="comprobar.php">
+        <button class="grande" name="accion" type="submit" value="menos">-</button>
+        <?php echo "<span>" . $_SESSION["contador"] . "</span>"; ?>
+        <button class="grande" name="accion" type="submit" value="mas">+</button>
+        <p><button name="accion" type="submit" value="reiniciar">Reiniciar</button></p>
+    </form>
 </body>
 
 </html>
