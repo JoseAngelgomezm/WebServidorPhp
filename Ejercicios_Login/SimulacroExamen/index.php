@@ -1,11 +1,11 @@
 <?php
-define("TIEMPOMAXIMOSEGUNDOSSIMULACRO", "5");
+define("TIEMPOMAXIMOSEGUNDOSSIMULACRO", "");
 session_name("SimulacroExamenLoginVideoclub");
 session_start();
 define("HOST", "localhost");
-define("USER","jose");
-define("PASSWORD","josefa");
-define("BD","bd_videoclub_2");
+define("USER", "jose");
+define("PASSWORD", "josefa");
+define("BD", "bd_videoclub_2");
 
 function LetraNIF($dni)
 {
@@ -131,6 +131,8 @@ if (isset($_POST["continuar"])) {
             // establecer la session con los datos del nuevo usuario
             $_SESSION["usuario"] = $_POST["usuario"];
             $_SESSION["clave"] = md5($_POST["password"]);
+            // definir el tiempo nuevo
+            $_SESSION["ultimaAccion"] = time();
             header("location:index.php");
             exit();
         }
@@ -175,6 +177,8 @@ if (isset($_POST["continuar"])) {
         if (mysqli_num_rows($resultado) > 0) {
             $_SESSION["usuario"] = $_POST["usuario"];
             $_SESSION["clave"] = md5($_POST["password"]);
+            // definir el tiempo de ultima accion
+            $_SESSION["ultimaAccion"] = time();
             header("location:index.php");
             exit();
         } else {
@@ -304,10 +308,7 @@ if (isset($_POST["registrarse"]) || isset($_POST["continuar"]) && $errorFormular
 
     // si un usuario a logeado,
 } else if (isset($_SESSION["usuario"])) {
-    $_SESSION["ultimaAccion"] = time();
-
     // comprobar seguridad
-
     // realizar la conexion para comprobar datos de usuario
     try {
         $conexion = mysqli_connect(HOST, USER, PASSWORD, BD);
@@ -326,25 +327,26 @@ if (isset($_POST["registrarse"]) || isset($_POST["continuar"]) && $errorFormular
         die(errorPagina("No se ha podido conectar a la bd para realizar consulta de usuario"));
     }
 
-    $datosUsuario = mysqli_fetch_assoc($resultado);
-
     // si no obtenemos tuplas, se ha eliminado al usuario
     if (mysqli_num_rows($resultado) <= 0) {
         mysqli_close($conexion);
         session_unset();
         $_SESSION["mensaje"] = "<span>El usuario ha sido eliminado</span>";
-
-        // si el usuario existe, comprobar el tiempo de conexion
-    } else {
-        // comprobar el tiempo
-        if (($_SESSION["ultimaAccion"] - time()) > TIEMPOMAXIMOSEGUNDOSSIMULACRO) {
-            session_unset();
-            mysqli_close($conexion);
-            $_SESSION["mensaje"] = "<span>has superado el tiempo de conexion</span>";
-            header("location:index.php");
-            exit();
-        }
+        header("location:index.php");
+        exit();
     }
+
+    // si el usuario existe, comprobar el tiempo de conexion
+    if ((time() - $_SESSION["ultimaAccion"]) > TIEMPOMAXIMOSEGUNDOSSIMULACRO) {
+        session_unset();
+        mysqli_close($conexion);
+        $_SESSION["mensaje"] = "<span>has superado el tiempo de conexion</span>";
+        header("location:index.php");
+        exit();
+    }
+
+    // si pasa los controles, renovar el tiempo
+    $_SESSION["ultimaAccion"] = time();
 
     // si todo ha ido bien montar la tabla
     // intentar la consulta
@@ -366,19 +368,20 @@ if (isset($_POST["registrarse"]) || isset($_POST["continuar"]) && $errorFormular
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Document</title>
             <style>
-                table{
-                    border:solid 1px;
+                table {
+                    border: solid 1px;
                     border-collapse: collapse;
                     width: 90%;
                     margin: 0 auto;
                     text-align: center;
                 }
-                td{
+
+                td {
                     border: solid 1px;
-                   
+
                 }
 
-                tr#cabecera{
+                tr#cabecera {
                     background-color: lightgray;
                 }
             </style>
@@ -387,7 +390,9 @@ if (isset($_POST["registrarse"]) || isset($_POST["continuar"]) && $errorFormular
         <body>
             <h1>ViceoClub</h1>
             <form action="index.php" method="post">
-                <p>Bienvenido <strong><?php echo $_SESSION["usuario"] ?></strong> - <button name="volver">Salir</button>
+                <p>Bienvenido <strong>
+                    <?php echo $_SESSION["usuario"] ?>
+                    </strong> - <button name="volver">Salir</button>
                 </p>
             </form>
 
