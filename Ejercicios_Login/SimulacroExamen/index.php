@@ -2,7 +2,10 @@
 define("TIEMPOMAXIMOSEGUNDOSSIMULACRO", "5");
 session_name("SimulacroExamenLoginVideoclub");
 session_start();
-
+define("HOST", "localhost");
+define("USER","jose");
+define("PASSWORD","josefa");
+define("BD","bd_videoclub_2");
 
 function LetraNIF($dni)
 {
@@ -44,7 +47,7 @@ if (isset($_POST["continuar"])) {
     if (!$errorFormularioRegistro) {
         // comprobar que el dni no este repetido
         try {
-            $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_videclub_simulacro_examen");
+            $conexion = mysqli_connect(HOST, USER, PASSWORD, BD);
         } catch (Exception $e) {
             session_destroy();
             die(errorPagina("No se ha podido conectar a la bd para verificar datos de usuario"));
@@ -74,7 +77,7 @@ if (isset($_POST["continuar"])) {
             // comprobar el usuario que no este repetido
             // realizar la conexion para comprobar datos de usuario
             try {
-                $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_videclub_simulacro_examen");
+                $conexion = mysqli_connect(HOST, USER, PASSWORD, BD);
             } catch (Exception $e) {
                 session_destroy();
                 die(errorPagina("No se ha podido conectar a la bd para verificar datos de usuario"));
@@ -107,7 +110,7 @@ if (isset($_POST["continuar"])) {
 
             // realizar la conexion para insertar al usuario
             try {
-                $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_videclub_simulacro_examen");
+                $conexion = mysqli_connect(HOST, USER, PASSWORD, BD);
             } catch (Exception $e) {
                 session_destroy();
                 die(errorPagina("No se ha podido conectar a la bd para verificar datos de usuario"));
@@ -150,7 +153,7 @@ if (isset($_POST["continuar"])) {
     if (!$errorFormularioEntrar) {
         // realizar la conexion para comprobar datos de usuario
         try {
-            $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_videclub_simulacro_examen");
+            $conexion = mysqli_connect(HOST, USER, PASSWORD, BD);
         } catch (Exception $e) {
             session_destroy();
             die(errorPagina("No se ha podido conectar a la bd para verificar datos de usuario"));
@@ -307,7 +310,7 @@ if (isset($_POST["registrarse"]) || isset($_POST["continuar"]) && $errorFormular
 
     // realizar la conexion para comprobar datos de usuario
     try {
-        $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_videclub_simulacro_examen");
+        $conexion = mysqli_connect(HOST, USER, PASSWORD, BD);
     } catch (Exception $e) {
         session_destroy();
         die(errorPagina("No se ha podido conectar a la bd para verificar datos de usuario"));
