@@ -1,5 +1,5 @@
 <?php
-define("TIEMPOMAXIMOSEGUNDOSSIMULACRO", "");
+define("TIEMPOMAXIMOSEGUNDOSSIMULACRO", "10");
 session_name("SimulacroExamenLoginVideoclub");
 session_start();
 define("HOST", "localhost");
@@ -131,6 +131,8 @@ if (isset($_POST["continuar"])) {
             // establecer la session con los datos del nuevo usuario
             $_SESSION["usuario"] = $_POST["usuario"];
             $_SESSION["clave"] = md5($_POST["password"]);
+            // cuando registro, el tipo usuario sera normal
+            $_SESSION["tipo"] = "normal";
             // definir el tiempo nuevo
             $_SESSION["ultimaAccion"] = time();
             header("location:index.php");
@@ -173,10 +175,14 @@ if (isset($_POST["continuar"])) {
 
         mysqli_close($conexion);
 
+
         // si tenemos resultado, es que el usuario puede logear
         if (mysqli_num_rows($resultado) > 0) {
             $_SESSION["usuario"] = $_POST["usuario"];
             $_SESSION["clave"] = md5($_POST["password"]);
+            // obtener el tipo de la persona que ha logeado
+            $datosUsuario = mysqli_fetch_assoc($resultado);
+            $_SESSION["tipo"] = $datosUsuario["tipo"];
             // definir el tiempo de ultima accion
             $_SESSION["ultimaAccion"] = time();
             header("location:index.php");
@@ -348,77 +354,104 @@ if (isset($_POST["registrarse"]) || isset($_POST["continuar"]) && $errorFormular
     // si pasa los controles, renovar el tiempo
     $_SESSION["ultimaAccion"] = time();
 
-    // si todo ha ido bien montar la tabla
-    // intentar la consulta
-    try {
-        $consulta = "select * from peliculas";
-        $resultado = mysqli_query($conexion, $consulta);
-    } catch (Exception $e) {
+    if ($_SESSION["tipo"] === "admin") {
+        ?>
+            <!DOCTYPE html>
+            <html lang="en">
+
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Document</title>
+            </head>
+
+            <body>
+                <h1>ViceoClub</h1>
+                <form action="index.php" method="post">
+                    <p>Bienvenido <strong>
+                        <?php echo $_SESSION["usuario"]." - Tipo: ". $_SESSION["tipo"] ?>
+                        </strong> - <button name="volver">Salir</button>
+                    </p>
+                </form>
+            </body>
+
+            </html>
+        <?php
+    } else if ($_SESSION["tipo"] === "normal") {
+        // el usuario es tipo normal
+        // intentar la consulta
+        try {
+            $consulta = "select * from peliculas";
+            $resultado = mysqli_query($conexion, $consulta);
+        } catch (Exception $e) {
+            mysqli_close($conexion);
+            session_destroy();
+            die(errorPagina("No se ha podido conectar a la bd para realizar consulta de usuario"));
+        }
         mysqli_close($conexion);
-        session_destroy();
-        die(errorPagina("No se ha podido conectar a la bd para realizar consulta de usuario"));
+        ?>
+                <!DOCTYPE html>
+                <html lang="en">
+
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Document</title>
+                    <style>
+                        table {
+                            border: solid 1px;
+                            border-collapse: collapse;
+                            width: 90%;
+                            margin: 0 auto;
+                            text-align: center;
+                        }
+
+                        td {
+                            border: solid 1px;
+
+                        }
+
+                        tr#cabecera {
+                            background-color: lightgray;
+                        }
+                    </style>
+                </head>
+
+                <body>
+                    <h1>ViceoClub</h1>
+                    <form action="index.php" method="post">
+                        <p>Bienvenido <strong>
+                        <?php echo $_SESSION["usuario"]." - Tipo: ". $_SESSION["tipo"] ?>
+                            </strong> - <button name="volver">Salir</button>
+                        </p>
+                    </form>
+
+                    <h3>Listado de peliculas</h3>
+                    <table>
+                        <tr id="cabecera">
+                            <td>id</td>
+                            <td>Titulo</td>
+                            <td>Caratula</td>
+                        </tr>
+                    <?php
+
+                    while ($tuplasPeliculas = mysqli_fetch_assoc($resultado)) {
+                        echo "<tr>";
+                        echo "<td>" . $tuplasPeliculas["id_pelicula"] . "</td>";
+                        echo "<td>" . $tuplasPeliculas["titulo"] . "</td>";
+                        echo "<td><img src='imagenes/" . $tuplasPeliculas["caratula"] . "'></td>";
+                        echo "</tr>";
+                    }
+                    ?>
+                    </table>
+
+                </body>
+
+                </html>
+        <?php
     }
-    mysqli_close($conexion);
-    ?>
-        <!DOCTYPE html>
-        <html lang="en">
 
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Document</title>
-            <style>
-                table {
-                    border: solid 1px;
-                    border-collapse: collapse;
-                    width: 90%;
-                    margin: 0 auto;
-                    text-align: center;
-                }
 
-                td {
-                    border: solid 1px;
-
-                }
-
-                tr#cabecera {
-                    background-color: lightgray;
-                }
-            </style>
-        </head>
-
-        <body>
-            <h1>ViceoClub</h1>
-            <form action="index.php" method="post">
-                <p>Bienvenido <strong>
-                    <?php echo $_SESSION["usuario"] ?>
-                    </strong> - <button name="volver">Salir</button>
-                </p>
-            </form>
-
-            <h3>Listado de peliculas</h3>
-            <table>
-                <tr id="cabecera">
-                    <td>id</td>
-                    <td>Titulo</td>
-                    <td>Caratula</td>
-                </tr>
-                <?php
-
-                while ($tuplasPeliculas = mysqli_fetch_assoc($resultado)) {
-                    echo "<tr>";
-                    echo "<td>" . $tuplasPeliculas["id_pelicula"] . "</td>";
-                    echo "<td>" . $tuplasPeliculas["titulo"] . "</td>";
-                    echo "<td><img src='imagenes/" . $tuplasPeliculas["caratula"] . "'></td>";
-                    echo "</tr>";
-                }
-                ?>
-            </table>
-
-        </body>
-
-        </html>
-    <?php
     // sino mostrar el formulario de login
 } else {
     ?>
