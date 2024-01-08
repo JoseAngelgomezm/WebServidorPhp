@@ -99,7 +99,7 @@ if (isset($_POST["editar"])) {
         $extensionDividida = explode(".", $_FILES["portada"]["name"]);
         $numeroPuntos = count($extensionDividida);
         $extension = end($extensionDividida);
-        $errorFoto = !getimagesize($_FILES["portada"]["tmp_name"]) || $_FILES["name"]["size"] > 750 * 1024 || $numeroPuntos == 0;
+        $errorFoto = !getimagesize($_FILES["portada"]["tmp_name"]) || $_FILES["name"]["size"] > 750 * 1024 || $numeroPuntos == 1;
 
         // si no hay errores en la foto
         if (!$errorFoto) {
@@ -135,7 +135,8 @@ if (isset($_POST["editar"])) {
                 $_SESSION["mensajeCRUD"] = "<p>No se ha podido mover la foto</p>";
             }
         }
-
+    
+        // este else hace que no se muestren los errores
     } else {
         header("location:gest_libros.php");
         exit();
