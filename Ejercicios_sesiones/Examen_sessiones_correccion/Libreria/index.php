@@ -21,6 +21,12 @@ function errorPagina($titulo, $mensaje)
 </html>";
 }
 
+// si se ha pulsado salir
+if (isset($_POST["salir"])) {
+    session_destroy();
+    header("location:index.php");
+}
+
 // conectarse para listar siempre
 try {
     $conexion = mysqli_connect(ADDRESS, USER, PASSWD, NAMEBD);
@@ -69,6 +75,8 @@ if (isset($_POST["entrar"])) {
 
 if (isset($_SESSION["usuario"])) {
     // control seguridad
+
+    // obtener el usuario actual
     try {
         $resultado = mysqli_query($conexion, "select * from usuarios where lector='" . $_SESSION["usuario"] . "' and clave='" . $_SESSION["contraseña"] . "' ");
     } catch (Exception $e) {
@@ -85,7 +93,7 @@ if (isset($_SESSION["usuario"])) {
     }
 
     // comprobar inactividad
-    if(time() - $_SESSION["ultimaAccion"] > TIEMPOINACTIVIDAD){
+    if (time() - $_SESSION["ultimaAccion"] > TIEMPOINACTIVIDAD) {
         session_unset();
         $_SESSION["mensaje"] = "tiempo de inactividad caducado";
         header("location:index.php");
@@ -104,11 +112,37 @@ if (isset($_SESSION["usuario"])) {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Document</title>
+            <style>
+            div#contenido {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                flex: 0 33%;
+            }
+
+            div#contenido div {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                flex: 0 33%;
+            }
+
+            div#contenido div p {
+                flex-direction: row;
+                flex: 0 50%;
+                text-align: center;
+            }
+
+            img {
+                width: 100%;
+                height: auto;
+            }
+        </style>
         </head>
 
         <body>
             <h3>Listado de libros</h3>
-            <?php echo "<span>Bienvenido </span><strong>" . $_SESSION["usuario"] . "</strong>" ?>
+            <?php echo "<span>Bienvenido </span><strong>" . $_SESSION["usuario"] . "</strong><form action='index.php' method='post'><button type='submit' name='salir'>Salir</button></form>" ?>
             <div id="contenido">
                 <?php
                 // intentar la consulta de listado
@@ -116,13 +150,14 @@ if (isset($_SESSION["usuario"])) {
                     $consulta = "SELECT * FROM libros";
                     $resultado = mysqli_query($conexion, $consulta);
                 } catch (Exception $e) {
+                    mysqli_close($conexion);
+                    session_unset();
                     die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar"));
                 }
 
                 while ($datosLibros = mysqli_fetch_assoc($resultado)) {
                     echo "<div><img src='Images/" . $datosLibros["portada"] . "' /><p>" . $datosLibros["titulo"] . "</p><p>" . $datosLibros["precio"] . "</p> </div>";
                 }
-                mysqli_close($conexion);
                 ?>
             </div>
         </body>
@@ -208,7 +243,7 @@ if (isset($_SESSION["usuario"])) {
         <?php
         if (isset($_SESSION["mensaje"])) {
             echo "<p>" . $_SESSION["mensaje"] . "</p>";
-            session_destroy();
+            unset($_SESSION["mensaje"]);
         }
         ?>
 
@@ -221,6 +256,8 @@ if (isset($_SESSION["usuario"])) {
                 $consulta = "SELECT * FROM libros";
                 $resultado = mysqli_query($conexion, $consulta);
             } catch (Exception $e) {
+                mysqli_close($conexion);
+                session_unset();
                 die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar"));
             }
 
@@ -228,7 +265,6 @@ if (isset($_SESSION["usuario"])) {
                 echo "<div><img src='Images/" . $datosLibros["portada"] . "' /><p>" . $datosLibros["titulo"] . "</p><p>" . $datosLibros["precio"] . "</p> </div>";
 
             }
-            mysqli_close($conexion);
             ?>
         </div>
     </body>
@@ -236,4 +272,5 @@ if (isset($_SESSION["usuario"])) {
     </html>
     <?php
 }
+mysqli_close($conexion);
 ?>
