@@ -11,16 +11,20 @@
     <h1>Ejercicio 7</h1>
     <?php
     require 'clase_pelicula.php';
-    $pelicula = new Pelicula("El padrino","Francis Ford Coppola",20.5,true,"2020/12/10");
+    $pelicula = new Pelicula("El padrino", "Francis Ford Coppola", 20.5, true, "2020/12/10");
 
-    if($pelicula->getAlquilada()){
-        echo "Alquilada";
-    }else{
-        echo "Disponible";
+    echo "<p>Director: " . $pelicula->getDirector() . "</p>";
+    echo "<p>Precio: " . $pelicula->getPrecio() . "</p>";
+
+    if ($pelicula->getAlquilada()) {
+        echo "<p>Estado: Alquilada</p>";
+    } else {
+        echo "<p>Estado: Disponible</p>";
     }
 
-    echo "fecha prevista";
-    echo "Recargo";
+    echo "<p>Fecha prevista entrega: " . $pelicula->getFechaPrevistaDevolucion() . "</p>";
+    echo "<p>Recargo: " . $pelicula->getRecargo() . "€</p>";
+
     ?>
 </body>
 
