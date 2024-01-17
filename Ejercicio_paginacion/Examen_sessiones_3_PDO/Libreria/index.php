@@ -21,6 +21,17 @@ function errorPagina($titulo, $mensaje)
 </html>";
 }
 
+if(!isset($_SESSION["numeroPaginas"])){
+    $_SESSION["opcionesPaginacion"] = ["3" => "3 elementos", "6" => "6 elementos", "0" => "Todo"];
+    $_SESSION["opcionElegida"] = 3;
+    $_SESSION["pagina"] = 1;
+}
+
+if(isset($_POST["numeroElementos"])){
+    $_SESSION["opcionElegida"] = $_POST["numeroElementos"];
+}
+ 
+
 // si se ha pulsado salir
 if (isset($_POST["salir"])) {
     session_destroy();
@@ -197,7 +208,7 @@ if (isset($_SESSION["usuario"])) {
                 display: flex;
                 flex-direction: row;
                 flex-wrap: wrap;
-                flex: 0 33%;
+                flex: 0 30%;
             }
 
             div#contenido div p {
@@ -256,12 +267,32 @@ if (isset($_SESSION["usuario"])) {
         ?>
 
         <h3>Listado de libros</h3>
+        
+        <form action="index.php" method="post">
+            <label for="numeroElementos">Mostrar</label>
+            <select name="numeroElementos" id="numeroElementos">
+                <?php foreach ($_SESSION["opcionesPaginacion"] as $key => $value) {
+                    if($key == $_SESSION["opcionElegida"]){
+                        echo " <option selected value='".$key."'>".$value."</option>";
+                    }else{
+                        echo " <option value='".$key."'>".$value."</option>";
+                    }
+                   
+                } ?>
+            </select>
+            <button type="submit" name="aplicarPaginacion">Aplicar</button>
+        </form>
+       
         <div id="contenido">
             <?php
 
             // intentar la consulta de listado
             try {
-                $consulta = "SELECT * FROM libros";
+                if($_SESSION["opcionElegida"] === 0){
+                    
+                }
+                $inicio_limite = ($_SESSION["pagina"] - 1) * $_SESSION["opcionElegida"];
+                $consulta = "SELECT * FROM libros limit ".$inicio_limite." , ".$_SESSION["opcionElegida"]."";
                 $sentencia = $conexion->prepare($consulta);
                 $sentencia->execute();
             } catch (Exception $e) {

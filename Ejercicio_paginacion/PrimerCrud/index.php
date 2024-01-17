@@ -17,6 +17,8 @@ function errorPagina($titulo, $body)
 
 // poaginacion , numero de elementos a mostrar
 define("N_REGISTROS_MOSTRAR", "3");
+
+// si no existe, la pagina sera la 1
 if (!isset($_SESSION["pagina"])) {
     $_SESSION["pagina"] = 1;
 }
