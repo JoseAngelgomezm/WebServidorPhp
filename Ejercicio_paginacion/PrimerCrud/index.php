@@ -19,7 +19,7 @@ function errorPagina($titulo, $body)
 define("N_REGISTROS_MOSTRAR", "3");
 if (!isset($_SESSION["pagina"])) {
     $_SESSION["pagina"] = 1;
-}Ejercicio_paginacion/PrimerCrud/Examen_sessiones_3_PDO
+}
 
 define("HOST", "localhost");
 define("USERNAME", "jose");
