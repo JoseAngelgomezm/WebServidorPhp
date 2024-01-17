@@ -65,7 +65,7 @@ if (isset($_POST["entrar"])) {
             $_SESSION["contraseña"] = md5($_POST["contraseña"]);
             $_SESSION["ultimaAccion"] = time();
             // obtener el tipo de usuario
-            $datosUsuarioLogeado = mysqli_fetch_assoc($resultado);
+            $datosUsuarioLogeado = $sentencia->fetch();
             if ($datosUsuarioLogeado["tipo"] == "normal") {
                 header("location:index.php");
             } else {
@@ -271,7 +271,7 @@ if (isset($_SESSION["usuario"])) {
                 die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar".$e->getMessage()));
             }
 
-            while ($datosLibros = mysqli_fetch_assoc($resultado)) {
+            while ($datosLibros = $sentencia->fetch()) {
                 echo "<div><img src='Images/" . $datosLibros["portada"] . "' /><p>" . $datosLibros["titulo"] . "</p><p>" . $datosLibros["precio"] . "</p> </div>";
 
             }

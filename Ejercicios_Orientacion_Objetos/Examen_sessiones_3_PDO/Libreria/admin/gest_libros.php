@@ -7,6 +7,21 @@ define("ADDRESS", "localhost");
 define("NAMEBD", "bd_libreria_exam");
 define("TIEMPOINACTIVIDAD", "60");
 
+function errorPagina($titulo, $mensaje)
+{
+    echo "<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>" . $titulo . "</title>
+</head>
+<body>
+    <p>" . $mensaje . "</p>
+</body>
+</html>";
+}
+
 if (isset($_POST["salir"])) {
     session_destroy();
     header("location:../index.php");
@@ -64,9 +79,9 @@ if (isset($_POST["agregar"])) {
     if (!$errorFormularioAgregar) {
         // insertar
         try {
-            $consulta = "INSERT INTO `libros`(`referencia`, `titulo`, `autor`, `descripcion`, `precio`) VALUES (?,?,?,?)";
+            $consulta = "INSERT INTO `libros`(`referencia`, `titulo`, `autor`, `descripcion`, `precio`) VALUES (?,?,?,?,?)";
             $sentencia = $conexion->prepare($consulta);
-            $sentencia->execute([ $_POST["referencia"] , $_POST["titulo"], $_POST["descripcion"], $_POST["precio"] ]);
+            $sentencia->execute([ $_POST["referencia"] , $_POST["titulo"],$_POST["autor"], $_POST["descripcion"], $_POST["precio"] ]);
         } catch (Exception $e) {
             $conexion = null;
             $sentencia = null;
