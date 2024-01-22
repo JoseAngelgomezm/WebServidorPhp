@@ -52,11 +52,22 @@ $app->post("/saludo", function($request){
     echo json_encode($respuesta);
 });
 
-// el metodo delete
+// el metodo delete con los parametros de entrada por la url amigable
+$app->delete('/saludo',function($request){
+    $valorRecibido = $request->getParam("nombre");
+    $respuesta["mensaje"] = "hola".$valorRecibido;
+    echo json_encode($respuesta);
+});
 
-
-// el metodo put
-
+// el metodo put con los parametros de entrada por la url amigable
+$app -> put('/actualizar_saludo/{id}', function($request){
+    // get atribute para recoger datos que enviar por la ult
+    $idRecibida = $request -> getAttribute('id');
+    // get param para recoger datos que envian en la peticion
+    $nombreNuevo = $request -> getParam('nombre');
+    $respuesta["mensaje"]="Se ha actualizado el saludo con id: ".$idRecibida." al nombre ".$nombreNuevo;
+    echo json_encode($respuesta);
+});
 
 
 // Una vez creado servicios los pongo a disposición
