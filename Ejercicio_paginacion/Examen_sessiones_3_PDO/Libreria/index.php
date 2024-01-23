@@ -21,16 +21,22 @@ function errorPagina($titulo, $mensaje)
 </html>";
 }
 
-if(!isset($_SESSION["numeroPaginas"])){
-    $_SESSION["opcionesPaginacion"] = ["3" => "3 elementos", "6" => "6 elementos", "0" => "Todo"];
+if (!isset($_SESSION["numeroPaginas"])) {
     $_SESSION["opcionElegida"] = 3;
     $_SESSION["pagina"] = 1;
 }
 
-if(isset($_POST["numeroElementos"])){
+if (!isset($_SESSION["pagina"])) {
+    $_SESSION["pagina"] = 1;
+}
+
+if (isset($_POST["numeroElementos"])) {
     $_SESSION["opcionElegida"] = $_POST["numeroElementos"];
 }
- 
+
+if(isset($_POST["botonPagina"])){
+    $_SESSION["pagina"] = $_POST["botonPagina"];
+}
 
 // si se ha pulsado salir
 if (isset($_POST["salir"])) {
@@ -42,6 +48,7 @@ if (isset($_POST["salir"])) {
 try {
     $conexion = new PDO("mysql:host=" . ADDRESS . ";dbname=" . NAMEBD, USER, PASSWD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
 } catch (Exception $e) {
+    session_destroy();
     die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar"));
 }
 
@@ -61,12 +68,12 @@ if (isset($_POST["entrar"])) {
             $consulta = "select * from usuarios where lector=? and clave=?";
             $sentencia = $conexion->prepare($consulta);
             $contraseña = md5($_POST["contraseña"]);
-            $sentencia->execute([$_POST["usuario"] , $contraseña]);
+            $sentencia->execute([$_POST["usuario"], $contraseña]);
         } catch (Exception $e) {
             $consulta = null;
             $sentencia = null;
             session_destroy();
-            die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar".$e->getMessage()));
+            die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar" . $e->getMessage()));
         }
 
         // si he obtenido tuplas
@@ -95,11 +102,11 @@ if (isset($_SESSION["usuario"])) {
     try {
         $consulta = "select * from usuarios where lector=? and clave=?";
         $sentencia = $conexion->prepare($consulta);
-        $sentencia->execute([$_SESSION["usuario"] , $_SESSION["contraseña"] ]);
+        $sentencia->execute([$_SESSION["usuario"], $_SESSION["contraseña"]]);
     } catch (Exception $e) {
         $consulta = null;
         $sentencia = null;
-        die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar".$e->getMessage()));
+        die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar" . $e->getMessage()));
     }
 
     // si no obtengo tuplas
@@ -130,31 +137,31 @@ if (isset($_SESSION["usuario"])) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Document</title>
             <style>
-            div#contenido {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                flex: 0 33%;
-            }
+                div#contenido {
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    flex: 0 33%;
+                }
 
-            div#contenido div {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                flex: 0 33%;
-            }
+                div#contenido div {
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    flex: 0 33%;
+                }
 
-            div#contenido div p {
-                flex-direction: row;
-                flex: 0 50%;
-                text-align: center;
-            }
+                div#contenido div p {
+                    flex-direction: row;
+                    flex: 0 50%;
+                    text-align: center;
+                }
 
-            img {
-                width: 100%;
-                height: auto;
-            }
-        </style>
+                img {
+                    width: 100%;
+                    height: auto;
+                }
+            </style>
         </head>
 
         <body>
@@ -168,10 +175,10 @@ if (isset($_SESSION["usuario"])) {
                     $sentencia = $conexion->prepare($consulta);
                     $sentencia->execute();
                 } catch (Exception $e) {
-                    $consulta=null;
-                    $sentencia= null;
+                    $consulta = null;
+                    $sentencia = null;
                     session_unset();
-                    die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar".$e->getMessage()));
+                    die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar" . $e->getMessage()));
                 }
 
                 while ($datosLibros = $sentencia->fetch()) {
@@ -267,46 +274,113 @@ if (isset($_SESSION["usuario"])) {
         ?>
 
         <h3>Listado de libros</h3>
-        
+
         <form action="index.php" method="post">
             <label for="numeroElementos">Mostrar</label>
             <select name="numeroElementos" id="numeroElementos">
-                <?php foreach ($_SESSION["opcionesPaginacion"] as $key => $value) {
-                    if($key == $_SESSION["opcionElegida"]){
-                        echo " <option selected value='".$key."'>".$value."</option>";
-                    }else{
-                        echo " <option value='".$key."'>".$value."</option>";
-                    }
-                   
-                } ?>
-            </select>
-            <button type="submit" name="aplicarPaginacion">Aplicar</button>
-        </form>
-       
-        <div id="contenido">
-            <?php
+                <option <?php if ($_SESSION["opcionElegida"] === "3")
+                    echo "selected" ?> value='3'>3</option>
+                    <option <?php if ($_SESSION["opcionElegida"] === "6")
+                    echo "selected" ?> value='6'>6</option>
+                    <option <?php if ($_SESSION["opcionElegida"] === "-1")
+                    echo "selected" ?> value='-1'>Todo</option>
+                </select>
+                <button type="submit" name="aplicarPaginacion">Aplicar</button>
+            </form>
 
-            // intentar la consulta de listado
-            try {
-                if($_SESSION["opcionElegida"] === 0){
+            <div id="contenido">
+                <?php
+
+                // intentar la consulta de listado
+                try {
+                    if ($_SESSION["opcionElegida"] === "-1") {
+                        try {
+                            $conexion = new PDO("mysql:host=" . ADDRESS . ";dbname=" . NAMEBD, USER, PASSWD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+                        } catch (Exception $e) {
+                            session_destroy();
+                            die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar"));
+                        }
+
+                        // comprobar que existe el usuario y la contraseña
+                        try {
+                            $consulta = "select * from libros";
+                            $sentencia = $conexion->prepare($consulta);
+                            $sentencia->execute();
+                        } catch (Exception $e) {
+                            $consulta = null;
+                            $sentencia = null;
+                            session_destroy();
+                            die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar" . $e->getMessage()));
+                        }
+
+                        $_SESSION["opcionElegida"] = $sentencia->rowCount();
+                    }
+                    $inicio_limite = ($_SESSION["pagina"] - 1) * $_SESSION["opcionElegida"];
+                    $consulta = "SELECT * FROM libros limit " . $inicio_limite . " , " . $_SESSION["opcionElegida"] . "";
+                    $sentencia = $conexion->prepare($consulta);
+                    $sentencia->execute();
+                } catch (Exception $e) {
+                    $consulta = null;
+                    $sentencia = null;
+                    session_unset();
+                    die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar" . $e->getMessage()));
+                }
+
+                while ($datosLibros = $sentencia->fetch()) {
+                    echo "<div><img src='Images/" . $datosLibros["portada"] . "' /><p>" . $datosLibros["titulo"] . "</p><p>" . $datosLibros["precio"] . "</p> </div>";
+
+                }
+
+                // mostrar los botones de las paginas 
+                try {
+                    $conexion = new PDO("mysql:host=" . ADDRESS . ";dbname=" . NAMEBD, USER, PASSWD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+                } catch (Exception $e) {
+                    session_destroy();
+                    die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar"));
+                }
+
+                // comprobar que existe el usuario y la contraseña
+                try {
+                    $consulta = "select * from libros";
+                    $sentencia = $conexion->prepare($consulta);
+                    $sentencia->execute();
+                } catch (Exception $e) {
+                    $consulta = null;
+                    $sentencia = null;
+                    session_destroy();
+                    die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar" . $e->getMessage()));
+                }
+
+                $n_paginas = ceil($sentencia->rowCount() / $_SESSION["opcionElegida"]);
+                $consulta = null;
+                $sentencia = null;
+
+                echo "<div>";  
+                echo "<form method='post' action='#'>";
+
+                if ($_SESSION["pagina"] > 1) {
+                    echo "<button name='botonPagina' type='submit' value='1'> << </button>";
+                    echo "<button name='botonPagina' type='submit' value='" . ($_SESSION["pagina"] - 1) . "'> < </button>";
+                }
+
+                for ($i = 1; $i <= $n_paginas; $i++) {
+                    if($i == $_SESSION["pagina"]){
+                        echo "<button disabled name='botonPagina' type='submit' value='" . $i . "'> " . $i . " </button>";
+                    }else{
+                        echo "<button name='botonPagina' type='submit' value='" . $i . "'> " . $i . " </button>";
+                    }
                     
                 }
-                $inicio_limite = ($_SESSION["pagina"] - 1) * $_SESSION["opcionElegida"];
-                $consulta = "SELECT * FROM libros limit ".$inicio_limite." , ".$_SESSION["opcionElegida"]."";
-                $sentencia = $conexion->prepare($consulta);
-                $sentencia->execute();
-            } catch (Exception $e) {
-                $consulta=null;
-                $sentencia= null;
-                session_unset();
-                die(errorPagina("Examen 23-24", "no se ha podido conectar a la base de datos para listar".$e->getMessage()));
-            }
 
-            while ($datosLibros = $sentencia->fetch()) {
-                echo "<div><img src='Images/" . $datosLibros["portada"] . "' /><p>" . $datosLibros["titulo"] . "</p><p>" . $datosLibros["precio"] . "</p> </div>";
+                if ($_SESSION["pagina"] < $n_paginas) {
+                    echo "<button name='botonPagina' type='submit' value='" . ($_SESSION["pagina"] + 1) . "'> > </button>";
+                    echo "<button name='botonPagina' type='submit' value='$n_paginas'> >> </button>";
+                }
 
-            }
-            ?>
+                echo "</form>";
+
+                echo "</div>";
+                ?>
         </div>
     </body>
 
