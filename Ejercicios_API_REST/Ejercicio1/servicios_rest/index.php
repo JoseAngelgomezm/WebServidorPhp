@@ -193,9 +193,9 @@ function obtenerRepetidosInsertar($datos)
 
     // realizar la consulta
     try {
-        $consulta = "SELECT * FROM familia";
+        $consulta = "SELECT * FROM ".$datos["tabla"]." where ".$datos["columna"]." = ? ";
         $sentencia = $conexion->prepare($consulta);
-        $sentencia->execute([$datos["tabla"], $datos["columna"], $datos["valor"]]);
+        $sentencia->execute([$datos["valor"]]);
     } catch (Exception $e) {
         $respuesta["mensaje"] = "No se ha podido consulta a la base de datos" . $e->getMessage();
         return $respuesta;
@@ -221,9 +221,9 @@ function obtenerRepetidosEditar($datos)
 
     // realizar la consulta
     try {
-        $consulta = "SELECT * FROM familia";
+        $consulta = "SELECT * FROM ".$datos["tabla"]." where ".$datos["columna"]." = ? and ".$datos["columna_id"]." <> ?";
         $sentencia = $conexion->prepare($consulta);
-        $sentencia->execute([$datos["tabla"], $datos["columna"], $datos["valor"], $datos["columna_id"], $datos["valor_id"]]);
+        $sentencia->execute([$datos["valor"] , $datos["valor_id"]]);
     } catch (Exception $e) {
         $respuesta["mensaje"] = "No se ha podido consulta a la base de datos" . $e->getMessage();
         return $respuesta;
@@ -304,7 +304,7 @@ $app->get('/familias', function ($request) {
     echo json_encode(obtenerFamilias($datos));
 });
 
-$app->post('/repetido/{tabla}/{columna}/{valor}', function ($request) {
+$app->get('/repetido/{tabla}/{columna}/{valor}', function ($request) {
 
     $datos["tabla"] = $request->getAttribute('tabla');
     $datos["columna"] = $request->getAttribute('columna');
@@ -314,7 +314,7 @@ $app->post('/repetido/{tabla}/{columna}/{valor}', function ($request) {
 
 });
 
-$app->post('/repetido/{tabla}/{columna}/{valor}/{columna_id}/{valor_id}', function ($request) {
+$app->get('/repetido/{tabla}/{columna}/{valor}/{columna_id}/{valor_id}', function ($request) {
 
 
     $datos["tabla"] = $request->getAttribute('tabla');
