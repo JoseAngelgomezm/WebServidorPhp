@@ -275,7 +275,7 @@ $app->post('/producto/insertar', function ($request) {
 });
 
 // metodo POST que actualizar un producto
-$app->post('/producto/actualizar/{codigo}', function ($request) {
+$app->put('/producto/actualizar/{codigo}', function ($request) {
 
     $datos["codigo"] = $request->getAttribute("codigo");
     $datos["nombre"] = $request->getParam("nombre");
@@ -289,7 +289,7 @@ $app->post('/producto/actualizar/{codigo}', function ($request) {
 
 
 // metodo POST que borra un producto
-$app->post('/producto/borrar/{codigo}', function ($request) {
+$app->delete('/producto/borrar/{codigo}', function ($request) {
 
     $datos["codigo"] = $request->getAttribute('codigo');
 

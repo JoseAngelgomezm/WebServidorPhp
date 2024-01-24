@@ -59,7 +59,7 @@ function consumir_servicios_REST($url, $metodo, $datos = null)
         $datos["descripcion"] = "actualizado";
         $datos["PVP"] = 100;
         $datos["familia"] = "TV";
-        $respuesta = consumir_servicios_REST($url, "post", $datos);
+        $respuesta = consumir_servicios_REST($url, "put", $datos);
         $obj = json_decode($respuesta);
 
         if (!$obj) {
@@ -75,7 +75,7 @@ function consumir_servicios_REST($url, $metodo, $datos = null)
 
     // prueba del servicio borrar
     $url = URLSERVICIOS . "/producto/borrar/304723";
-    $respuesta = consumir_servicios_REST($url, "post");
+    $respuesta = consumir_servicios_REST($url, "delete");
     $obj = json_decode($respuesta);
 
     if (!$obj) {
