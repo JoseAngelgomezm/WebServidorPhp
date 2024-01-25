@@ -95,7 +95,7 @@ function insertarProducto($datos)
     }
 
 
-    $respuesta["mensaje"] = "El producto " . $datos["nombre_corto"] . " se ha insertado correctamente";
+    $respuesta["respuesta"] = "El producto " . $datos["nombre_corto"] . " se ha insertado correctamente";
 
     return $respuesta;
 }
@@ -120,12 +120,7 @@ function actualizarProducto($datos)
         return $respuesta;
     }
 
-    if ($sentencia->rowCount() > 0) {
-        $respuesta["mensaje"] = "El producto " . $datos["codigo"] . " se ha actualizado correctamente";
-    } else {
-        $respuesta["mensaje"] = "El producto " . $datos["codigo"] . " no existe en la base de datos";
-    }
-
+    $respuesta["respuesta"] = "El producto " . $datos["codigo"] . " se ha actualizado correctamente";
 
     return $respuesta;
 }
@@ -202,9 +197,9 @@ function obtenerRepetidosInsertar($datos)
     }
 
     if ($sentencia->rowCount() > 0) {
-        $respuesta["mensaje"] = true;
+        $respuesta["respuesta"] = true;
     } else {
-        $respuesta["mensaje"] = false;
+        $respuesta["respuesta"] = false;
     }
 
     return $respuesta;
@@ -230,9 +225,9 @@ function obtenerRepetidosEditar($datos)
     }
 
     if ($sentencia->rowCount() > 0) {
-        $respuesta["mensaje"] = true;
+        $respuesta["respuesta"] = true;
     } else {
-        $respuesta["mensaje"] = false;
+        $respuesta["respuesta"] = false;
     }
 
     return $respuesta;
