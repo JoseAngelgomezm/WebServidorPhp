@@ -29,7 +29,7 @@ function consumir_servicios_REST($url, $metodo, $datos = null)
 
 session_name("PrimeraAppLogin_23_24");
 session_start();
-define("URLATAQUE", "http://localhost/Proyectos/WebServidorPhp/Ejercicios_API_REST/Ejercicio3Login/Api");
+define("URLATAQUE", "http://localhost/Proyectos/WebServidorPhp/Ejercicios_API_REST/EjercicioAppLogin/Api");
 define("TIEMPOENSEGUNDOS", "60");
 
 
