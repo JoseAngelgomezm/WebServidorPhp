@@ -40,25 +40,21 @@ if (isset($_POST["continuarEdicion"])) {
 
     // si no hay error de usuario comprobar que no esta repetido
     if (!$errorUsuario) {
-        // intentar la conexion
-        try {
-            $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_foro");
-            mysqli_set_charset($conexion, "utf8");
-        } catch (Exception $e) {
-            die(errorPagina("Practica1 CRUD error", "<p>No se ha podido conectar a la base de datos</p>"));
+        $url = URLATAQUE . "/repetido/usuarios/usuario/" . urlencode($_POST["usuarioEdicion"]) . "/id_usuario/" . $_POST["continuarEdicion"] . "";
+        $respuesta = consumir_servicios_REST($url, "get");
+        $archivo = json_decode($respuesta);
+
+        if (!$archivo) {
+            die(errores("no se ha obtenido respuesta"));
         }
 
-        // intentar la consulta
-        try {
-            $consulta = "select * from usuarios where usuario='" . $_POST["usuarioEdicion"] . "' AND id_usuario <> '" . $_POST["continuarEdicion"] . "'";
-            $resultado = mysqli_query($conexion, $consulta);
-        } catch (Exception $e) {
-            mysqli_close($conexion);
-            die(errorPagina("Practica1 CRUD error", "<p>usuario No se ha podido hacer la consulta comprobar usuario repetido</p>"));
+        if (isset($archivo->error)) {
+            die(errores($archivo->error));
         }
-        // si tiene mas de 1 tupla el nombre de usuario ya existirá, error de usuario sera true
-        $errorUsuario = mysqli_num_rows($resultado) > 0;
-        mysqli_close($conexion);
+
+        if ($archivo->mensaje === true) {
+            $errorUsuario = true;
+        }
     }
 
     $errorContraseña = strlen($_POST["contraseñaEdicion"]) > 15;
@@ -68,25 +64,21 @@ if (isset($_POST["continuarEdicion"])) {
     // si no hay error de email, comprobar que no este repetido
     if (!$errorEmail) {
 
-        // intentar la conexion
-        try {
-            $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_foro");
-            mysqli_set_charset($conexion, "utf8");
-        } catch (Exception $e) {
-            die(errorPagina("Practica1 CRUD error", "<p>No se ha podido conectar a la base de datos</p>"));
+        $url = URLATAQUE . "/repetido/usuarios/email/" . urlencode($_POST["emailEdicion"]) . "/id_usuario/" . $_POST["continuarEdicion"] . "";
+        $respuesta = consumir_servicios_REST($url, "get");
+        $archivo = json_decode($respuesta);
+
+        if (!$archivo) {
+            die(errores("no se ha obtenido respuesta"));
         }
 
-        // intentar la consulta
-        try {
-            $consulta = "select * from usuarios where email='" . $_POST["emailEdicion"] . "' AND id_usuario <> '" . $_POST["continuarEdicion"] . "'";
-            $resultado = mysqli_query($conexion, $consulta);
-        } catch (Exception $e) {
-            mysqli_close($conexion);
-            die(errorPagina("Practica1 CRUD error", "<p>email No se ha podido hacer la consulta comprobar email repetido</p>"));
+        if (isset($archivo->error)) {
+            die(errores($archivo->error));
         }
-        // si tiene mas de 1 tupla el email ya existirá, error de email sera true
-        $errorEmail = mysqli_num_rows($resultado) > 0;
-        mysqli_close($conexion);
+
+        if ($archivo->mensaje === true) {
+            $errorEmail = true;
+        }
 
     }
 
@@ -94,38 +86,52 @@ if (isset($_POST["continuarEdicion"])) {
 
     // si no hay error de formulario editar los datos
     if (!$errorFormulario) {
-        // intentar la conexion
-        try {
-            $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_foro");
-            mysqli_set_charset($conexion, "utf8");
-        } catch (Exception $e) {
-            die(errorPagina("Practica1 CRUD error", "<p>No se ha podido conectar a la base de datos</p>"));
-        }
 
-        // si la contraseña no esta vacia cambiarla por la nueva
-        if ($_POST["contraseñaEdicion"] !== "") {
-            // intentar la consulta de edicion
-            try {
-                $consulta = "update usuarios set nombre='" . $_POST["nombreEdicion"] . "',usuario='" . $_POST["usuarioEdicion"] . "',clave='" . md5($_POST["contraseñaEdicion"]) . "',email='" . $_POST["emailEdicion"] . " 'where id_usuario='" . $_POST["continuarEdicion"] . "' ";
-                $resultado = mysqli_query($conexion, $consulta);
-            } catch (Exception $e) {
-                mysqli_close($conexion);
-                die(errorPagina("Practica1 CRUD error", "<p>No se ha podido editar el usuario con contraseña</p>"));
+        // si esta vacia la contraseña llamo a editar sin clave
+        if ($_POST["contraseñaEdicion"] == "") {
+
+            $url = URLATAQUE . "/login_restful/actualizarUsuarioSinClave/" . $_POST["continuarEdicion"] . "";
+
+            $datos["nombre"] = $_POST["nombreEdicion"];
+            $datos["usuario"] = $_POST["usuarioEdicion"];
+            $datos["email"] = $_POST["emailEdicion"];
+
+            $respuesta = consumir_servicios_REST($url, "put", $datos);
+            $archivo = json_decode($respuesta);
+
+            if (!$archivo) {
+                die(errores("no se ha obtenido respuesta"));
             }
-            // sino , la contraseña se quedara como estaba y no se mete en el update
+
+            if (isset($archivo->error)) {
+                die(errores($archivo->error));
+            }
+
+            $_SESSION["mensaje"] = $archivo->mensaje;
+
+            // sino, contendra algo llamar a actualizar con clave
         } else {
-            // intentar la consulta de edicion
-            try {
-                $consulta = "update usuarios set nombre='" . $_POST["nombreEdicion"] . "',usuario='" . $_POST["usuarioEdicion"] . "',email='" . $_POST["emailEdicion"] . " 'where id_usuario='" . $_POST["continuarEdicion"] . "' ";
-                $resultado = mysqli_query($conexion, $consulta);
-            } catch (Exception $e) {
-                mysqli_close($conexion);
-                die(errorPagina("Practica1 CRUD error", "<p>No se ha podido editar el usuario sin contraseña</p>"));
+
+            $url = URLATAQUE . "/login_restful/actualizarUsuarioConClave/" . $_POST["continuarEdicion"] . "";
+
+            $datos["nombre"] = $_POST["nombreEdicion"];
+            $datos["usuario"] = $_POST["usuarioEdicion"];
+            $datos["clave"] = $_POST["contraseñaEdicion"];
+            $datos["email"] = $_POST["emailEdicion"];
+
+            $respuesta = consumir_servicios_REST($url, "put", $datos);
+            $archivo = json_decode($respuesta);
+
+            if (!$archivo) {
+                die(errores("no se ha obtenido respuesta"));
             }
+
+            if (isset($archivo->error)) {
+                die(errores($archivo->error));
+            }
+
+            $_SESSION["mensaje"] = $archivo->mensaje;
         }
-
-
-        mysqli_close($conexion);
 
         // enviarnos a index
         header("location:index.php");
@@ -134,22 +140,23 @@ if (isset($_POST["continuarEdicion"])) {
 
 //si se ha pulsado el boton continuar borrado
 if (isset($_POST["continuarBorrado"])) {
-    
-    $url = URLATAQUE."/login_restful/borrarUsuario/".$_POST["continuarBorrado"]."";
-    $respuesta = consumir_servicios_REST($url,"delete");
+
+    $url = URLATAQUE . "/login_restful/borrarUsuario/" . urlencode($_POST["continuarBorrado"]);
+    $respuesta = consumir_servicios_REST($url, "delete");
     $archivo = json_decode($respuesta);
 
-    if(!$archivo){
+    if (!$archivo) {
         die(errores("no se ha obtenido respuesta"));
     }
 
-    if(isset($archivo->mensaje)){
-        die(errores($archivo->mensaje));
+    if (isset($archivo->error)) {
+        die(errores($archivo->error));
     }
+
+    $_SESSION["mensaje"] = $archivo->mensaje;
 
     header("location:index.php");
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -187,30 +194,30 @@ if (isset($_POST["continuarBorrado"])) {
     <?php
 
     // conectarnos para listar los usuarios en una tabla
-    $url = URLATAQUE."/login_restful/usuarios";
-    $respuesta = consumir_servicios_REST($url,"get");
+    $url = URLATAQUE . "/login_restful/usuarios";
+    $respuesta = consumir_servicios_REST($url, "get");
     $archivo = json_decode($respuesta);
 
-    if(!$archivo){
+    if (!$archivo) {
         die(errorPagina("no se ha obtenido respuesta"));
     }
 
-    if(isset($archivo->error)){
+    if (isset($archivo->error)) {
         die(errorPagina($archivo->error));
     }
 
     // montar la tabla
     echo "<table>";
     echo "<tr><td>Nombre de usuario</td><td>Borrar</td><td>Editar</td></tr>";
-    
-    foreach ($archivo->usuarios as $fila) {        
+
+    foreach ($archivo->usuarios as $fila) {
         // la tabla contiene un formulario por cada boton que nos redirige a nosotros mismos, con los resultados de cada tupla
         echo "<tr>
                 <td><form action='#' method='post'> <button class='enlace' name='mostrarUsuario' id='usuario' type='submit' value='" . $fila->id_usuario . "'>" . $fila->nombre . "</button></form></td>
                 <td><form action='#' method='post'><button type='submit' id='editar' name='editar' value='" . $fila->id_usuario . "'><img class='enlace' src='Images/bx-pencil.svg'></button></form></td>
                 <td><form action='#' method='post'><input type='hidden' name='nombreUsuario' value='" . $fila->nombre . "'><button type='submit' id='borrar' name='borrar' value='" . $fila->id_usuario . "'><img class='enlace' src='Images/bx-x-circle.svg'></button></form></td>
                 </tr>";
-            }
+    }
     echo "</table>";
 
     // si se ha pulsado algun boton de usuario, mostrar los detalles
@@ -218,19 +225,26 @@ if (isset($_POST["continuarBorrado"])) {
         echo "se ha pulsado el boton usuario con id " . $_POST["mostrarUsuario"];
 
         // consulta para obtener los datos de un usuario
-        $url = URLATAQUE."/"
+        $url = URLATAQUE . "/obtenerUsuario/" . $_POST["mostrarUsuario"] . "";
+        $respuesta = consumir_servicios_REST($url, "get");
+        $archivo = json_decode($respuesta);
+
+        if (!$archivo) {
+            die(errores("no se ha obtenido respuesta"));
+        }
+
+        if (isset($archivo->error)) {
+            die(errores($archivo->error));
+        }
+
 
         // si hemos obtenido alguna tupla
-        if (mysqli_num_rows($resultado) > 0) {
-            // obtener los datos en un array asociativo
-            $datosUsuario = mysqli_fetch_assoc($resultado);
+        foreach ($archivo as $datosUsuario) {
+            # code...
             // mostrar los datos
-            echo "<p><strong>Nombre: </strong>" . $datosUsuario["nombre"] . "</p>";
-            echo "<p><strong>Usuario: </strong>" . $datosUsuario["usuario"] . "</p>";
-            echo "<p><strong>Email: </strong>" . $datosUsuario["email"] . "</p>";
-        } else {
-            // si no hemos obtenido ninguna tupla, avisar de que ya no existe el usuario en la bd
-            echo "<p>Este usuario ya no existe en la base de datos</p>";
+            echo "<p><strong>Nombre: </strong>" . $datosUsuario->nombre . "</p>";
+            echo "<p><strong>Usuario: </strong>" . $datosUsuario->usuario . "</p>";
+            echo "<p><strong>Email: </strong>" . $datosUsuario->email . "</p>";
         }
 
         // boton volver solo si se ha pulsado algun boton de usuario
@@ -238,6 +252,10 @@ if (isset($_POST["continuarBorrado"])) {
         echo "<p><button type='submit'>Volver a insertar usuario</button></p>";
         echo "</form>";
 
+        if (isset($_SESSION["mensaje"])) {
+            echo "<p>" . $_SESSION["mensaje"] . "</p>";
+            unset($_SESSION["mensaje"]);
+        }
 
         // si se ha pulsado el boton borrar
     } else if (isset($_POST["borrar"])) {
@@ -256,34 +274,31 @@ if (isset($_POST["continuarBorrado"])) {
             $idUsuario = $_POST["continuarEdicion"];
         }
 
-        // intentar la conexion
-        try {
-            $conexion = mysqli_connect("localhost", "jose", "josefa", "bd_foro");
-            mysqli_set_charset($conexion, "utf8");
-        } catch (Exception $e) {
-            die(errorPagina("Practica1 CRUD error", "<p>No se ha podido conectar a la base de datos</p>"));
+        $url = URLATAQUE . "/obtenerUsuario/" . $idUsuario . "";
+
+        $respuesta = consumir_servicios_REST($url, "get");
+        $archivo = json_decode($respuesta);
+
+        if (!$archivo) {
+            die(errores("no se ha obtenido respuesta"));
         }
 
-        // consultar los datos del usuario que hemos pulsado el boton editar
-        try {
-            $consulta = "select * from usuarios where id_usuario = '" . $idUsuario . "'";
-            $resultado = mysqli_query($conexion, $consulta);
-        } catch (Exception $e) {
-            mysqli_close($conexion);
-            die("Error al realizar la consulta para editar usuario" . $e->getMessage() . "</p></body></html>");
+        if (isset($archivo->error)) {
+            die(errores($archivo->error));
         }
+
 
         // si hemos obtenido alguna tupla
-        if (mysqli_num_rows($resultado) > 0) {
+        if (isset($archivo->usuario)) {
             // obtener los datos del usuario en un array asociativo
-            $datosUsuario = mysqli_fetch_assoc($resultado);
+            $datosUsuario = $archivo->usuario;
 
             // si existe el boton editar recoger datos de la bd
             if (isset($_POST["editar"])) {
                 // recoger los datos de usuario
-                $nombreUsuario = $datosUsuario["nombre"];
-                $usuarioUsuario = $datosUsuario["usuario"];
-                $emailUsuario = $datosUsuario["email"];
+                $nombreUsuario = $datosUsuario->nombre;
+                $usuarioUsuario = $datosUsuario->usuario;
+                $emailUsuario = $datosUsuario->email;
 
                 // si no recoger los datos de los $_POST del formulario mostrado
             } else {
@@ -380,7 +395,7 @@ if (isset($_POST["continuarBorrado"])) {
         echo "<p><button type='submit' name='nuevousuario' id='nuevousuario'>Insertar nuevo usuario</button></p>";
         echo "</form>";
     }
-    
+
     ?>
 </body>
 

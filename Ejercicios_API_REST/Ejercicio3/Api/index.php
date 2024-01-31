@@ -20,7 +20,7 @@ define("NAMEDB", "bd_foro2");
 // $datos["usuario"] => si no existe el usuario en la base de datos, los datos del usuario
 // $datos["mensaje"] => si no se encuentra en la base de datos
 
-function actualizarUsuario($datos)
+function actualizarUsuarioConClave($datos)
 {
     try {
         $conexion = new PDO("mysql:host=" . HOST . ";dbname=" . NAMEDB, USERNAME, PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
@@ -29,9 +29,9 @@ function actualizarUsuario($datos)
     }
 
     try {
-        $consulta = "select * from usuarios where usuario=? and clave=?";
+        $consulta = "UPDATE usuarios SET nombre=?,usuario=?,email=? WHERE id_usuario=?";
         $sentencia = $conexion->prepare($consulta);
-        $sentencia->execute([$datos["id_usuario"]]);
+        $sentencia->execute([$datos["nombre"],$datos["usuario"], $datos["email"], $datos["id_usuario"]]);
     } catch (PDOException $e) {
         $sentencia = null;
         $consulta = null;
@@ -124,18 +124,19 @@ function eliminarUsuario($datos)
     }
 
     try {
-        $consulta = "delete from usuarios where id_usuario = ?";
+        $consulta = "DELETE FROM usuarios where id_usuario=?";
         $sentencia = $conexion->prepare($consulta);
-        $sentencia->execute($datos["id_usuario"]);
+        $sentencia->execute([$datos["id_usuario"]]);
     } catch (PDOException $e) {
         return array("error" => "No se ha podido consultar a la base de datos" . $e->getMessage());
     }
 
-    if ($sentencia->rowCount() > 0) {
+    if($sentencia->rowCount() > 0){
         $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " ha sido eliminado con exito";
-    } else {
-        $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " no se ha podido eliminar, no existe";
+    }else{
+        $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " no ha sido eliminado con exito, porque no existe";
     }
+    
 
     $sentencia = null;
     $consulta = null;
@@ -219,21 +220,93 @@ function obtenerRepetidosEditar($datos)
     return $respuesta;
 }
 
+function obtenerUsuarioID($datos)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . HOST . ";dbname=" . NAMEDB, USERNAME, PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+    } catch (Exception $e) {
+        $respuesta["error"] = "No se ha podido conectar a la base de datos" . $e->getMessage();
+        return $respuesta;
+    }
+
+    // realizar la consulta
+    try {
+        $consulta = "SELECT * FROM usuarios where id_usuario=?";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["id_usuario"]]);
+    } catch (Exception $e) {
+        $respuesta["error"] = "No se ha podido consulta a la base de datos" . $e->getMessage();
+        return $respuesta;
+    }
+
+    // si se ha obtenido algo
+    if ($sentencia->rowCount() > 0) {
+        $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
+    } else {
+        $respuesta["usuario"] = -1;
+    }
+
+    $sentencia = null;
+    $conexion = null;
+
+    return $respuesta;
+}
+
+function actualizarUsuarioSinClave($datos){
+    try {
+        $conexion = new PDO("mysql:host=" . HOST . ";dbname=" . NAMEDB, USERNAME, PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+    } catch (PDOException $e) {
+        return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
+    }
+
+    try {
+        $consulta = "UPDATE usuarios SET nombre=?,usuario=?,email=? WHERE id_usuario=?";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["nombre"],$datos["usuario"], $datos["email"], $datos["id_usuario"]]);
+    } catch (PDOException $e) {
+        $sentencia = null;
+        $consulta = null;
+        return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
+    }
+
+    if ($sentencia->rowCount() > 0) {
+        $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " ha sido actualizado con exito";
+    } else {
+        $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " no se ha podido actualizar, no existe";
+    }
+
+
+    $sentencia = null;
+    $consulta = null;
+    return $respuesta;
+}
+
 $app->delete("/login_restful/borrarUsuario/{id_usuario}", function ($request) {
 
-    $datos["id_usuario"] = $request->getAttribute();
+    $datos["id_usuario"] = $request->getAttribute("id_usuario");
 
     echo json_encode(eliminarUsuario($datos));
 });
 
-$app->put("/login_restful/actualizarUsuario/{id_usuario}", function ($request) {
+$app->put("/login_restful/actualizarUsuarioConClave/{id_usuario}", function ($request) {
 
-    $datos["id_usuario"] = $request->getAttribute();
+    $datos["id_usuario"] = $request->getAttribute("id_usuario");
     $datos["nombre"] = $request->getParam();
     $datos["usuario"] = $request->getParam();
     $datos["clave"] = $request->getParam();
     $datos["email"] = $request->getParam();
     echo json_encode(actualizarUsuario($datos));
+});
+
+$app->put("/login_restful/actualizarUsuarioSinClave/{id_usuario}", function ($request) {
+
+    $datos["id_usuario"] = $request->getAttribute("id_usuario");
+    $datos["nombre"] = $request->getParam();
+    $datos["usuario"] = $request->getParam();
+    $datos["email"] = $request->getParam();
+
+    echo json_encode(actualizarUsuarioSinClave($datos));
 });
 
 $app->get("/login_restful/usuarios", function ($request) {
@@ -265,6 +338,13 @@ $app->get('/repetido/{tabla}/{columna}/{valor}/{columna_id}/{valor_id}', functio
 
 });
 
+$app->get("/obtenerUsuario/{id_usuario}", function ($request) {
+
+    $datos["id_usuario"] = $request->getAttribute("id_usuario");
+
+    echo json_encode(obtenerUsuarioID($datos));
+});
+
 // servicio que devuelve true o false si esta logeado un usuario o no
 $app->post("/login", function ($request) {
 
@@ -276,7 +356,7 @@ $app->post("/login", function ($request) {
     echo json_encode(estaLogeado($usuario, $clave));
 });
 
-$app->post("login_restful/crearUsuario", function ($request) {
+$app->post("/login_restful/crearUsuario", function ($request) {
     $datos["nombre"] = $request->getParam();
     $datos["usuario"] = $request->getParam();
     $datos["clave"] = $request->getParam();
