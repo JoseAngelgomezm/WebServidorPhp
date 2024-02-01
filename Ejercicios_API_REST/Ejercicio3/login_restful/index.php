@@ -31,7 +31,37 @@ function actualizarUsuarioConClave($datos)
     try {
         $consulta = "UPDATE usuarios SET nombre=?,usuario=?,email=? WHERE id_usuario=?";
         $sentencia = $conexion->prepare($consulta);
-        $sentencia->execute([$datos["nombre"],$datos["usuario"], $datos["email"], $datos["id_usuario"]]);
+        $sentencia->execute([$datos["nombre"], $datos["usuario"], $datos["email"], $datos["id_usuario"]]);
+    } catch (PDOException $e) {
+        $sentencia = null;
+        $consulta = null;
+        return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
+    }
+
+    if ($sentencia->rowCount() > 0) {
+        $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " ha sido actualizado con exito";
+    } else {
+        $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " no se ha podido actualizar, no existe";
+    }
+
+
+    $sentencia = null;
+    $consulta = null;
+    return $respuesta;
+}
+
+function actualizarUsuarioSinClave($datos)
+{
+    try {
+        $conexion = new PDO("mysql:host=" . HOST . ";dbname=" . NAMEDB, USERNAME, PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+    } catch (PDOException $e) {
+        return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
+    }
+
+    try {
+        $consulta = "UPDATE usuarios SET nombre=?,usuario=?,email=? WHERE id_usuario=?";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["nombre"], $datos["usuario"], $datos["email"], $datos["id_usuario"]]);
     } catch (PDOException $e) {
         $sentencia = null;
         $consulta = null;
@@ -131,12 +161,12 @@ function eliminarUsuario($datos)
         return array("error" => "No se ha podido consultar a la base de datos" . $e->getMessage());
     }
 
-    if($sentencia->rowCount() > 0){
+    if ($sentencia->rowCount() > 0) {
         $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " ha sido eliminado con exito";
-    }else{
+    } else {
         $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " no ha sido eliminado con exito, porque no existe";
     }
-    
+
 
     $sentencia = null;
     $consulta = null;
@@ -253,43 +283,16 @@ function obtenerUsuarioID($datos)
     return $respuesta;
 }
 
-function actualizarUsuarioSinClave($datos){
-    try {
-        $conexion = new PDO("mysql:host=" . HOST . ";dbname=" . NAMEDB, USERNAME, PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
-    } catch (PDOException $e) {
-        return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
-    }
-
-    try {
-        $consulta = "UPDATE usuarios SET nombre=?,usuario=?,email=? WHERE id_usuario=?";
-        $sentencia = $conexion->prepare($consulta);
-        $sentencia->execute([$datos["nombre"],$datos["usuario"], $datos["email"], $datos["id_usuario"]]);
-    } catch (PDOException $e) {
-        $sentencia = null;
-        $consulta = null;
-        return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
-    }
-
-    if ($sentencia->rowCount() > 0) {
-        $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " ha sido actualizado con exito";
-    } else {
-        $respuesta["mensaje"] = "El usuario " . $datos["id_usuario"] . " no se ha podido actualizar, no existe";
-    }
 
 
-    $sentencia = null;
-    $consulta = null;
-    return $respuesta;
-}
-
-$app->delete("/login_restful/borrarUsuario/{id_usuario}", function ($request) {
+$app->delete("/borrarUsuario/{id_usuario}", function ($request) {
 
     $datos["id_usuario"] = $request->getAttribute("id_usuario");
 
     echo json_encode(eliminarUsuario($datos));
 });
 
-$app->put("/login_restful/actualizarUsuarioConClave/{id_usuario}", function ($request) {
+$app->put("/actualizarUsuarioConClave/{id_usuario}", function ($request) {
 
     $datos["id_usuario"] = $request->getAttribute("id_usuario");
     $datos["nombre"] = $request->getParam();
@@ -299,7 +302,7 @@ $app->put("/login_restful/actualizarUsuarioConClave/{id_usuario}", function ($re
     echo json_encode(actualizarUsuario($datos));
 });
 
-$app->put("/login_restful/actualizarUsuarioSinClave/{id_usuario}", function ($request) {
+$app->put("/actualizarUsuarioSinClave/{id_usuario}", function ($request) {
 
     $datos["id_usuario"] = $request->getAttribute("id_usuario");
     $datos["nombre"] = $request->getParam();
@@ -309,7 +312,7 @@ $app->put("/login_restful/actualizarUsuarioSinClave/{id_usuario}", function ($re
     echo json_encode(actualizarUsuarioSinClave($datos));
 });
 
-$app->get("/login_restful/usuarios", function ($request) {
+$app->get("/usuarios", function ($request) {
 
     echo json_encode(obtenerTodosLosUsuarios());
 
@@ -356,7 +359,7 @@ $app->post("/login", function ($request) {
     echo json_encode(estaLogeado($usuario, $clave));
 });
 
-$app->post("/login_restful/crearUsuario", function ($request) {
+$app->post("/crearUsuario", function ($request) {
     $datos["nombre"] = $request->getParam();
     $datos["usuario"] = $request->getParam();
     $datos["clave"] = $request->getParam();
