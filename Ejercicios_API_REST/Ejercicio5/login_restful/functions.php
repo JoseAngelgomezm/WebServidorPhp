@@ -78,6 +78,7 @@ function estaLogeado($usuario, $clave)
         $sentencia = $conexion->prepare($consulta);
         $sentencia->execute([$usuario, $clave]);
     } catch (PDOException $e) {
+        session_destroy();
         $sentencia = null;
         $consulta = null;
         return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
@@ -87,6 +88,7 @@ function estaLogeado($usuario, $clave)
         $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
     } else {
         $respuesta["mensaje"] = "El usuario no existe en la base de datos";
+        $respuesta["token"] = session_id();
     }
 
     $sentencia = null;

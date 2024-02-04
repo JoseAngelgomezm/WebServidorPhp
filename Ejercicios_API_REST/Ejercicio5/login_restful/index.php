@@ -5,6 +5,10 @@ header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Conte
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 
+session_name("ejercicio5Tokensid2324");
+session_start();
+session_id();
+
 require __DIR__ . '/Slim/autoload.php';
 
 $app = new \Slim\App;
@@ -37,6 +41,18 @@ $app->post("/crearUsuario", function ($request) {
 
 // servicio que devuelve true o false si esta logeado un usuario o no
 $app->post("/login", function ($request) {
+
+    // obtener los parametros del post con getParam
+    $usuario = $request->getParam("usuario");
+    $clave = $request->getParam("clave");
+    
+
+    // enviar el json con lo que devuelve la funcion
+    echo json_encode(estaLogeado($usuario, $clave));
+});
+
+// servicio que devuelve true o false si esta logeado un usuario o no, requiriendo un token
+$app->post("/loginSeguridad", function ($request) {
 
     // obtener los parametros del post con getParam
     $usuario = $request->getParam("usuario");
