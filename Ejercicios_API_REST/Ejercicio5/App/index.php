@@ -216,9 +216,9 @@ if (isset($_POST["salir"])) {
                 die(errores("no se ha obtenido respuesta al conectarse" . $respuesta));
             }
 
-            if (isset($archivo->mensaje_error)) {
+            if (isset($archivo->error)) {
                 session_destroy();
-                die(errores($archivo->mensaje_error));
+                die(errores($archivo->error));
             }
 
             if (isset($archivo->mensaje)) {
@@ -228,6 +228,7 @@ if (isset($_POST["salir"])) {
                 $_SESSION["usuario"] = $archivo->usuario->usuario;
                 $_SESSION["contraseña"] = $archivo->usuario->clave;
                 $_SESSION["ultimaAccion"] = time();
+                $_SESSION["token"] = $archivo->token;
                 header("location:index.php");
             }
         }
@@ -237,11 +238,12 @@ if (isset($_POST["salir"])) {
 
     // si estoy logeado
     if (isset($_SESSION["usuario"]) && isset($_SESSION["contraseña"])) {
-
+        
         // comprobar seguridad 
-        $url = URLATAQUE . "/login";
+        $url = URLATAQUE . "/loginSeguridad";
         $datos["usuario"] = $_SESSION["usuario"];
         $datos["clave"] = $_SESSION["contraseña"];
+        $datos["token"] = $_SESSION["token"];
         $respuesta = consumir_servicios_REST($url, "post", $datos);
         $archivo = json_decode($respuesta);
 
@@ -250,14 +252,14 @@ if (isset($_POST["salir"])) {
             die(errores("no se ha obtenido respuesta al conectarse" . $respuesta));
         }
 
-        if (isset($archivo->mensaje_error)) {
+        if (isset($archivo->error)) {
             session_destroy();
             die(errores($archivo->mensaje_error));
         }
 
         if (isset($archivo->mensaje)) {
             session_unset();
-            $_SESSION["seguridad"] = "este usuario ya no se encuentra en la base de datos";
+            $_SESSION["seguridad"] = $archivo->mensaje;
             header("location:index.php");
             exit();
         }

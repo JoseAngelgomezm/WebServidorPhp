@@ -86,9 +86,13 @@ function estaLogeado($usuario, $clave)
 
     if ($sentencia->rowCount() > 0) {
         $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
+        // cuando alguien se loguea , guardar los datos en el $_SESSION de la api y darle una id
+        $_SESSION["usuario"] = $usuario;
+        $_SESSION["clave"] = $clave;
+        $_SESSION["tipo"] = $respuesta["usuario"]["tipo"];
+        $respuesta["token"] = session_id();
     } else {
         $respuesta["mensaje"] = "El usuario no existe en la base de datos";
-        $respuesta["token"] = session_id();
     }
 
     $sentencia = null;

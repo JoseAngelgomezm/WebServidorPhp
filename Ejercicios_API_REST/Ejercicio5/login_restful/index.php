@@ -6,8 +6,9 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 
 session_name("ejercicio5Tokensid2324");
-session_start();
 session_id();
+session_start();
+
 
 require __DIR__ . '/Slim/autoload.php';
 
@@ -18,7 +19,7 @@ $app = new \Slim\App;
 // $datos["usuario"] => si no existe el usuario en la base de datos, los datos del usuario
 // $datos["mensaje"] => si no se encuentra en la base de datos
 
-require ("functions.php");
+require("functions.php");
 
 $app->get("/usuarios", function ($request) {
 
@@ -45,21 +46,29 @@ $app->post("/login", function ($request) {
     // obtener los parametros del post con getParam
     $usuario = $request->getParam("usuario");
     $clave = $request->getParam("clave");
-    
 
     // enviar el json con lo que devuelve la funcion
     echo json_encode(estaLogeado($usuario, $clave));
+
 });
 
 // servicio que devuelve true o false si esta logeado un usuario o no, requiriendo un token
 $app->post("/loginSeguridad", function ($request) {
 
     // obtener los parametros del post con getParam
-    $usuario = $request->getParam("usuario");
-    $clave = $request->getParam("clave");
+    $usuario = $request->getParam('usuario');
+    $clave = $request->getParam('clave');
+    $token = $request->getParam('token');
 
-    // enviar el json con lo que devuelve la funcion
-    echo json_encode(estaLogeado($usuario, $clave));
+    // si el usuario es el que esta logueado y existe el session id del token que me pasa en la llamada
+    if () {
+
+        // enviar el json con lo que devuelve la funcion
+        echo json_encode(estaLogeado($usuario, $clave));
+
+    } else {
+        echo json_encode(array("mensaje" => "no tienes permiso para usar este servicio"));
+    }
 });
 
 
