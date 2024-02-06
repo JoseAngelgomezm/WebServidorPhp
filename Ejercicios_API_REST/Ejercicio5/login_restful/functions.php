@@ -127,7 +127,7 @@ function estaLogeadoSeguridad($usuario, $clave)
     if ($sentencia->rowCount() > 0) {
         $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
     } else {
-        $respuesta["mensaje"] = "El usuario no existe en la base de datos";
+        $respuesta["mensaje"] = "El usuario no existe en la base de datos, seguridad";
     }
 
     $sentencia = null;

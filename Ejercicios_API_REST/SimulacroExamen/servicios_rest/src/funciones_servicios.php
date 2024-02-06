@@ -3,15 +3,14 @@ require "config_bd.php";
 
 function conexion_pdo()
 {
-    try{
-        $conexion= new PDO("mysql:host=".SERVIDOR_BD.";dbname=".NOMBRE_BD,USUARIO_BD,CLAVE_BD,array(PDO::MYSQL_ATTR_INIT_COMMAND=>"SET NAMES 'utf8'"));
-        
-        $respuesta["mensaje"]="Conexi&oacute;n a la BD realizada con &eacute;xito";
-        
-        $conexion=null;
-    }
-    catch(PDOException $e){
-        $respuesta["error"]="Imposible conectar:".$e->getMessage();
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        $respuesta["mensaje"] = "Conexi&oacute;n a la BD realizada con &eacute;xito";
+
+        $conexion = null;
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
     }
     return $respuesta;
 }
@@ -19,17 +18,14 @@ function conexion_pdo()
 
 function conexion_mysqli()
 {
-  
-    try
-    {
-        $conexion=mysqli_connect(SERVIDOR_BD,USUARIO_BD,CLAVE_BD,NOMBRE_BD);
-        mysqli_set_charset($conexion,"utf8");
-        $respuesta["mensaje"]="Conexi&oacute;n a la BD realizada con &eacute;xito";
+
+    try {
+        $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
+        mysqli_set_charset($conexion, "utf8");
+        $respuesta["mensaje"] = "Conexi&oacute;n a la BD realizada con &eacute;xito";
         mysqli_close($conexion);
-    }
-    catch(Exception $e)
-    {
-        $respuesta["error"]="Imposible conectar:".$e->getMessage();
+    } catch (Exception $e) {
+        $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
     }
     return $respuesta;
 }
@@ -47,7 +43,7 @@ function loginUsuario($lector, $clave)
         return $respuesta;
     }
 
-    if($sentencia->rowCount() > 0){
+    if ($sentencia->rowCount() > 0) {
         $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
         session_name("Examen_SW_23_24");
         session_start();
@@ -56,8 +52,8 @@ function loginUsuario($lector, $clave)
         $_SESSION["clave"] = $respuesta["usuario"]["clave"];
         $_SESSION["tipo"] = $respuesta["usuario"]["tipo"];
         $respuesta["api_session"] = session_id();
-        
-    }else{
+
+    } else {
         $respuesta["mensaje"] = "El usuario no se encuentra registrado en la BD";
     }
 
@@ -69,7 +65,12 @@ function loginUsuario($lector, $clave)
 function usuarioLogueado($lector, $clave)
 {
     try {
-        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+        $conexion = new PDO("mysql:host=" . HOST . ";dbname=" . NAMEDB, USERNAME, PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+    } catch (PDOException $e) {
+        return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
+    }
+
+    try {
         $consulta = "SELECT * FROM usuarios WHERE lector=? AND clave=?";
         $sentencia = $conexion->prepare($consulta);
         $sentencia->execute([$lector, $clave]);
@@ -79,9 +80,9 @@ function usuarioLogueado($lector, $clave)
         return $respuesta;
     }
 
-    if($sentencia->rowCount() > 0){
+    if ($sentencia->rowCount() > 0) {
         $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
-    }else{
+    } else {
         $respuesta["mensaje"] = "El usuario no se encuentra registrado en la BD";
     }
 

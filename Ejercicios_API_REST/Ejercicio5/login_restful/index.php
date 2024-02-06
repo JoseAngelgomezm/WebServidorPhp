@@ -18,14 +18,12 @@ $app = new \Slim\App;
 
 require("functions.php");
 
-// servicio que devuelve true o false si existe un usuario para loguearlo o no
-$app->get("/login", function ($request) {
+// servicio que devuelve los datos del usuario si existe en la bd el par usuario/clave
+$app->post("/login", function ($request) {
 
     
-
-    $usuario = "pepe";
-    $claveEncriptada = md5("pepe");
-    $clave = $claveEncriptada;
+    $usuario = $request->getParam('usuario');
+    $clave = $request->getParam('clave');
 
     // enviar el json con lo que devuelve la funcion
     echo json_encode(estaLogeado($usuario, $clave));
@@ -44,7 +42,7 @@ $app->post("/loginSeguridad", function ($request) {
         // obtener los parametros del post con getParam
         $usuario = $request->getParam('usuario');
         $clave = $request->getParam('clave');
-        $token = $request->getParam('token');
+
         // enviar el json con lo que devuelve la funcion
         echo json_encode(estaLogeadoSeguridad($usuario, $clave));
 
