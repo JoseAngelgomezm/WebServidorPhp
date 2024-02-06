@@ -115,5 +115,79 @@ function obtenerLibros()
     return $respuesta;
 }
 
+function insertar_libro($datos)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+        $consulta = "INSERT INTO libros (referencia,titulo,autor,descripcion,precio) values (?,?,?,?,?)";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["referencia"], $datos["titulo"], $datos["autor"], $datos["descripcion"], $datos["precio"]]);
+
+    } catch (PDOException $e) {
+        $respuesta["error"] = "No se puede realizar la consulta" . $e->getMessage();
+        return $respuesta;
+    }
+
+    if ($sentencia->rowCount() > 0) {
+        $respuesta["mensaje"] = "Libro insertado correctamente";
+    }
+
+    $conexion = null;
+    $sentencia = null;
+    return $respuesta;
+
+}
+
+function actualizarPortada($datos)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+        $consulta = "UPDATE libros set portada=? where referencia = ?";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["nombre"], $datos["referencia"]]);
+
+    } catch (PDOException $e) {
+        $respuesta["error"] = "No se puede realizar la consulta" . $e->getMessage();
+        return $respuesta;
+    }
+
+    if ($sentencia->rowCount() > 0) {
+        $respuesta["mensaje"] = "Portada actualizada correctamente";
+    }
+
+    $conexion = null;
+    $sentencia = null;
+    return $respuesta;
+
+}
+
+function consultarRepetido($datos)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+        $consulta = "SELECT * FROM ? WHERE ? = ?";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["tabla"], $datos["columna"], $datos["valor"]]);
+
+    } catch (PDOException $e) {
+        $respuesta["error"] = "No se puede realizar la consulta" . $e->getMessage();
+        return $respuesta;
+    }
+
+    if ($sentencia->rowCount() > 0) {
+        $respuesta["repetido"] = true;
+    } else {
+        $respuesta["repetido"] = false;
+    }
+
+    $conexion = null;
+    $sentencia = null;
+    return $respuesta;
+
+}
+
 
 ?>

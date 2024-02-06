@@ -15,6 +15,8 @@ $app->get('/conexion_MYSQLI', function ($request) {
     echo json_encode(conexion_mysqli());
 });
 
+
+
 $app->post('/login', function ($request) {
 
     $lector = $request->getParam('lector');
@@ -34,7 +36,7 @@ $app->post('/logueado', function ($request) {
     if (isset($_SESSION["usuario"])) {
         echo json_encode(usuarioLogueado($_SESSION["usuario"], $_SESSION["clave"]));
     } else {
-        echo json_encode(array("error" => "no tiene permisos para usar este servicio"));
+        echo json_encode(array("no_auth" => "No tienes permisos para usar este servicio"));
     }
 
 });
@@ -71,38 +73,43 @@ $app->post('/crearLibro', function ($request) {
 
         echo json_encode(insertar_libro($datos));
     } else {
-        echo json_encode(array("error" => "No tienes permisos para usar este servicio"));
+        echo json_encode(array("no_auth" => "No tienes permisos para usar este servicio"));
     }
 });
 
-function insertar_libro($datos)
-{
+$app->put("/actualizarPortada/{referencia}", function ($request) {
 
-    try {
-        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
-        $consulta = "INSERT INTO libros (referencia,titulo,autor,descripcion,precio) values (?,?,?,?,?)";
-        $sentencia = $conexion->prepare($consulta);
-        $sentencia->execute([$datos["referencia"], $datos["titulo"], $datos["autor"],$datos["descripcion"], $datos["precio"]]);
+    $token = $request->getParam("api_session");
+    session_id($token);
+    session_start();
 
-    } catch (PDOException $e) {
-        $respuesta["error"] = "No se puede realizar la consulta" . $e->getMessage();
-        return $respuesta;
-    }
+    if (isset($_SESSION["usuario"])) {
+        $datos["referencia"] = $request->getAttribute('referencia');
+        $datos["nombre"] = $request->getParam("nombre");
 
-    if ($sentencia->rowCount() > 0) {
-        $respuesta["libros"] = $sentencia->fetch(PDO::FETCH_ASSOC);
+        echo json_encode(actualizarPortada($datos));
     } else {
-        $respuesta["mensaje"] = "No hay libros en la base de datos";
+        echo json_encode(array("no_auth" => "No tienes permisos para usar este servicio"));
     }
 
-    $conexion = null;
-    $sentencia = null;
-    return $respuesta;
+});
 
-}
+$app->get("/repetido/{tabla}/{columna}/{valor}", function ($request) {
 
+    $token = $request->getParam("api_session");
+    session_id($token);
+    session_start();
 
+    if (isset($_SESSION["usuario"])) {
+        $datos["tabla"] = $request->getAttribute("tabla");
+        $datos["columna"] = $request->getAttribute("columna");
+        $datos["valor"] = $request->getAttribute("valor");
+        echo json_encode(consultarRepetido($datos));
+    } else {
+        echo json_encode(array("no_auth" => "No tienes permisos para usar este servicio"));
+    }
 
+});
 
 // Una vez creado servicios los pongo a disposición
 $app->run();
