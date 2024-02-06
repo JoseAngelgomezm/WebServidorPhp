@@ -242,7 +242,7 @@ if (isset($_POST["salir"])) {
         // comprobar seguridad 
         $url = URLATAQUE . "/loginSeguridad";
         $datos["usuario"] = $_SESSION["usuario"];
-        $datos["clave"] = $_SESSION["contraseña"];
+        $datos["clave"] = md5($_SESSION["contraseña"]);
         $datos["token"] = $_SESSION["token"];
         $respuesta = consumir_servicios_REST($url, "post", $datos);
         $archivo = json_decode($respuesta);

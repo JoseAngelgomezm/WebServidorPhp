@@ -5,9 +5,6 @@ header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Conte
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 
-session_name("ejercicio5Tokensid2324");
-session_id();
-session_start();
 
 
 require __DIR__ . '/Slim/autoload.php';
@@ -20,6 +17,42 @@ $app = new \Slim\App;
 // $datos["mensaje"] => si no se encuentra en la base de datos
 
 require("functions.php");
+
+// servicio que devuelve true o false si existe un usuario para loguearlo o no
+$app->get("/login", function ($request) {
+
+    
+
+    $usuario = "pepe";
+    $claveEncriptada = md5("pepe");
+    $clave = $claveEncriptada;
+
+    // enviar el json con lo que devuelve la funcion
+    echo json_encode(estaLogeado($usuario, $clave));
+
+});
+
+// servicio que devuelve true o false si esta logeado un usuario o no, requiriendo un token
+$app->post("/loginSeguridad", function ($request) {
+    // obtener el token
+    $token = $request->getParam('token');
+    session_id($token);
+    session_start();
+
+    // si el usuario es el que esta logueado y existe el session id del token que me pasa en la llamada
+    if (isset($_SESSION["usuario"])) {
+        // obtener los parametros del post con getParam
+        $usuario = $request->getParam('usuario');
+        $clave = $request->getParam('clave');
+        $token = $request->getParam('token');
+        // enviar el json con lo que devuelve la funcion
+        echo json_encode(estaLogeadoSeguridad($usuario, $clave));
+
+    } else {
+        echo json_encode(array("mensaje" => "no tienes permiso para usar este servicio"));
+    }
+});
+
 
 $app->get("/usuarios", function ($request) {
 
@@ -40,36 +73,9 @@ $app->post("/crearUsuario", function ($request) {
 });
 
 
-// servicio que devuelve true o false si esta logeado un usuario o no
-$app->post("/login", function ($request) {
 
-    // obtener los parametros del post con getParam
-    $usuario = $request->getParam("usuario");
-    $clave = $request->getParam("clave");
 
-    // enviar el json con lo que devuelve la funcion
-    echo json_encode(estaLogeado($usuario, $clave));
 
-});
-
-// servicio que devuelve true o false si esta logeado un usuario o no, requiriendo un token
-$app->post("/loginSeguridad", function ($request) {
-
-    // obtener los parametros del post con getParam
-    $usuario = $request->getParam('usuario');
-    $clave = $request->getParam('clave');
-    $token = $request->getParam('token');
-
-    // si el usuario es el que esta logueado y existe el session id del token que me pasa en la llamada
-    if () {
-
-        // enviar el json con lo que devuelve la funcion
-        echo json_encode(estaLogeado($usuario, $clave));
-
-    } else {
-        echo json_encode(array("mensaje" => "no tienes permiso para usar este servicio"));
-    }
-});
 
 
 $app->put("/actualizarUsuarioConClave/{id_usuario}", function ($request) {

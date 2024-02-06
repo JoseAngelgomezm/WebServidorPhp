@@ -87,10 +87,45 @@ function estaLogeado($usuario, $clave)
     if ($sentencia->rowCount() > 0) {
         $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
         // cuando alguien se loguea , guardar los datos en el $_SESSION de la api y darle una id
+        session_name("ejercicio5Tokensid2324");
+        session_start();
         $_SESSION["usuario"] = $usuario;
         $_SESSION["clave"] = $clave;
         $_SESSION["tipo"] = $respuesta["usuario"]["tipo"];
         $respuesta["token"] = session_id();
+    } else {
+        $respuesta["mensaje"] = "El usuario no existe en la base de datos";
+    }
+
+    $sentencia = null;
+    $consulta = null;
+
+    return $respuesta;
+
+}
+
+function estaLogeadoSeguridad($usuario, $clave)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . HOST . ";dbname=" . NAMEDB, USERNAME, PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+    } catch (PDOException $e) {
+        return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
+    }
+
+    try {
+        $consulta = "select * from usuarios where usuario=? and clave=?";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$usuario, $clave]);
+    } catch (PDOException $e) {
+        session_destroy();
+        $sentencia = null;
+        $consulta = null;
+        return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
+    }
+
+    if ($sentencia->rowCount() > 0) {
+        $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
     } else {
         $respuesta["mensaje"] = "El usuario no existe en la base de datos";
     }
