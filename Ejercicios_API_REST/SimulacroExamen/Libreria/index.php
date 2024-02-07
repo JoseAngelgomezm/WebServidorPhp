@@ -25,6 +25,13 @@ function error_page($title, $body)
     return $html;
 }
 
+if(isset($_POST["salir"])){
+    $datos["api_session"] = $_SESSION["api_session"];
+    consumir_servicios_REST(URLBASE."/salir", "post", $datos);
+    session_destroy();
+
+}
+
 if (isset($_SESSION["usuario"])) {
 
         require("vistas/vista_seguridad.php");
@@ -35,7 +42,7 @@ if (isset($_SESSION["usuario"])) {
 
     } else if($_SESSION["tipo"] === "admin") {
 
-        require("vistas/vista_usuario_admin.php");
+        require("admin/gest_admin.php");
 
     }
 
