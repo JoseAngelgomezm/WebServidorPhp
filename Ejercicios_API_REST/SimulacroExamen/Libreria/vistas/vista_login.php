@@ -1,8 +1,4 @@
 <?php
-
-
-
-
 if (isset($_POST["entrar"])) {
     $errorNombre = $_POST["usuario"] == "";
     $errorContraseña = $_POST["password"] == "";
@@ -13,6 +9,7 @@ if (isset($_POST["entrar"])) {
         // comprobar que existe el usuario
         $url = URLBASE . "/login";
         $datos["lector"] = $_POST["usuario"];
+        $datos["clave"]= md5($_POST["password"]);
         $respuesta = consumir_servicios_REST($url, "post", $datos);
         $archivo = json_decode($respuesta);
 
@@ -31,9 +28,9 @@ if (isset($_POST["entrar"])) {
 
         if (isset($archivo->usuario)) {
             // loguearlo
-            $_SESSION["usuario"] = $archivo->usuario->usuario;
+            $_SESSION["usuario"] = $archivo->usuario->lector;
             $_SESSION["contraseña"] = $archivo->usuario->clave;
-            $_SESSION["tipo"] = $archivo->usuario->tipo;
+            $_SESSION["ultimaAccion"] = time();
             $_SESSION["api_session"] = $archivo->api_session;
             header("location:index.php");
             exit();
@@ -109,10 +106,12 @@ if (isset($_POST["entrar"])) {
     $archivo = json_decode($respuesta);
 
     if (!$archivo) {
+        session_destroy();
         die(error_page("Error obtencion", "No se ha obtenido respuesta"));
     }
 
     if (isset($archivo->error)) {
+        session_destroy();
         die(error_page("Error obtencion", $archivo->error));
     }
 

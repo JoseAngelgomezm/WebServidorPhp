@@ -25,14 +25,9 @@ function error_page($title, $body)
     return $html;
 }
 
-
-
-
-?>
-
-
-<?php
 if (isset($_SESSION["usuario"])) {
+
+        require("vistas/vista_seguridad.php");
 
     if ($_SESSION["tipo"] === "normal") {
 
@@ -47,4 +42,5 @@ if (isset($_SESSION["usuario"])) {
 } else {
     require("vistas/vista_login.php");
 }
+
 ?>
