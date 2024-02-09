@@ -29,7 +29,8 @@ if(isset($_POST["salir"])){
     $datos["api_session"] = $_SESSION["api_session"];
     consumir_servicios_REST(URLBASE."/salir", "post", $datos);
     session_destroy();
-
+    header("location:index.php");
+    exit();
 }
 
 if (isset($_SESSION["usuario"])) {

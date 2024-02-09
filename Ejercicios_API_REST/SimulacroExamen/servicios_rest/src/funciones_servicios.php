@@ -34,12 +34,19 @@ function loginUsuario($lector, $clave)
 {
     try {
         $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
-        $consulta = "SELECT * FROM usuarios WHERE lector=? AND clave=?";
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
+        return $respuesta;
+    }
+
+    try {
+        $consulta = "select * from usuarios where lector=? and clave=?";
         $sentencia = $conexion->prepare($consulta);
         $sentencia->execute([$lector, $clave]);
-
     } catch (PDOException $e) {
-        $respuesta["error"] = "No se puede realizar la consulta" . $e->getMessage();
+        $respuesta["error"] = "Imposible realizar la consulta:" . $e->getMessage();
+        $sentencia = null;
+        $conexion = null;
         return $respuesta;
     }
 
@@ -47,7 +54,6 @@ function loginUsuario($lector, $clave)
         $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
         session_name("Examen_SW_23_24");
         session_start();
-
         $_SESSION["usuario"] = $respuesta["usuario"]["lector"];
         $_SESSION["clave"] = $respuesta["usuario"]["clave"];
         $_SESSION["tipo"] = $respuesta["usuario"]["tipo"];
@@ -57,37 +63,40 @@ function loginUsuario($lector, $clave)
         $respuesta["mensaje"] = "El usuario no se encuentra registrado en la BD";
     }
 
-    $conexion = null;
     $sentencia = null;
+    $conexion = null;
     return $respuesta;
 }
 
 function usuarioLogueado($lector, $clave)
 {
     try {
-        $conexion = new PDO("mysql:host=" . HOST . ";dbname=" . NAMEDB, USERNAME, PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
     } catch (PDOException $e) {
-        return array("error" => "No se ha podido conectar a la base de datos" . $e->getMessage());
+        $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
+        return $respuesta;
     }
 
     try {
-        $consulta = "SELECT * FROM usuarios WHERE lector=? AND clave=?";
+        $consulta = "select * from usuarios where lector=? and clave=?";
         $sentencia = $conexion->prepare($consulta);
         $sentencia->execute([$lector, $clave]);
-
     } catch (PDOException $e) {
-        $respuesta["error"] = "No se puede realizar la consulta" . $e->getMessage();
+        $respuesta["error"] = "Imposible realizar la consulta:" . $e->getMessage();
+        $sentencia = null;
+        $conexion = null;
         return $respuesta;
     }
 
     if ($sentencia->rowCount() > 0) {
         $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
+
     } else {
         $respuesta["mensaje"] = "El usuario no se encuentra registrado en la BD";
     }
 
-    $conexion = null;
     $sentencia = null;
+    $conexion = null;
     return $respuesta;
 }
 

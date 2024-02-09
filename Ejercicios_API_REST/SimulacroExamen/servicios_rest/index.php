@@ -26,17 +26,14 @@ $app->post('/login', function ($request) {
 });
 
 $app->post('/logueado', function ($request) {
-
-    $token = $request->getParam('api_session');
-    // recibir el token del que llama al servicio
+    $token = $request->getParam("api_session");
     session_id($token);
     session_start();
-
     // si existe un $_SESSION["usuario] en esta id de session, esque esta logeado
     if (isset($_SESSION["usuario"])) {
         echo json_encode(usuarioLogueado($_SESSION["usuario"], $_SESSION["clave"]));
     } else {
-        session_destroy();
+        
         echo json_encode(array("no_auth" => "No tienes permisos para usar este servicio"));
     }
 

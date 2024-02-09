@@ -8,11 +8,15 @@
 </head>
 
 <body>
-    <h2>Bienvenido <?php $datosUsuario->usuario->lector ?></h2>
+    <h2>Bienvenido <?php echo $datosUsuario->lector ." tipo: ".$_SESSION["tipo"].""?></h2>
     <form action="index.php">
 
     <button type="submit" name="salir">Salir</button>
     </form>
+
+    <?php
+        require("vistas/vista_obtener_libros.php");
+    ?>
 </body>
 
 </html>
