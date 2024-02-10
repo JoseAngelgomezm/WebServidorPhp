@@ -25,7 +25,7 @@ if (isset($_SESSION["usuario"])) {
             <h2>Bienvenido
                 <?php echo $datosUsuario->lector . " tipo: " . $_SESSION["tipo"] . "" ?>
             </h2>
-            <form action="index.php" method="post">
+            <form action="#" method="post">
 
                 <button type="submit" name="salir">Salir</button>
             </form>
@@ -67,7 +67,7 @@ if (isset($_SESSION["usuario"])) {
                     echo "<tr>";
                     echo "<td>" . $value->referencia . "</td>";
                     echo "<td>" . $value->titulo . "</td>";
-                    echo "<td><form method='post' action='admin/gest_admin.php'><button type='submit' name='borrar' value='" . $value->referencia . "'>Borrar</button><button type='submit' name='editar' value='" . $value->referencia . "'>Editar</button></form></td>";
+                    echo "<td><form method='post' action='#'><button type='submit' name='borrar' value='" . $value->referencia . "'>Borrar</button><button type='submit' name='editar' value='" . $value->referencia . "'>Editar</button></form></td>";
                     echo "</tr>";
                 }
                 echo "<table>";
