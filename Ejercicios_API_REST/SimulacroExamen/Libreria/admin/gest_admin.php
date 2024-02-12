@@ -1,14 +1,49 @@
 <?php
+session_name("examenlibreriaSimulacro22-23");
+session_start();
+define("URLBASE", "http://localhost/Proyectos/WebServidorPhp/Ejercicios_API_REST/SimulacroExamen/servicios_rest");
+
+
+function consumir_servicios_REST($url, $metodo, $datos = null)
+{
+    $llamada = curl_init();
+    curl_setopt($llamada, CURLOPT_URL, $url);
+    curl_setopt($llamada, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($llamada, CURLOPT_CUSTOMREQUEST, $metodo);
+    if (isset($datos))
+        curl_setopt($llamada, CURLOPT_POSTFIELDS, http_build_query($datos));
+    $respuesta = curl_exec($llamada);
+    curl_close($llamada);
+    return $respuesta;
+}
+
+function error_page($title, $body)
+{
+    $html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0">';
+    $html .= '<title>' . $title . '</title></head>';
+    $html .= '<body>' . $body . '</html>';
+    return $html;
+}
+
+
+
 if (isset($_SESSION["usuario"])) {
+
+    $salto = "../index.php";
+    require("../vistas/vista_seguridad.php");
 
     if ($_SESSION["tipo"] === "admin") {
 
         if (isset($_POST["borrar"])) {
             $_SESSION["mensajeAccion"] = "Se ha borrado el libro " . $_POST["borrar"] . "";
+            header("Location:gest_admin.php");
+            exit();
         }
 
         if (isset($_POST["editar"])) {
             $_SESSION["mensajeAccion"] = "Se ha editado el libro " . $_POST["editar"] . "";
+            header("Location:gest_admin.php");
+            exit();
         }
 
         ?>
@@ -25,7 +60,7 @@ if (isset($_SESSION["usuario"])) {
             <h2>Bienvenido
                 <?php echo $datosUsuario->lector . " tipo: " . $_SESSION["tipo"] . "" ?>
             </h2>
-            <form action="#" method="post">
+            <form action="../index.php" method="post">
 
                 <button type="submit" name="salir">Salir</button>
             </form>
@@ -35,7 +70,7 @@ if (isset($_SESSION["usuario"])) {
 
             if (isset($_SESSION["mensajeAccion"])) {
                 echo "<p>" . $_SESSION["mensajeAccion"] . "</p>";
-                session_unset();
+                unset($_SESSION["mensajeAccion"]);
             }
 
             $url = URLBASE . "/obtenerLibros";
@@ -67,7 +102,8 @@ if (isset($_SESSION["usuario"])) {
                     echo "<tr>";
                     echo "<td>" . $value->referencia . "</td>";
                     echo "<td>" . $value->titulo . "</td>";
-                    echo "<td><form method='post' action='#'><button type='submit' name='borrar' value='" . $value->referencia . "'>Borrar</button><button type='submit' name='editar' value='" . $value->referencia . "'>Editar</button></form></td>";
+                    echo "<td><form method='post' action='gest_admin.php'><button type='submit' name='borrar' value='" . $value->referencia . "'>Borrar</button>
+                    <button type='submit' name='editar' value='" . $value->referencia . "'>Editar</button></form></td>";
                     echo "</tr>";
                 }
                 echo "<table>";
@@ -87,10 +123,12 @@ if (isset($_SESSION["usuario"])) {
 
     } else {
         header("location:../index.php");
+        exit();
     }
 
 } else {
     header("location:../index.php");
+    exit();
 }
 
 ?>

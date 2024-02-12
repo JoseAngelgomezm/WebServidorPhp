@@ -9,7 +9,7 @@
 
 <body>
     <h2>Bienvenido <?php echo $datosUsuario->lector ." tipo: ".$_SESSION["tipo"].""?></h2>
-    <form action="index.php">
+    <form action="index.php" method="post">
 
     <button type="submit" name="salir">Salir</button>
     </form>

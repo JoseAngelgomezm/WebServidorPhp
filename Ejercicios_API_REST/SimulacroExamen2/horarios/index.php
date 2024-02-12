@@ -1,9 +1,4 @@
 <?php
-
-session_name("examenlibreriaSimulacro22-23");
-session_start();
-define("URLBASE", "http://localhost/Proyectos/WebServidorPhp/Ejercicios_API_REST/SimulacroExamen/servicios_rest");
-
 function consumir_servicios_REST($url, $metodo, $datos = null)
 {
     $llamada = curl_init();
@@ -17,40 +12,44 @@ function consumir_servicios_REST($url, $metodo, $datos = null)
     return $respuesta;
 }
 
-function error_page($title, $body)
+function error_page($cabecera, $mensaje)
 {
     $html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0">';
-    $html .= '<title>' . $title . '</title></head>';
-    $html .= '<body>' . $body . '</html>';
+    $html .= '<title>Error</title></head>';
+    $html .= '<body><h1>' . $cabecera . '</h1>' . $mensaje . '</body></html>';
     return $html;
 }
 
+define("URLBASE", "http://localhost/Proyectos/WebServidorPhp/Ejercicios_API_REST/SimulacroExamen2/servicios_rest");
+
+session_name("Examen2SimulacroPrueba23/24");
+session_start();
+
 if (isset($_POST["salir"])) {
-    $datos["api_session"] = $_SESSION["api_session"];
-    consumir_servicios_REST(URLBASE . "/salir", "post", $datos);
+    consumir_servicios_REST(URLBASE . "/salir", "get");
     session_destroy();
-    header("location:index.php");
+    header("Location:index.php");
     exit();
 }
 
 if (isset($_SESSION["usuario"])) {
-    
-    $salto = "index.php";
+    $sato="index.php";
     require("vistas/vista_seguridad.php");
 
-    if ($_SESSION["tipo"] === "normal") {
+    if ($datosUsuario->tipo === "normal") {
 
-        require("vistas/vista_usuario_normal.php");
+        require("vistas/vista_normal");
 
-    } else if ($_SESSION["tipo"] === "admin") {
+    } else if ($datosUsuario->tipo === "admin") {
 
-        header("Location:admin/gest_admin.php");
-        exit();
+        require("vistas/admin");
 
     }
 
 } else {
+
     require("vistas/vista_login.php");
+
 }
 
 ?>

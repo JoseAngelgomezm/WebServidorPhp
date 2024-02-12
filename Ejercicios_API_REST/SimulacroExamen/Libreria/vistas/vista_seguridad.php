@@ -17,14 +17,16 @@ if(isset($archivo->error)){
 }
 
 if(isset($archivo->no_auth)){
-    session_destroy();
-    die(error_page("Error en seguridad","<p>".$archivo->no_auth."</p>"));
+    session_unset();
+    $_SESSION["seguridad"]="Usted ya no tiene permisos, logueate de nuevo";
+    header("Location:".$salto);
+    exit;
 }
 
 if(isset($archivo->mensaje)){
     session_unset();
     $_SESSION["seguridad"]="Usted ya no se encuentra registrado en la BD";
-    header("Location:index.php");
+    header("Location:".$salto);
     exit;
 }
 
@@ -36,8 +38,8 @@ $datosUsuario = $archivo->usuario;
 if(time() - $_SESSION["ultimaAccion"] > 1000 ){
     session_unset();
     $_SESSION["mensajeSeguridad"] = "Se te ha expulsado por inactividad";
-    header("location:index.php");
-    exit();
+    header("Location:".$salto);
+    exit;
 }
 
 $_SESSION["ultimaAccion"] = time();
