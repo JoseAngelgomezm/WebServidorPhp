@@ -33,16 +33,16 @@ if (isset($_POST["salir"])) {
 }
 
 if (isset($_SESSION["usuario"])) {
-    $sato="index.php";
+    $salto = "index.php";
     require("vistas/vista_seguridad.php");
 
     if ($datosUsuario->tipo === "normal") {
 
-        require("vistas/vista_normal");
+        require("vistas/vista_normal.php");
 
     } else if ($datosUsuario->tipo === "admin") {
 
-        require("vistas/admin");
+        require("vistas/vista_admin.php");
 
     }
 

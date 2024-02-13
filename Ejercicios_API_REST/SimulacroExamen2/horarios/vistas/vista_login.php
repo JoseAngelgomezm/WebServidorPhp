@@ -84,8 +84,9 @@
     </form>
 
     <?php
-    if(isset($_SESSION["seguridad"])){
-        echo "<p>".$_SESSION["seguridad"]."</p>";
+    if(isset($_SESSION["mensajeSeguridad"])){
+        echo "<p>".$_SESSION["mensajeSeguridad"]."</p>";
+        session_destroy();
     }
 ?>
 </body>

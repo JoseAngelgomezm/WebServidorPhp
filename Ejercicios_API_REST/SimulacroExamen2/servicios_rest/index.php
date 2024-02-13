@@ -51,6 +51,69 @@ $app->post('/logueado', function ($request) {
 
 });
 
+$app->get("/obtenerProfesores", function ($request) {
+
+    $token = $request->getParam("api_session");
+    session_id($token);
+    session_start();
+
+    if (isset($_SESSION["usuario"])) {
+        echo json_encode(obtenerProfesores());
+    } else {
+        session_destroy();
+        echo json_encode(array("no_auth" => "No tienes permisos para usar este servicio"));
+    }
+
+});
+
+
+$app->get("/obtenerHorarioProfesor/{id_profesor}", function ($request) {
+
+    $token = $request->getParam("api_session");
+    session_id($token);
+    session_start();
+
+    if (isset($_SESSION["usuario"])) {
+        $datos["id_profesor"] = $request->getAttribute("id_profesor");
+        echo json_encode(obtenerHorarioProfesor($datos));
+    } else {
+        session_destroy();
+        echo json_encode(array("no_auth" => "No tienes permisos para usar este servicio"));
+    }
+
+});
+
+
+function obtenerHorarioProfesor($datos){
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
+        return $respuesta;
+    }
+
+    try {
+        $consulta = "SELECT horario_lectivo.hora, horario_lectivo.dia, horario_lectivo.grupo, grupos.nombre FROM horario_lectivo, grupos WHERE horario_lectivo.grupo = grupos.id_grupo AND horario_lectivo.usuario = ?";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["id_profesor"]]);
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible realizar la consulta:" . $e->getMessage();
+        $sentencia = null;
+        $conexion = null;
+        return $respuesta;
+    }
+
+    if($sentencia->rowCount() > 0){
+        $respuesta["horario"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+    }else{
+        $respuesta["mensaje"] = "No se ha obtenido resultados en horario del profesor";
+    }
+
+    $sentencia = null;
+    $conexion = null;
+
+    return $respuesta;
+}
 
 
 
