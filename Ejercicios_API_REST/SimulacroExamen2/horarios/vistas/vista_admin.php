@@ -50,9 +50,13 @@ if (isset($_POST["profesor"])) {
         exit();
     }
 
-    if (isset($archivo->datosUsuario)) {
+    if (isset($archivo->horario)) {
         $datosHorario = $archivo->horario;
     }
+}
+
+if (isset($_POST["editar"])) {
+
 }
 
 
@@ -66,6 +70,12 @@ if (isset($_POST["profesor"])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        table {
+            width: 100%;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -94,23 +104,31 @@ if (isset($_POST["profesor"])) {
     </form>
 
     <?php
-    if (isset($_POST["profesor"])) {
+    if (isset($_POST["profesor"]) || isset($_POST["editar"])) {
 
         echo "<p>Horario del profesor: " . $nombre . "</p>";
 
         // quedarme con el horario
         if (isset($datosHorario)) {
             foreach ($datosHorario as $value) {
-                $horarioProfesor[$value->dia][$value->hora] = $value->nombre;
+                if (isset($horarioProfesor[$value->dia][$value->hora])) {
+                    $horarioProfesor[$value->dia][$value->hora] .= " / " . $value->nombre;
+                } else {
+                    $horarioProfesor[$value->dia][$value->hora] = $value->nombre;
+                }
+
             }
         }
 
-        var_dump($datosHorario);
+        $horas[1] = "8:15-9:15";
+        $horas[] = "9:15-10:15";
+        $horas[] = "10:15-11:15";
+        $horas[] = "11:15-11:45";
+        $horas[] = "11:45-12:45";
+        $horas[] = "12:45-13:45";
+        $horas[] = "13:45-14:45";
 
-
-        $horas = ["8:15-9:15", "9:15-10:15", "10:15-11:15", "11:15-11:45", "11:45-12:45", "12:45-13:45", "13:45-14:45"];
-
-        echo "<table border='solid 1px black collapse' >";
+        echo "<table border='solid 1px black' >";
 
         echo "<tr>";
         echo "<td></td>";
@@ -121,20 +139,37 @@ if (isset($_POST["profesor"])) {
         echo "<td>Viernes</td>";
         echo "</tr>";
 
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 1; $i < 8; $i++) {
             echo "<tr>";
+
             echo "<td>" . $horas[$i] . "</td>";
-            if ($i == 3) {
-                echo "<td colspan='5'>RECREO</td>";
-            } else {
-                for ($j = 0; $j < 5; $j++) {
-                    if(isset($horarioProfesor[$i][$j])){
-                        echo "<td><form method='post' action='index.php'>".$horarioProfesor[$i][$j]."<button name='editar'>Editar</button></form></td>";
+
+            for ($j = 1; $j < 6; $j++) {
+
+                if ($i === 4) {
+
+                    echo "<td colspan='5'>RECREO</td>";
+                    break;
+
+                } else {
+
+                    if (isset($horarioProfesor[$j][$i])) {
+
+                        echo "<td><form action='index.php' method='post'>" . $horarioProfesor[$j][$i] . "<button type='submit' name='editar' value=''>Editar</button></form></td>";
+
+                    } else {
+                        echo "<td><form action='index.php' method='post'><button type='submit' name='editar' value=''>Editar</button></form></td>";
                     }
+
                 }
+
+
             }
+
             echo "</tr>";
         }
+
+
         echo "</table>";
 
     }

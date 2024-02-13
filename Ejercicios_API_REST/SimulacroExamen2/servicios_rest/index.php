@@ -84,7 +84,25 @@ $app->get("/obtenerHorarioProfesor/{id_profesor}", function ($request) {
 });
 
 
-function obtenerHorarioProfesor($datos){
+$app->get("/obtenerHorario/{dia}/{hora}",function($request){
+
+    $token = $request->getParam("api_session");
+    session_id($token);
+    session_start();
+
+    if (isset($_SESSION["usuario"])) {
+        $datos["dia"] = $request->getAttribute("dia");
+        $datos["hora"] = $request->getAttribute("hora");
+        echo json_encode(obtenerHorario($datos));
+    } else {
+        session_destroy();
+        echo json_encode(array("no_auth" => "No tienes permisos para usar este servicio"));
+    }
+
+});
+
+function obtenerHorario($datos){
+
     try {
         $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
     } catch (PDOException $e) {
@@ -93,9 +111,9 @@ function obtenerHorarioProfesor($datos){
     }
 
     try {
-        $consulta = "SELECT horario_lectivo.hora, horario_lectivo.dia, horario_lectivo.grupo, grupos.nombre FROM horario_lectivo, grupos WHERE horario_lectivo.grupo = grupos.id_grupo AND horario_lectivo.usuario = ?";
+        $consulta = "SELECT * from horario_lectivo where dia=? and hora=?";
         $sentencia = $conexion->prepare($consulta);
-        $sentencia->execute([$datos["id_profesor"]]);
+        $sentencia->execute([$datos["dia"], $datos["hora"]]);
     } catch (PDOException $e) {
         $respuesta["error"] = "Imposible realizar la consulta:" . $e->getMessage();
         $sentencia = null;
@@ -103,16 +121,17 @@ function obtenerHorarioProfesor($datos){
         return $respuesta;
     }
 
-    if($sentencia->rowCount() > 0){
-        $respuesta["horario"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
-    }else{
-        $respuesta["mensaje"] = "No se ha obtenido resultados en horario del profesor";
+    if ($sentencia->rowCount() > 0) {
+        $respuesta["horarios"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $respuesta["mensaje"] = "No se ha obtenido datos de la bd";
     }
 
     $sentencia = null;
     $conexion = null;
 
     return $respuesta;
+
 }
 
 

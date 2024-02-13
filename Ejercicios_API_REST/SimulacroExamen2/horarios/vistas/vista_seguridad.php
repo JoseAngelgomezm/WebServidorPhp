@@ -23,7 +23,7 @@ if(isset($archivo->mensaje)){
 $datosUsuario = $archivo->usuario;
 
 
-if(time() - $_SESSION["ultimaAccion"] >= 60){
+if(time() - $_SESSION["ultimaAccion"] >= 6000){
     session_unset();
     $_SESSION["mensajeSeguridad"] = "Se te ha expulsado por inactividad";
     header("Location:".$salto);
