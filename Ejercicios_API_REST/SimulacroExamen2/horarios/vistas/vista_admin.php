@@ -56,7 +56,7 @@ if (isset($_POST["profesor"])) {
 }
 
 if (isset($_POST["editar"])) {
-
+    
 }
 
 
@@ -104,7 +104,7 @@ if (isset($_POST["editar"])) {
     </form>
 
     <?php
-    if (isset($_POST["profesor"]) || isset($_POST["editar"])) {
+    if (isset($_POST["profesor"])) {
 
         echo "<p>Horario del profesor: " . $nombre . "</p>";
 
@@ -155,22 +155,24 @@ if (isset($_POST["editar"])) {
 
                     if (isset($horarioProfesor[$j][$i])) {
 
-                        echo "<td><form action='index.php' method='post'>" . $horarioProfesor[$j][$i] . "<button type='submit' name='editar' value=''>Editar</button></form></td>";
+                        echo "<td><form action='index.php' method='post'>" . $horarioProfesor[$j][$i] . "<button type='submit' name='editar' value='".$_POST["profesor"]."'>Editar</button> </form></td>";
 
                     } else {
-                        echo "<td><form action='index.php' method='post'><button type='submit' name='editar' value=''>Editar</button></form></td>";
+                        echo "<td><form action='index.php' method='post'><button name='editar' value='".$_POST["profesor"]."'>Editar</button> </form></td>";
                     }
 
                 }
-
-
             }
 
             echo "</tr>";
         }
-
-
         echo "</table>";
+
+        if (isset($_POST["editar"])) {
+            echo "<table>";
+
+            echo "</table>";
+        }
 
     }
 

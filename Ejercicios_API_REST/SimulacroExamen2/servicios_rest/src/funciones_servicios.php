@@ -146,7 +146,7 @@ function obtenerHorarioProfesor($datos){
     }
 
     try {
-        $consulta = "SELECT horario_lectivo.hora, horario_lectivo.dia, horario_lectivo.grupo, grupos.nombre,horario_lectivo.id_horario FROM horario_lectivo, grupos WHERE horario_lectivo.grupo = grupos.id_grupo AND horario_lectivo.usuario = ?";
+        $consulta = "SELECT horario_lectivo.hora, horario_lectivo.dia, horario_lectivo.grupo, grupos.nombre,horario_lectivo.usuario FROM horario_lectivo, grupos WHERE horario_lectivo.grupo = grupos.id_grupo AND horario_lectivo.usuario = ?";
         $sentencia = $conexion->prepare($consulta);
         $sentencia->execute([$datos["id_profesor"]]);
     } catch (PDOException $e) {
