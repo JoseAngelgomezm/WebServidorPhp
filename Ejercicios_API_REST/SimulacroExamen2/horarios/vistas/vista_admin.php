@@ -55,8 +55,65 @@ if (isset($_POST["profesor"])) {
     }
 }
 
-if (isset($_POST["editar"])) {
-    
+if (isset($_POST["dia"])) {
+
+    // obtener el horario del profesor
+    $url = URLBASE . "/obtenerHorario/" . $_POST["profesor"] . "/" . $_POST["dia"] . "/" . $_POST["hora"] . "";
+    $datos["api_session"] = $_SESSION["api_session"];
+    $respuesta = consumir_servicios_REST($url, "get", $datos);
+    $archivo = json_decode($respuesta);
+
+
+    if (!$archivo) {
+        session_destroy();
+        die(error_page("Error", "No se ha obtenido respuesta en " . $url . ""));
+    }
+
+    if (isset($archivo->error)) {
+        session_destroy();
+        die(error_page("Error", ".$archivo->error."));
+    }
+
+    if (isset($archivo->no_auth)) {
+        session_unset();
+        $_SESSION["mensajeSeguridad"] = $archivo->no_auth;
+        header("location:index.php");
+        exit();
+    }
+
+    if (isset($archivo->horario)) {
+        $horariosDiaHora = $archivo->horario;
+    }
+
+    // obtener el horario del profesor con los grupos que no imparte
+    $url = URLBASE . "/obtenerHorarioGruposNoImparte/" . $_POST["profesor"] . "/" . $_POST["dia"] . "/" . $_POST["hora"] . "";
+    $datos["api_session"] = $_SESSION["api_session"];
+    $respuesta = consumir_servicios_REST($url, "get", $datos);
+    $archivo = json_decode($respuesta);
+
+
+    if (!$archivo) {
+        session_destroy();
+        die(error_page("Error", "No se ha obtenido respuesta en " . $url . ""));
+    }
+
+    if (isset($archivo->error)) {
+        session_destroy();
+        die(error_page("Error", ".$archivo->error."));
+    }
+
+    if (isset($archivo->no_auth)) {
+        session_unset();
+        $_SESSION["mensajeSeguridad"] = $archivo->no_auth;
+        header("location:index.php");
+        exit();
+    }
+
+    if (isset($archivo->horario)) {
+        $horarioGruposNoImparte = $archivo->horario;
+    }
+
+
 }
 
 
@@ -155,10 +212,33 @@ if (isset($_POST["editar"])) {
 
                     if (isset($horarioProfesor[$j][$i])) {
 
-                        echo "<td><form action='index.php' method='post'>" . $horarioProfesor[$j][$i] . "<button type='submit' name='editar' value='".$_POST["profesor"]."'>Editar</button> </form></td>";
+                        echo "<td>";
+                            echo "<form action='index.php' method='post'>";
+
+                                echo "<span>" . $horarioProfesor[$j][$i] . " </span>";
+                                echo "<button type='submit' name='editar' value='" . $_POST["profesor"] . "'>Editar</button>";
+                                echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
+                                echo "<input name='hora' hidden value='" . $i . "'/>";
+                                echo "<input name='dia' hidden value='" . $j . "'/>";
+
+                            echo "</form>";
+                        echo "</td>";
 
                     } else {
-                        echo "<td><form action='index.php' method='post'><button name='editar' value='".$_POST["profesor"]."'>Editar</button> </form></td>";
+
+                         echo "<td>";
+
+                            echo "<form action='index.php' method='post'>";
+                        
+                                echo "<button type='submit' name='editar' value='" . $_POST["profesor"] . "'>Editar</button>";
+                                echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
+                                echo "<input name='hora' hidden value='" . $i . "'/>";
+                                echo "<input name='dia' hidden value='" . $j . "'/>";
+
+                            echo "</form>";
+
+                        echo "</td>";
+
                     }
 
                 }
@@ -168,10 +248,55 @@ if (isset($_POST["editar"])) {
         }
         echo "</table>";
 
-        if (isset($_POST["editar"])) {
-            echo "<table>";
+        if (isset($_POST["editar"]) || isset($_POST["dia"])) {
+            $dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
+
+            echo "<h2>Editando la hora " . $_POST["hora"] . "º del " . $dias[$_POST["dia"]] . "</h2>";
+
+            echo "<table border='solid 1px black'>";
+            echo "<tr>";
+            echo "<td>Grupo</td>";
+            echo "<td>Accion</td>";
+            echo "</tr>";
+            if (isset($horariosDiaHora)) {
+                foreach ($horariosDiaHora as $value) {
+                    echo "<tr>";
+                        
+                        echo "<td>" . $value->nombre . "</td>";
+                        
+                        echo "<td>";
+                            echo "<form action='index.php' method='post'>";
+                            
+                                echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
+                                echo "<input name='hora' hidden value='" . $_POST['hora'] . "'/>";
+                                echo "<input name='dia' hidden value='" . $_POST['dia'] . "'/>";
+                                echo "<button type='submit' name='borrar' value='" . $value->id_horario . "'>Quitar</button>";
+                            
+                            echo "</form>";
+                        echo "</td>";
+                    echo "</tr>";
+                }
+            }
             echo "</table>";
+
+
+            echo "<form action='index.php' method='post'>";
+
+                echo "<select name='grupoInsertar'>";
+                if (isset($horarioGruposNoImparte)) {
+                    foreach ($horarioGruposNoImparte as $value) {
+                        echo "<option value='" . $value->id_grupo . "'>" . $value->nombre . "</option>";
+                    }
+                }
+                echo "</select>";
+
+                echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
+                echo "<input name='hora' hidden value='" . $_POST['hora'] . "'/>";
+                echo "<input name='dia' hidden value='" . $_POST['dia'] . "'/>";
+                echo "<button type='submit' name='insertar'>Insertar</button>";
+                
+            echo "</form>";
         }
 
     }

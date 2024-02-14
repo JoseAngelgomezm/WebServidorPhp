@@ -168,4 +168,68 @@ function obtenerHorarioProfesor($datos){
     return $respuesta;
 }
 
+function obtenerHorario($datos)
+{
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
+        return $respuesta;
+    }
+
+    try {
+        $consulta = "SELECT horario_lectivo.grupo, horario_lectivo.id_horario, grupos.nombre FROM horario_lectivo, grupos WHERE horario_lectivo.grupo=grupos.id_grupo AND horario_lectivo.usuario=? AND horario_lectivo.dia=? AND horario_lectivo.hora=?";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["profesor"], $datos["dia"], $datos["hora"]]);
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible realizar la consulta:" . $e->getMessage();
+        $sentencia = null;
+        $conexion = null;
+        return $respuesta;
+    }
+
+    if ($sentencia->rowCount() > 0) {
+        $respuesta["horario"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $respuesta["mensaje"] = "No se ha obtenido datos de la bd";
+    }
+
+    $sentencia = null;
+    $conexion = null;
+
+    return $respuesta;
+}
+
+function obtenerHorarioGruposNoImparte($datos){
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
+        return $respuesta;
+    }
+
+    try {
+        $consulta = "SELECT * from grupos WHERE id_grupo NOT IN(SELECT grupos.id_grupo from horario_lectivo, grupos WHERE horario_lectivo.grupo=grupos.id_grupo AND horario_lectivo.usuario=? AND horario_lectivo.dia=? AND horario_lectivo.hora=?)";
+
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["profesor"],$datos["dia"],$datos["hora"]]);
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible realizar la consulta:" . $e->getMessage();
+        $sentencia = null;
+        $conexion = null;
+        return $respuesta;
+    }
+
+    if($sentencia->rowCount() > 0){
+        $respuesta["horario"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+    }else{
+        $respuesta["mensaje"] = "No se ha obtenido resultados en horario del profesor";
+    }
+
+    $sentencia = null;
+    $conexion = null;
+
+    return $respuesta;
+}
+
 ?>

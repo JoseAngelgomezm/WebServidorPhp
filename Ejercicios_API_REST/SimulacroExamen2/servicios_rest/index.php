@@ -83,10 +83,39 @@ $app->get("/obtenerHorarioProfesor/{id_profesor}", function ($request) {
 
 });
 
+$app->get("/obtenerHorario/{profesor}/{dia}/{hora}", function ($request) {
 
+    $token = $request->getParam("api_session");
+    session_id($token);
+    session_start();
 
+    if (isset($_SESSION["usuario"])) {
+        $datos["profesor"] = $request->getAttribute("profesor");
+        $datos["dia"] = $request->getAttribute("dia");
+        $datos["hora"] = $request->getAttribute("hora");
+        echo json_encode(obtenerHorario($datos));
+    } else {
+        session_destroy();
+        echo json_encode(array("no_auth" => "No tienes permisos para usar este servicio"));
+    }
+});
 
+$app->get("/obtenerHorarioGruposNoImparte/{profesor}/{dia}/{hora}", function ($request) {
 
+    $token = $request->getParam("api_session");
+    session_id($token);
+    session_start();
+
+    if (isset($_SESSION["usuario"])) {
+        $datos["profesor"] = $request->getAttribute("profesor");
+        $datos["dia"] = $request->getAttribute("dia");
+        $datos["hora"] = $request->getAttribute("hora");
+        echo json_encode(obtenerHorarioGruposNoImparte($datos));
+    } else {
+        session_destroy();
+        echo json_encode(array("no_auth" => "No tienes permisos para usar este servicio"));
+    }
+});
 
 // Una vez creado servicios los pongo a disposición
 $app->run();
