@@ -201,104 +201,99 @@ if (isset($_POST["dia"])) {
 
             echo "<td>" . $horas[$i] . "</td>";
 
-            for ($j = 1; $j < 6; $j++) {
+            if ($i === 4) {
+                echo "<td colspan='5'>RECREO</td>";
+            } else {
 
-                if ($i === 4) {
-
-                    echo "<td colspan='5'>RECREO</td>";
-                    break;
-
-                } else {
+                for ($j = 1; $j < 6; $j++) {
 
                     if (isset($horarioProfesor[$j][$i])) {
 
                         echo "<td>";
-                            echo "<form action='index.php' method='post'>";
+                        echo "<form action='index.php' method='post'>";
 
-                                echo "<span>" . $horarioProfesor[$j][$i] . " </span>";
-                                echo "<button type='submit' name='editar' value='" . $_POST["profesor"] . "'>Editar</button>";
-                                echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
-                                echo "<input name='hora' hidden value='" . $i . "'/>";
-                                echo "<input name='dia' hidden value='" . $j . "'/>";
+                        echo "<span>" . $horarioProfesor[$j][$i] . " </span>";
+                        echo "<button type='submit' name='editar' value='" . $_POST["profesor"] . "'>Editar</button>";
+                        echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
+                        echo "<input name='hora' hidden value='" . $i . "'/>";
+                        echo "<input name='dia' hidden value='" . $j . "'/>";
 
-                            echo "</form>";
+                        echo "</form>";
                         echo "</td>";
 
                     } else {
 
-                         echo "<td>";
-
-                            echo "<form action='index.php' method='post'>";
-                        
-                                echo "<button type='submit' name='editar' value='" . $_POST["profesor"] . "'>Editar</button>";
-                                echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
-                                echo "<input name='hora' hidden value='" . $i . "'/>";
-                                echo "<input name='dia' hidden value='" . $j . "'/>";
-
-                            echo "</form>";
-
-                        echo "</td>";
-
-                    }
-
-                }
-            }
-
-            echo "</tr>";
-        }
-        echo "</table>";
-
-        if (isset($_POST["editar"]) || isset($_POST["dia"])) {
-            $dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
-
-
-            echo "<h2>Editando la hora " . $_POST["hora"] . "º del " . $dias[$_POST["dia"]] . "</h2>";
-
-            echo "<table border='solid 1px black'>";
-            echo "<tr>";
-            echo "<td>Grupo</td>";
-            echo "<td>Accion</td>";
-            echo "</tr>";
-            if (isset($horariosDiaHora)) {
-                foreach ($horariosDiaHora as $value) {
-                    echo "<tr>";
-                        
-                        echo "<td>" . $value->nombre . "</td>";
-                        
                         echo "<td>";
-                            echo "<form action='index.php' method='post'>";
-                            
-                                echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
-                                echo "<input name='hora' hidden value='" . $_POST['hora'] . "'/>";
-                                echo "<input name='dia' hidden value='" . $_POST['dia'] . "'/>";
-                                echo "<button type='submit' name='borrar' value='" . $value->id_horario . "'>Quitar</button>";
-                            
-                            echo "</form>";
+
+                        echo "<form action='index.php' method='post'>";
+
+                        echo "<button type='submit' name='editar' value='" . $_POST["profesor"] . "'>Editar</button>";
+                        echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
+                        echo "<input name='hora' hidden value='" . $i . "'/>";
+                        echo "<input name='dia' hidden value='" . $j . "'/>";
+
+                        echo "</form>";
+
                         echo "</td>";
-                    echo "</tr>";
-                }
-            }
-            echo "</table>";
 
-
-            echo "<form action='index.php' method='post'>";
-
-                echo "<select name='grupoInsertar'>";
-                if (isset($horarioGruposNoImparte)) {
-                    foreach ($horarioGruposNoImparte as $value) {
-                        echo "<option value='" . $value->id_grupo . "'>" . $value->nombre . "</option>";
                     }
                 }
-                echo "</select>";
+            }
+        }
+
+        echo "</tr>";
+    }
+    echo "</table>";
+
+    if (isset($_POST["editar"]) || isset($_POST["dia"])) {
+        $dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
+
+
+        echo "<h2>Editando la hora " . $_POST["hora"] . "º del " . $dias[$_POST["dia"]] . "</h2>";
+
+        echo "<table border='solid 1px black'>";
+        echo "<tr>";
+        echo "<td>Grupo</td>";
+        echo "<td>Accion</td>";
+        echo "</tr>";
+        if (isset($horariosDiaHora)) {
+            foreach ($horariosDiaHora as $value) {
+                echo "<tr>";
+
+                echo "<td>" . $value->nombre . "</td>";
+
+                echo "<td>";
+                echo "<form action='index.php' method='post'>";
 
                 echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
                 echo "<input name='hora' hidden value='" . $_POST['hora'] . "'/>";
                 echo "<input name='dia' hidden value='" . $_POST['dia'] . "'/>";
-                echo "<button type='submit' name='insertar'>Insertar</button>";
-                
-            echo "</form>";
-        }
+                echo "<button type='submit' name='borrar' value='" . $value->id_horario . "'>Quitar</button>";
 
+                echo "</form>";
+                echo "</td>";
+                echo "</tr>";
+            }
+        }
+        echo "</table>";
+
+
+        echo "<form action='index.php' method='post'>";
+
+        echo "<select name='grupoInsertar'>";
+        if (isset($horarioGruposNoImparte)) {
+            foreach ($horarioGruposNoImparte as $value) {
+                echo "<option value='" . $value->id_grupo . "'>" . $value->nombre . "</option>";
+            }
+        }
+        echo "</select>";
+
+        echo "<input name='profesor' hidden value='" . $_POST['profesor'] . "'/>";
+        echo "<input name='hora' hidden value='" . $_POST['hora'] . "'/>";
+        echo "<input name='dia' hidden value='" . $_POST['dia'] . "'/>";
+        echo "<button type='submit' name='insertar'>Insertar</button>";
+
+        echo "</form>";
     }
 
     ?>
