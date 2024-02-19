@@ -102,7 +102,7 @@ function obtenerAlumnos()
     }
 
     try {
-        $consulta = "SELECT * from usuarios";
+        $consulta = "SELECT * from usuarios where tipo='alumno'";
         $sentencia = $conexion->prepare($consulta);
         $sentencia->execute();
     } catch (PDOException $e) {
@@ -129,7 +129,7 @@ function obtenerAsignaturasEvaluadas($datos)
     }
 
     try {
-        $consulta = "SELECT asignaturas.denominacion, notas.nota from notas, asignaturas where notas.cod_asig=asignaturas.cod_asig and notas.cod_usu = ?";
+        $consulta = "SELECT asignaturas.denominacion, notas.nota, notas.cod_asig, notas.cod_usu from notas, asignaturas where notas.cod_asig=asignaturas.cod_asig and notas.cod_usu = ?";
         $sentencia = $conexion->prepare($consulta);
         $sentencia->execute([$datos["cod_alu"]]);
     } catch (PDOException $e) {

@@ -21,6 +21,6 @@ function error_page($title,$body)
 }
 
 
-define("DIR_SERV","http://localhost/Proyectos/Examen4_SW/servicios_rest");
+define("DIR_SERV","http://localhost/Proyectos/WebServidorPhp/Ejercicios_API_REST/Examen4_SW/servicios_rest");
 define("MINUTOS",15);
 ?>
