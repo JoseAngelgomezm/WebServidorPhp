@@ -83,7 +83,7 @@ function logueado($datos)
 
     if ($sentencia->rowCount() > 0) {
         $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
-        
+
     } else {
         $respuesta["mensaje"] = "El usuario no se encuentra regis. en la bd";
     }
@@ -147,6 +147,63 @@ function obtenerAsignaturasEvaluadas($datos)
     $conexion = null;
     return $respuesta;
 }
+
+
+function eliminarAsignatura($datos)
+{
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
+    }
+
+    try {
+        $consulta = "DELETE FROM notas where cod_usu=? and cod_asig=?";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["cod_usu"], $datos["cod_asig"]]);
+    } catch (Exception $e) {
+        $respuesta["error"] = "Error al conectar en el borrado";
+    }
+
+
+    $respuesta["mensaje"] = "Asignatura descalificada con éxito";
+
+
+    $sentencia = null;
+    $conexion = null;
+    return $respuesta;
+
+}
+
+function obtenerNotasNoEvaluadas($datos)
+{
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
+    }
+
+    try {
+        $consulta = "SELECT cod_asig, denominacion FROM asignaturas where cod_asig NOT IN (SELECT cod_asig FROM notas where cod_usu=?)";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["cod_usu"]]);
+    } catch (PDOException $e) {
+        $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
+    }
+
+    if ($sentencia->rowCount() > 0) {
+        $respuesta["notas"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $respuesta["no_asignaturas"] = "El alumno no tiene asignaturas por calificar";
+    }
+
+    $conexion = null;
+    $sentencia = null;
+
+    return $respuesta;
+}
+
+
 
 
 ?>

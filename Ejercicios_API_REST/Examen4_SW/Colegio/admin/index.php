@@ -9,6 +9,13 @@ if (isset($_SESSION["usuario"])) {
     require("../src/seguridad.php");
 
     if ($datos_usuario_log->tipo == "tutor") {
+
+        // cuando pierdo el $_POST["alumno"]
+        if (isset($_SESSION["alumno"])) {
+            $_POST["alumno"] = $_SESSION["alumno"];
+        }
+
+
         // obtener los alumnos
         $url = DIR_SERV . "/alumnos";
         $datos["api_session"] = $_SESSION["api_session"];
@@ -33,9 +40,9 @@ if (isset($_SESSION["usuario"])) {
         $datosAlumnos = $archivo->alumnos;
 
         if (isset($_POST["alumno"])) {
-            
-            
-            // obtener las notas por calificar
+
+
+            // obtener las notas que tiene calificadas
             $url = DIR_SERV . "/notasAlumno/" . $_POST["alumno"] . "";
             $datos["api_session"] = $_SESSION["api_session"];
             $respuesta = consumir_servicios_REST($url, "get", $datos);
@@ -62,31 +69,54 @@ if (isset($_SESSION["usuario"])) {
                 $notasAlumnosCalificadas = null;
             }
 
-        }
-
-        if (isset($_POST["borrar"])){
-            $url = DIR_SERV."/quitarNota/".$_POST["alumno"]."";
+            // obtener las notas que le quedan por calificar
+            // obtener las notas que tiene calificadas
+            $url = DIR_SERV . "/NotasNoEvalAlumno/" . $_POST["alumno"] . "";
             $datos["api_session"] = $_SESSION["api_session"];
-            $datos["cod_asig"] = $_POST["borrar"];
-            $respuesta = consumir_servicios_REST($url,"delete",$datos);
+            $respuesta = consumir_servicios_REST($url, "get", $datos);
+
             $archivo = json_decode($respuesta);
 
-            if(!$archivo){
+            if (!$archivo) {
                 session_destroy();
                 die(error_page("Examen4 DWESE Curso 23-24", "<h1>Notas de los alumnos</h1><p>Error consumiendo el servicio: " . $url . "</p>"));
             }
 
-            if(isset($archivo->error)){
-                $_SESSION["mensajeAccion"] = $archivo->error;
+            if (isset($archivo->error)) {
+                session_destroy();
+                die(error_page("Examen4 DWESE Curso 23-24", "<h1>Notas de los alumnos</h1><p>" . $archivo->error . "</p>"));
+            }
+
+
+            if (isset($archivo->notas)) {
+                $datosNotasNoEvaluadas = $archivo->notas;
+            } else {
+                $mensaje_no_asig = $archivo->no_asignaturas;
+            }
+
+
+        }
+
+        if (isset($_POST["borrar"])) {
+            $url = DIR_SERV . "/quitarNota/" . $_POST["alumno"] . "";
+            $datos["api_session"] = $_SESSION["api_session"];
+            $datos["cod_asig"] = $_POST["borrar"];
+            $respuesta = consumir_servicios_REST($url, "DELETE", $datos);
+            $archivo = json_decode($respuesta);
+
+            if (!$archivo) {
+                session_destroy();
+                die(error_page("Examen4 DWESE Curso 23-24", "<h1>Notas de los alumnos</h1><p>Error consumiendo el servicio: " . $url . "</p>"));
+            }
+
+            if (isset($archivo->error)) {
+                $_SESSION["mensajeError"] = $archivo->error;
                 header("location:index.php");
                 exit();
             }
 
-            if(isset($archivo->mensaje)){
-                $_SESSION["mensajeAccion"] = $archivo->mensaje;
-                header("location:index.php");
-                exit();
-            }
+            header("location:index.php");
+            exit();
         }
         ?>
 
@@ -106,36 +136,37 @@ if (isset($_SESSION["usuario"])) {
             <form action="../index.php" method="post"><button type="submit" name="btnSalir">Salir</button></form>
             </p>
 
-            <?php
-                if(isset($_SESSION["mensajeAccion"])){
-                    echo "<p>".$_SESSION["mensajeAccion"]."</p>";
-                    unset($_SESSION["mensajeAccion"]);
-                }
-            ?>
+
+
+
 
             <form action="#" method="post">
 
                 <select name="alumno" id="alumno">
                     <?php
                     foreach ($datosAlumnos as $value) {
-                        if(isset($_POST["alumno"]) && $value->cod_usu == $_POST["alumno"] ){
+                        if (isset($_POST["alumno"]) && $value->cod_usu == $_POST["alumno"]) {
                             echo "<option selected value='" . $value->cod_usu . "'>";
                             echo $value->nombre;
                             echo "</option>";
-                        }else{
+                            $nombreAlumno = $value->nombre;
+                        } else {
                             echo "<option value='" . $value->cod_usu . "'>";
                             echo $value->nombre;
                             echo "</option>";
                         }
-                       
+
                     }
                     ?>
                 </select>
                 <button type="submit" name="verNotas">Ver notas</button>
             </form>
 
+
             <?php
             if (isset($_POST["alumno"])) {
+
+                echo "<h2>Notas del alumno $nombreAlumno</h2>";
 
                 if ($notasAlumnosCalificadas !== null) {
                     echo " <table border='solid 1 px black'>";
@@ -152,9 +183,9 @@ if (isset($_SESSION["usuario"])) {
 
                         echo "<td>";
                         echo "<form action='#' method='post'>";
-                        echo "<input name='alumno' hidden value='".$value->cod_usu."'></input>";
-                        echo "<button name='borrar' id='".$value->cod_asig."' type='submit'>Borrar</button>";
-                        echo "<button name='editar' value='".$value->cod_asig."' type='submit'>editar</button>";
+                        echo "<input name='alumno' hidden value='" . $value->cod_usu . "'></input>";
+                        echo "<button name='borrar' value='" . $value->cod_asig . "' type='submit'>Borrar</button>";
+                        echo "<button name='editar' value='" . $value->cod_asig . "' type='submit'>Editar</button>";
                         echo "</form>";
                         echo "</td>";
 
@@ -166,6 +197,30 @@ if (isset($_SESSION["usuario"])) {
                     echo "<p>No tiene notas aun</p>";
                 }
 
+
+                if (isset($_SESSION["mensajeAccion"])) {
+                    echo "<p>" . $_SESSION["mensajeAccion"] . "</p>";
+                    unset($_SESSION["mensajeAccion"]);
+                }
+
+
+                if (isset($mensaje_no_asig)) {
+                    echo "<span>" . $mensaje_no_asig . "</span>";
+                } else {
+                    echo "<form action='#' method='post'>";
+                    echo "<label>Asignaturas que a " . $nombreAlumno . " aun le quedan por calificar: </label>";
+                    echo "<select name='asignaturaCalificar'>";
+                    foreach ($datosNotasNoEvaluadas as $value) {
+                        echo "<option value='" . $value->cod_asig . "'>";
+                        echo $value->denominacion;
+                        echo "</option>";
+                    }
+                    echo "</select>";
+                }
+                if (!isset($mensaje_no_asig)) {
+                    echo "<button name='calificar' value='" . $_POST["alumno"] . "'>Calificar</button>";
+                }
+                echo "</form>";
 
             }
             ?>
