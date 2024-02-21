@@ -1,0 +1,12 @@
+table{
+    border: solid 1px black
+}
+
+table td{
+    border-collapse: collapse;
+    border: solid 1px black;
+}
+
+table tr:nth-child(2n) {
+    background-color: aqua;
+}
