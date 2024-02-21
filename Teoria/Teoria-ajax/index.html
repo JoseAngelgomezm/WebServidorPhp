@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toeria php ajax</title>
+    <script src="jq/jquery-3.7.1.js"></script>
+    <script src="js/index.js"></script>
+    <style>
+        body p{
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Teoria Ajax</h1>
+    <p>
+        <button onclick="llamadaGetSaludo()">Peticion GET /saludo</button>
+        <button onclick="llamadaGetSaludoNombre()">Peticion GET /saludo/{nombre}</button>
+        <button onclick="llamadaPostSaludo()">Peticion POST /saludo</button>
+        <button onclick="llamadaDeleteSaludo()">Peticion DELETE /saludo</button>
+        <button onclick="llamadaPutActualizarSaludo()">Peticion PUT /actualiza_saludo/{id}</button>
+        <button onclick="llamadaGetProductos()">Peticion GET /productos</button>
+    </p>
+    <div id="respuesta"></div>
+</body>
+
+</html>
