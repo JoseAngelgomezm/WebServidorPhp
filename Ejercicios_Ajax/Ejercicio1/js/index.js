@@ -23,8 +23,8 @@ const llamadaGetProductos = () => {
             tablaProductos += "</tr>"
             $.each(data.productos, function(key, value){
                 tablaProductos += "<tr>"
-                tablaProductos += "<td>"+ value["cod"] +"</td>"
-                tablaProductos += "<td>"+ value["nombre_corto"] +"</td>"
+                tablaProductos += "<td><button onclick='llamadaGetDetalles(\""+value["cod"]+"\")'>"+ value["cod"] +"</button></td>";
+                                tablaProductos += "<td>"+ value["nombre_corto"] +"</td>"
                 tablaProductos += "<td>"+ value["PVP"] +"</td>"
                 tablaProductos += "</tr>"
             })
@@ -37,6 +37,10 @@ const llamadaGetProductos = () => {
     }).fail(function (estado,textoEstado) {
         $("#respuesta").html(error_ajax_jquery(estado,textoEstado))
     })
+}
+
+function llamadaGetDetalles(cod){
+  
 }
 
 function error_ajax_jquery( jqXHR, textStatus) 
