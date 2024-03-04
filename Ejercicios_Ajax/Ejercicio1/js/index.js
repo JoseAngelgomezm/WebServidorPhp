@@ -49,7 +49,7 @@ function MostrarFormularioEditar() {
 function llamadaDelete(codigo) {
   $.ajax({
 
-    url: DIR_SERV.concat("/producto/borrar/"+codigo),
+    url: DIR_SERV.concat("/producto/borrar/" + codigo),
     dataType: "json",
     type: "delete",
 
@@ -108,8 +108,6 @@ function llamadaGetDetalles(cod) {
 }
 
 function MostrarInsertar() {
-
-
   // traernos las familias
 
   $.ajax({
@@ -124,23 +122,28 @@ function MostrarInsertar() {
     if (data.mensaje_error) {
       $("#respuesta").html(data.mensaje_error)
     } else {
-      
+
       let formularioInsertar = ""
       formularioInsertar += "<form onSubmit='event.preventDefault();llamadaInsertar()'>"
+      formularioInsertar += "<p><label for='codigo'>Código: </label><input name='codigo' id='codigo' type='text'/></p>"
       formularioInsertar += "<p><label for='nombre'>Nombre: </label><input name='nombre' id='nombre' type='text'/></p>"
       formularioInsertar += "<p><label for='nombrecorto'>Nombre corto: </label><input name='nombrecorto' id='nombrecorto' type='text'/></p>"
       formularioInsertar += "<p><label for='descripcion'>Descripcion: </label><input name='descripcion' id='descripcion' type='text'/></p>"
-      formularioInsertar += "<p><label for='pvp'>PVP: </label><input name='pvp' type='text'/></p>"
-      formularioInsertar += "<select name='familia'>"
+      formularioInsertar += "<p><label for='pvp'>PVP: </label><input name='pvp' id='pvp' type='number'/></p>"
+      formularioInsertar += "<p><label for='familia'>Familia: </label>"
+      formularioInsertar += "<select name='familia' id='familia'>"
       $.each(data.familia, function (key, value) {
-        formularioInsertar += "<option>" + value.nombre + "</value>"
+        formularioInsertar += "<option value='" + value.cod + "'>" + value.nombre + "</option>"
       })
       formularioInsertar += "</select>"
+      formularioInsertar += "</p>"
       formularioInsertar += "<button type='submit'>Insertar</button>"
+      formularioInsertar += "<br>"
+      formularioInsertar += "<br>"
       formularioInsertar += "</form>"
       $("#respuesta").html(formularioInsertar)
     }
-   
+
 
   }).fail(function (estado, textoEstado) {
     $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
@@ -149,24 +152,66 @@ function MostrarInsertar() {
 }
 
 function llamadaInsertar() {
-  
+  // comprobar errores
+  let errorCodigo = $("input#codigo").val() == ""
+  let errorNombreCorto = $("input#nombrecorto").val() == ""
+  let errorDescripcion = $("input#descripcion").val() == ""
+  let errorPvp = isNaN($("input#pvp").val()) || $("input#pvp").val() == ""
+
+  let errorFormulario = errorCodigo || errorNombreCorto || errorDescripcion || errorPvp
+
+
+  if (!errorFormulario) {
+
+    let datos = {
+      cod: $("input#codigo").val(),
+      nombre: $("input#nombre").val(),
+      nombre_corto: $("input#nombrecorto").val(),
+      descripcion: $("input#descripcion").val(),
+      PVP: $("input#pvp").val(),
+      familia: $("input#familia").val(),
+    }
+
+    // llamada al insertar con los datos
+    $.ajax({
+
+      url: DIR_SERV.concat("/producto/insertar"),
+      dataType: "json",
+      type: "post",
+      data: datos,
+
+    }).done(function (data) {
+
+      // si he recibido errror
+      if (data.mensaje_error) {
+        $("#respuesta").html(data.mensaje_error)
+      } else {
+        $("#respuesta").html("Se ha insertado con éxito")
+        llamadaGetProductos()
+      }
+
+
+    }).fail(function (estado, textoEstado) {
+      $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
+
+    })
+  }
 }
 
 
-function confirmarBorrado(codigoProducto){
+function confirmarBorrado(codigoProducto) {
   let campoBorrar = "div#respuesta"
   let preguntaBorrar = ""
   preguntaBorrar += "<h2>Borrado de producto</h2>"
-  preguntaBorrar += "<p>¿Estas seguro que quieres borrar el poducto con codigo "+codigoProducto+"?</p>"
+  preguntaBorrar += "<p>¿Estas seguro que quieres borrar el poducto con codigo " + codigoProducto + "?</p>"
   preguntaBorrar += "<button onclick='llamadaBorrarCampo(\"" + campoBorrar + "\")'>Volver</button>"
   preguntaBorrar += "<button onclick='llamadaDelete(\"" + codigoProducto + "\")'>Continuar</button>"
 
 
-  $("#respuesta").html(preguntaBorrar)  
+  $("#respuesta").html(preguntaBorrar)
 }
 
-function llamadaBorrarCampo(idcampo){
-  console.log(idcampo)
+function llamadaBorrarCampo(idcampo) {
   $(idcampo).html("")
 }
 
