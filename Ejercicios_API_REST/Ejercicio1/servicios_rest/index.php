@@ -12,7 +12,7 @@ function obtenerProductos()
     try {
         $conexion = new PDO("mysql:host=" . HOST . ";dbname=" . NAMEDB, USERNAME, PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
     } catch (Exception $e) {
-        $respuesta["mensaje_error"] = "No se ha podido conectar a la base de datos" . $e->getMessage();
+        $respuesta["mensaje"] = "No se ha podido conectar a la base de datos" . $e->getMessage();
         return $respuesta;
     }
 
@@ -22,7 +22,7 @@ function obtenerProductos()
         $sentencia = $conexion->prepare($consulta);
         $sentencia->execute();
     } catch (Exception $e) {
-        $respuesta["mensaje_error"] = "No se ha podido consulta a la base de datos" . $e->getMessage();
+        $respuesta["mensaje"] = "No se ha podido consulta a la base de datos" . $e->getMessage();
         return $respuesta;
     }
 
@@ -202,9 +202,9 @@ function obtenerRepetidosInsertar($datos)
     }
 
     if ($sentencia->rowCount() > 0) {
-        $respuesta["mensaje"] = true;
+        $respuesta["repetido"] = true;
     } else {
-        $respuesta["mensaje"] = false;
+        $respuesta["repetido"] = false;
     }
 
     return $respuesta;
@@ -230,9 +230,9 @@ function obtenerRepetidosEditar($datos)
     }
 
     if ($sentencia->rowCount() > 0) {
-        $respuesta["mensaje"] = true;
+        $respuesta["repetido"] = true;
     } else {
-        $respuesta["mensaje"] = false;
+        $respuesta["repetido"] = false;
     }
 
     return $respuesta;

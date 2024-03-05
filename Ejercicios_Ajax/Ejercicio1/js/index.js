@@ -10,8 +10,8 @@ const llamadaGetProductos = () => {
   }).done(function (data) {
 
     // si he recibido errror
-    if (data.mensaje_error) {
-      $("#respuesta").html(data.mensaje_error)
+    if (data.mensaje) {
+      $("#respuesta").html(data.mensaje)
     } else {
 
       let tablaProductos = "";
@@ -56,8 +56,8 @@ function llamadaDelete(codigo) {
   }).done(function (data) {
 
     // si he recibido errror
-    if (data.mensaje_error) {
-      $("#respuesta").html(data.mensaje_error)
+    if (data.mensaje) {
+      $("#respuesta").html(data.mensaje)
     } else {
       llamadaBorrarCampo("div#respuesta")
       llamadaGetProductos()
@@ -81,8 +81,8 @@ function llamadaGetDetalles(cod) {
   }).done(function (data) {
 
     // si he recibido errror
-    if (data.mensaje_error) {
-      $("#respuesta").html(data.mensaje_error)
+    if (data.mensaje) {
+      $("#respuesta").html(data.mensaje)
     } else {
 
       let respuestaDetalles = "";
@@ -119,17 +119,17 @@ function MostrarInsertar() {
   }).done(function (data) {
 
     // si he recibido errror
-    if (data.mensaje_error) {
-      $("#respuesta").html(data.mensaje_error)
+    if (data.mensaje) {
+      $("#respuesta").html(data.mensaje)
     } else {
 
       let formularioInsertar = ""
       formularioInsertar += "<form onSubmit='event.preventDefault();llamadaInsertar()'>"
-      formularioInsertar += "<p><label for='codigo'>Código: </label><input name='codigo' id='codigo' type='text'/></p>"
+      formularioInsertar += "<p><label for='codigo'>Código: </label><input name='codigo' id='codigo' type='text'/><span class='error'></span></p>"
       formularioInsertar += "<p><label for='nombre'>Nombre: </label><input name='nombre' id='nombre' type='text'/></p>"
-      formularioInsertar += "<p><label for='nombrecorto'>Nombre corto: </label><input name='nombrecorto' id='nombrecorto' type='text'/></p>"
+      formularioInsertar += "<p><label for='nombrecorto'>Nombre corto: </label><input name='nombrecorto' id='nombrecorto' type='text'/><span class='error'></span></p>"
       formularioInsertar += "<p><label for='descripcion'>Descripcion: </label><input name='descripcion' id='descripcion' type='text'/></p>"
-      formularioInsertar += "<p><label for='pvp'>PVP: </label><input name='pvp' id='pvp' type='number'/></p>"
+      formularioInsertar += "<p><label for='pvp'>PVP: </label><input name='pvp' id='pvp' type='number'/><span class='error'></span></p>"
       formularioInsertar += "<p><label for='familia'>Familia: </label>"
       formularioInsertar += "<select name='familia' id='familia'>"
       $.each(data.familia, function (key, value) {
@@ -152,49 +152,108 @@ function MostrarInsertar() {
 }
 
 function llamadaInsertar() {
+  // dejar los span de errores vacios
+  $("input").next("span.error").text("")
+
   // comprobar errores
   let errorCodigo = $("input#codigo").val() == ""
   let errorNombreCorto = $("input#nombrecorto").val() == ""
-  let errorDescripcion = $("input#descripcion").val() == ""
   let errorPvp = isNaN($("input#pvp").val()) || $("input#pvp").val() == ""
 
-  let errorFormulario = errorCodigo || errorNombreCorto || errorDescripcion || errorPvp
+  if (errorCodigo) {
+    $("input#codigo").next("span").text("Introduce un código")
+  }
 
+  if (errorNombreCorto) {
+    $("input#nombrecorto").next("span").text("Introduce un nombre corto")
+  }
+
+  if (errorPvp) {
+    $("input#pvp").next("span").text("Introduce un pvp valido")
+  }
+
+  let errorFormulario = errorCodigo || errorNombreCorto || errorPvp
 
   if (!errorFormulario) {
 
-    let datos = {
-      cod: $("input#codigo").val(),
-      nombre: $("input#nombre").val(),
-      nombre_corto: $("input#nombrecorto").val(),
-      descripcion: $("input#descripcion").val(),
-      PVP: $("input#pvp").val(),
-      familia: $("input#familia").val(),
-    }
-
-    // llamada al insertar con los datos
+    // comprobar que el codigo no este repetido
     $.ajax({
 
-      url: DIR_SERV.concat("/producto/insertar"),
+      url: DIR_SERV.concat("/repetido/producto/cod/" + $("input#codigo").val()),
       dataType: "json",
-      type: "post",
-      data: datos,
+      type: "get",
 
     }).done(function (data) {
 
       // si he recibido errror
-      if (data.mensaje_error) {
-        $("#respuesta").html(data.mensaje_error)
-      } else {
-        $("#respuesta").html("Se ha insertado con éxito")
-        llamadaGetProductos()
+      if (data.mensaje) {
+        $("#respuesta").html(data.mensaje)
+      } else if (data.repetido) {
+        $("input#codigo").next("span.error").text("El codigo ya existe")
+        errorCodigo = true
       }
-
 
     }).fail(function (estado, textoEstado) {
       $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
 
     })
+
+    // comprobar que el nombre corto no este repetido
+    $.ajax({
+
+      url: DIR_SERV.concat("/repetido/producto/nombre_corto/"+$("input#nombrecorto").val()),
+      dataType: "json",
+      type: "get",
+
+    }).done(function (data) {
+
+      // si he recibido errror
+      if (data.mensaje) {
+        $("#respuesta").html(data.mensaje)
+      } else if (data.repetido) {
+        $("input#nombrecorto").next("span.error").text("El nombre corto ya existe")
+        errorNombreCorto = true
+      }
+
+    }).fail(function (estado, textoEstado) {
+      $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
+    })
+
+    
+    if (!errorCodigo && !errorNombreCorto) {
+
+      // llamada al insertar con los datos
+      $.ajax({
+
+        url: DIR_SERV.concat("/producto/insertar"),
+        dataType: "json",
+        type: "post",
+        data: {
+          cod: $("input#codigo").val(),
+          nombre: $("input#nombre").val(),
+          nombre_corto: $("input#nombrecorto").val(),
+          descripcion: $("input#descripcion").val(),
+          PVP: $("input#pvp").val(),
+          familia: $("select#familia").val(),
+        },
+
+      }).done(function (data) {
+
+        // si he recibido error
+        if (data.mensaje) {
+          $("#respuesta").html(data.mensaje)
+        } else {
+          $("#respuesta").html("Se ha insertado con éxito")
+        }
+
+
+      }).fail(function (estado, textoEstado) {
+        $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
+
+      })
+
+      llamadaGetProductos()
+    }
   }
 }
 
