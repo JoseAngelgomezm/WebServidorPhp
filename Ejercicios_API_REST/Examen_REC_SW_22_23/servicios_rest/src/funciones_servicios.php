@@ -33,4 +33,34 @@ function conexion_mysqli()
     }
     return $respuesta;
 }
+
+
+function loguear($datos){
+    try {
+        $conexion= new PDO("mysql:host=".SERVIDOR_BD.";dbname=".NOMBRE_BD,USUARIO_BD,CLAVE_BD,array(PDO::MYSQL_ATTR_INIT_COMMAND=>"SET NAMES 'utf8'"));
+    } catch (Exception $e) {
+        $respuesta["error"] = $e->getMessage(); 
+    }
+
+    try {
+        $consulta = "SELECT * FROM usuarios where usuario = ? and clave = ? ";
+        $sentencia = $conexion->prepare($consulta);
+        $sentencia->execute([$datos["usuario"], $datos["clave"]]);
+    } catch (Exception $e) {
+        $respuesta["error"] = $e->getMessage(); 
+    }
+
+    if($sentencia->rowCount() > 0){
+        $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
+       
+        session_start();
+        $_SESSION["usuario"] = $respuesta["usuario"]["usuario"];
+        $respuesta["api_session"] = session_id();
+
+    }else{
+        $respuesta["mensaje"] = "el usuario no se encuentra registrado en la bd";
+    }
+
+    return $respuesta;
+}
 ?>
