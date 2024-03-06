@@ -12,6 +12,9 @@ function conexion_pdo()
     } catch (PDOException $e) {
         $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
     }
+
+    $conexion = null;
+    $sentencia = null;
     return $respuesta;
 }
 
@@ -27,6 +30,9 @@ function conexion_mysqli()
     } catch (Exception $e) {
         $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
     }
+
+    $conexion = null;
+    $sentencia = null;
     return $respuesta;
 }
 
@@ -58,6 +64,9 @@ function loguear($datos)
         $respuesta["mensaje"] = "el usuario no se encuentra registrado en la bd";
     }
 
+    $conexion = null;
+    $sentencia = null;
+
     return $respuesta;
 }
 
@@ -84,6 +93,9 @@ function logueado($datos)
         $respuesta["mensaje"] = "el usuario no se encuentra registrado en la bd";
     }
 
+
+    $conexion = null;
+    $sentencia = null;
     return $respuesta;
 }
 
@@ -109,6 +121,9 @@ function obtnerUsuarioId($datos)
         $respuesta["error"] = "El usuario con id" . $datos["id_usuario"] . " no se encuentra registrado en la bd";
     }
 
+
+    $conexion = null;
+    $sentencia = null;
     return $respuesta;
 }
 
@@ -129,11 +144,14 @@ function obtenerUsuariosGuardia($datos)
     }
 
     if ($sentencia->rowCount() > 0) {
-        $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
+        $respuesta["usuario"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
     } else {
         $respuesta["error"] = "Error al encontrar un usuario con esa hora y ese dia";
     }
 
+
+    $conexion = null;
+    $sentencia = null;
     return $respuesta;
 }
 
@@ -146,7 +164,7 @@ function usuarioSiGuardia($datos)
     }
 
     try {
-        $consulta = "SELECT de_guardia from usuarios, horario_guardias where horario_guardias.usuario = usuarios.id_usuario and dia = ? and hora =  ? and horario_guardias.usuario = ?";
+        $consulta = "SELECT * from usuarios, horario_guardias where horario_guardias.usuario = usuarios.id_usuario and dia = ? and hora =  ? and horario_guardias.usuario = ?";
         $sentencia = $conexion->prepare($consulta);
         $sentencia->execute([$datos["dia"], $datos["hora"], $datos["id_usuario"]]);
     } catch (Exception $e) {
@@ -159,6 +177,8 @@ function usuarioSiGuardia($datos)
         $respuesta["de_guardia"] = false;
     }
 
+    $conexion = null;
+    $sentencia = null;
     return $respuesta;
 }
 
