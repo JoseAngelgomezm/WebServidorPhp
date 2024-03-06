@@ -1,7 +1,7 @@
 <?php
 session_name("EXAMEN_REC_SIMULACRO");
 session_start();
-
+define("TIEMPOMINIMO", "60 * 5");
 define("URLBASE", "http://localhost/Proyectos/WebServidorPhp/Ejercicios_API_REST/Examen_REC_SW_22_23/servicios_rest");
 
 function consumir_servicios_REST($url, $metodo, $datos = null)
@@ -70,10 +70,10 @@ if (isset($_POST["entrar"])) {
 
 if (isset($_SESSION["usuario"])) {
 
-    // obtener euqipos de guardia
+    // pasar seguridad
+    require "vistas/vista_seguridad.php"
 
-
-    ?>
+        ?>
 
     <!DOCTYPE html>
     <html lang="en">
@@ -91,7 +91,12 @@ if (isset($_SESSION["usuario"])) {
         </p>
 
         <h2>Equipos de guardia del IES Mar de alborán</h2>
+        <?php
+        $dias = ["", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
+        
+
+        ?>
 
 
     </body>
@@ -151,7 +156,12 @@ if (isset($_SESSION["usuario"])) {
             <button type="submit" name="entrar">Entrar</button>
         </form>
 
-
+        <?php
+        if (isset($_SESSION["mensaje"])) {
+            echo $_SESSION["mensaje"];
+            session_destroy();
+        }
+        ?>
 
     </body>
 
