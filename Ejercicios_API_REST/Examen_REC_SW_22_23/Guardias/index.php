@@ -1,7 +1,7 @@
 <?php
 session_name("EXAMEN_REC_SIMULACRO");
 session_start();
-define("TIEMPOMINIMO", "60 * 5");
+define("TIEMPOMINIMO", "60 * 55");
 define("URLBASE", "http://localhost/Proyectos/WebServidorPhp/Ejercicios_API_REST/Examen_REC_SW_22_23/servicios_rest");
 
 function consumir_servicios_REST($url, $metodo, $datos = null)
@@ -71,9 +71,70 @@ if (isset($_POST["entrar"])) {
 if (isset($_SESSION["usuario"])) {
 
     // pasar seguridad
-    require "vistas/vista_seguridad.php"
+    require "vistas/vista_seguridad.php";
 
-        ?>
+
+    if (isset($_POST["equipo"])) {
+        // obtener true o false para saber si esta de guardia
+        $url = URLBASE . "/deGuardia/" . $_POST["dia"] . "/" . $_POST["hora"] . "/" . $datos_usuario_logueado->id_usuario . "";
+        $datos["api_session"] = $_SESSION["api_session"];
+        $respuesta = consumir_servicios_REST($url, "GET", $datos);
+        $archivo = json_decode($respuesta);
+
+        if (!$archivo) {
+            session_destroy();
+            consumir_servicios_REST("/salir", "post");
+            die("No se ha obtenido respuesta al obtener guardia en url " . $url . "");
+        }
+
+        if (isset($archivo->error)) {
+            session_destroy();
+            consumir_servicios_REST("/salir", "post");
+            die($archivo->error);
+        }
+
+        if (isset($archivo->no_auth)) {
+            session_unset();
+            consumir_servicios_REST("/salir", "post");
+            die($archivo->no_auth);
+        }
+
+        if ($archivo->de_guardia) {
+            // quedarme con los profesores con guaridas
+            // obtener true o false para saber si esta de guardia
+            $url = URLBASE . "/usuariosGuardia/" . $_POST["dia"] . "/" . $_POST["hora"] . "";
+            $datos["api_session"] = $_SESSION["api_session"];
+            $respuesta = consumir_servicios_REST($url, "GET", $datos);
+            $archivo = json_decode($respuesta);
+
+            if (!$archivo) {
+                session_destroy();
+                consumir_servicios_REST("/salir", "post");
+                die("No se ha obtenido respuesta al obtener guardia en url " . $url . "");
+            }
+
+            if (isset($archivo->error)) {
+                session_destroy();
+                consumir_servicios_REST("/salir", "post");
+                die($archivo->error);
+            }
+
+            if (isset($archivo->no_auth)) {
+                session_unset();
+                consumir_servicios_REST("/salir", "post");
+                die($archivo->no_auth);
+            }
+
+            $datosUsuariosGuardias = $archivo->usuario;
+        }
+
+        if(isset($_POST["equipo"])){
+            $_SESSION["equipo"] = $_POST["equipo"];
+        }
+
+    }
+
+    ?>
 
     <!DOCTYPE html>
     <html lang="en">
@@ -82,6 +143,17 @@ if (isset($_SESSION["usuario"])) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Gestión de guardias</title>
+        <style>
+            table {
+                border: solid 1px black;
+                text-align: center;
+            }
+
+            table td {
+                border: solid 1px black;
+                border-collapse: collapse;
+            }
+        </style>
     </head>
 
     <body>
@@ -93,8 +165,84 @@ if (isset($_SESSION["usuario"])) {
         <h2>Equipos de guardia del IES Mar de alborán</h2>
         <?php
         $dias = ["", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
+        $hora = ["", "1º Hora", "2º Hora", "3º Hora", "4º Hora", "5º Hora", "6ª Hora"];
 
-        
+
+        echo "<table >";
+
+        echo "<tr>";
+        for ($i = 0; $i < count($dias); $i++) {
+            echo "<td>";
+            echo $dias[$i];
+            echo "</td>";
+        }
+        echo "</tr>";
+        $contador = 1;
+        for ($i = 1; $i <= 6; $i++) {
+            echo "<tr>";
+            if ($i == 4) {
+                echo "<tr>";
+                echo "<td colspan='6'>";
+                echo "RECREO";
+                echo "</td>";
+                echo "<tr>";
+            }
+            for ($j = 1; $j <= 6; $j++) {
+                if ($j == 1) {
+                    echo "<td>";
+                    echo $hora[$i];
+                    echo "</td>";
+                } else {
+                    echo "<td>";
+                    echo "<form method='post' action='index.php'>";
+                    echo "<button type='submit' name='equipo' value='" . $contador . "'>Equipo" . $contador . "</button>";
+                    echo "<input hidden type='text' value='" . ($j - 1) . "' name='dia'>";
+                    echo "<input hidden type='text' value='" . $i . "' name='hora'>";
+                    echo "</form>";
+                    echo "</td>";
+                    $contador++;
+                }
+            }
+            echo "</tr>";
+        }
+
+        echo "</table>";
+
+
+
+        if (isset($_POST["equipo"])) {
+            echo "<h2>Equipo de guardia " . $_POST["equipo"] . "</h2>";
+
+            if (isset($datosUsuariosGuardias)) {
+                echo "<table>";
+                echo "<tr>";
+                echo "<td>Profesores de Guardia</td>";
+                echo "<td>Informacion del Profesor</td>";
+                echo "</tr>";
+                foreach ($datosUsuariosGuardias as $key => $value) {
+
+                    echo "<tr>";
+                    echo "<td>";
+                    
+                    echo "<form method='post' action='index.php'>";
+                    echo "<button type='submit' name='profesor_guardia'>".$value->nombre."</button>";
+                    echo "<input hidden name='equipo' value='" . $_SESSION["equipo"] ."</input>";
+                    echo "<input hidden type='text' value='" . $_POST["dia"] . "' name='dia'>";
+                    echo "<input hidden type='text' value='" . $_POST["hora"] . "' name='hora'>";
+                    
+                    echo "</form>";
+                    echo "</td>";
+                    if ($key == 0) {
+                        echo "<td rowspan='" . count($datosUsuariosGuardias) . "'></td>";
+                    }
+                    echo "</tr>";
+                }
+                echo "</table>";
+            } else {
+                echo "<p>Usted no tiene guardia el dia " . $dias[$_POST["dia"]] . " a  " . $_POST["hora"] . "</p>";
+            }
+        }
+
 
         ?>
 

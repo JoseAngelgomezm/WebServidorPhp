@@ -34,12 +34,10 @@ if (time() - $_SESSION["ultimaAccion"] > TIEMPOMINIMO) {
     header("location:index.php");
     exit();
 } else {
+    // actualizar el tiempo
+    $_SESSION["ultimaAccion"] = time();
     // quedarnos con los datos
     $datos_usuario_logueado = $archivo->usuario;
 }
-
-
-// actualizar el tiempo
-$_SESSION["ultimaAccion"] = time();
 
 ?>
