@@ -105,7 +105,7 @@ $datosHorarioGuardia = $archivo->horario;
     echo "<td>PROFESOR DE GUARDIA</td>";
     echo "<td>Informacion del profesor con id ".$idUsuario."</td>";
 
-    echo "<tr>";
+    echo "</tr>";
     for ($i = 1; $i < 8; $i++) {
         echo "<tr>";
         echo "<td>" . $horas[$i] . "</td>";
