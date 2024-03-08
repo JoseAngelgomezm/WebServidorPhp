@@ -174,8 +174,14 @@ if (isset($_POST["ver"])) {
 <body>
     <h2>Gestion de Guardias</h2>
     <?php echo "<h3>Bienvenido " . $datos_usuario_logueado->nombre . "<form action='index.php' method='post'><button name='salir' type='submit'>Salir</button></form></h3>"; ?>
+   
     <?php
-    $id_profesor = "";
+    if (isset($_POST["ver"])) {
+        $id_profesor = $datos_usuario_consultar->id_usuario;
+    } else {
+        $id_profesor = "";
+    }
+
     $dias = ["", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
     $horas = ["", "8:15 - 9:15", "9:15 - 10:15", "10:15 - 11:15", "", "11:45 - 12:45", "12:45 - 13:45", "13:45 - 14:45"];
     echo "<h3>Hoy es " . $dias[date("w")] . "</h3>";
