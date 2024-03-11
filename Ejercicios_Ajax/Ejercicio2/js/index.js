@@ -79,7 +79,7 @@ const mostrarFormularioLogin = (error) => {
   formulario_login += "<input onkeyup='cifrarClave()' name='contraseñaCifrada' id='contraseñaCidfrada' hidden></input>"
   formulario_login += "</p>"
 
-  formulario_login += "<span id='errorLogin'>" + error + "</span>"
+  formulario_login += "<p><span id='errorLogin'>" + error + "</span></p>"
 
   formulario_login += "<button type='submit' name='entrar'>Entrar</button>"
   formulario_login += "</form>"
@@ -93,12 +93,18 @@ const cifrarClave = () => {
 }
 
 const llamadaLogin = () => {
+  let usuariohtml = $("input#usuario").val()
+  let clavehtml = $("input#contraseña").val()
+
   $.ajax({
 
     url: "servicios_rest/login",
     dataType: "json",
     type: "post",
-    data: {usuario : $("input#usuario").val() , clave: $("input#contraseña").val()}
+    data: {
+      usuario: usuariohtml,
+      clave: clavehtml,
+    }
 
   }).done(function (data) {
 
@@ -110,7 +116,7 @@ const llamadaLogin = () => {
       $()
     } else if (data.error) {
       $("#respuesta").html(data.error)
-    } else {
+    } else if (data.usuario) {
       localStorage.setItem("ultima_accion", new Date() / 1000)
       localStorage.setItem("api_session", data.api_session)
     }

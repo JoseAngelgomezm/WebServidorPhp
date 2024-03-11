@@ -1,9 +1,9 @@
 <?php
 
-define("HOST", "localhost");
-define("USERNAME", "jose");
-define("PASSWORD", "josefa");
-define("NAMEDB", "bd_tienda");
+define("SERVIDOR_BD", "localhost");
+define("USUARIO_BD", "jose");
+define("CLAVE_BD", "josefa");
+define("NOMBRE_BD", "bd_tienda");
 
 require("src/funciones_servicios.php");
 
@@ -17,7 +17,7 @@ $app->post('/login', function ($request) {
     $datos["usuario"] = $request->getParam("usuario");
     $datos["clave"] = $request->getParam("clave");
 
-    echo json_encode(login($datos));
+    echo json_encode(loguear($datos));
 });
 
 
