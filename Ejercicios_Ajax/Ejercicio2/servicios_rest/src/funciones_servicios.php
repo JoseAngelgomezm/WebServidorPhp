@@ -20,6 +20,7 @@ function loguear($datos)
 
         session_start();
         $_SESSION["usuario"] = $respuesta["usuario"]["usuario"];
+        $_SESSION["clave"] = $respuesta["usuario"]["clave"];
         $respuesta["api_session"] = session_id();
 
     } else {
@@ -32,7 +33,7 @@ function loguear($datos)
     return $respuesta;
 }
 
-function logueado($datos)
+function logueado()
 {
 
     try {
@@ -44,7 +45,7 @@ function logueado($datos)
     try {
         $consulta = "SELECT * FROM usuarios WHERE usuario=? AND clave=?";
         $sentencia = $conexion->prepare($consulta);
-        $sentencia->execute([$datos["usuario"], $datos["clave"]]);
+        $sentencia->execute([$_SESSION["usuario"], $_SESSION["clave"]]);
     } catch (PDOException $e) {
         $respuesta["error"] = "Imposible conectar:" . $e->getMessage();
     }

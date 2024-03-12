@@ -27,7 +27,7 @@ const llamadaGetProductos = () => {
         tablaProductos += "<td><button onclick='llamadaGetDetalles(\"" + value["cod"] + "\")'>" + value["cod"] + "</button></td>";
         tablaProductos += "<td>" + value["nombre_corto"] + "</td>"
         tablaProductos += "<td>" + value["PVP"] + "</td>"
-        tablaProductos += "<td><button onclick='confirmarBorrado(\"" + value["cod"] + "\")'>Borrar</button> - <button onclick='MostrarFormularioEditar(\"" + value["cod"] + "\")'>Editar</button></td>"
+        tablaProductos += "<td><button onclick='confirmarBorrado(\"" + value["cod"] + "\")'>Borrar</button> - <button onclick='MostrarFormularioEditarObtenerFamilias(\"" + value["cod"] + "\")'>Editar</button></td>"
         tablaProductos += "</tr>"
       })
 
@@ -42,8 +42,8 @@ const llamadaGetProductos = () => {
 }
 
 
-function MostrarFormularioEditar(codigoProducto) {
-  let select =""
+function MostrarFormularioEditarObtenerFamilias(codigoProducto) {
+
   // obtener las familias
   $.ajax({
 
@@ -57,25 +57,20 @@ function MostrarFormularioEditar(codigoProducto) {
     if (data.mensaje) {
       $("#respuesta").html(data.mensaje)
     } else {
-      select += "<p>"
-      select += "<label for='familia'><strong>Familia: </strong></label>"
-      select += "<select name='familia' id='familia'>"
-      $.each(data.familia, function (key, value) {
-        select += "<option value='" + value.cod + "'>" + value.nombre + "</option>"
-      })
-      select += "</select>"
-      select += "</p>"
+      MostrarFormularioEditarObtenerDatosProducto(codigoProducto, data.familia)
     }
 
   }).fail(function (estado, textoEstado) {
     $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
   })
+}
 
 
+const MostrarFormularioEditarObtenerDatosProducto = (codigoProducto, familias) => {
   // obtener los datos de los productos
   $.ajax({
 
-    url: DIR_SERV.concat("/producto/"+codigoProducto),
+    url: DIR_SERV.concat("/producto/" + codigoProducto),
     dataType: "json",
     type: "get",
 
@@ -85,20 +80,30 @@ function MostrarFormularioEditar(codigoProducto) {
     if (data.mensaje) {
       $("#respuesta").html(data.mensaje)
     } else {
-
       let formularioEditar = "";
-      formularioEditar += "<form onsubmit='event.preventDefault(), actualizarDatos() '>"
+      formularioEditar += "<form onsubmit='event.preventDefault(), actualizarDatos(\"" + data.producto.cod + "\") '>"
       formularioEditar += "<h2>Editando el producto " + data.producto.cod + "</h2>"
       if (data.producto.nombre) {
-        formularioEditar += "<p><label for='nombre'><strong>Nombre: </strong></label><input name ='nombre' id='nombre' value='"+data.producto.nombre+"'></p>"
+        formularioEditar += "<p><label for='nombre'><strong>Nombre: </strong></label><input name ='nombre' id='nombre' value='" + data.producto.nombre + "'></p>"
       } else {
         formularioEditar += "<p><label for='nombre'><strong>Nombre: </strong></label><input name ='nombre' id='nombre' value=''></p>"
       }
 
-      formularioEditar += "<p><label for='nombrecorto'><strong>Nombre corto: </strong></label><input name ='nombrecorto' id='nombrecorto' value='"+data.producto.nombre_corto+"'></p>"
-      formularioEditar += "<p><label for='descripcion'><strong>Descripcion: </strong></label><input name ='descripcion' id='descripcion' value='"+data.producto.descripcion+"'></p>"
-      formularioEditar += "<p><label for='pvp'><strong>PVP: </strong></label><input type='number' name='pvp' id='pvp' value='"+data.producto.PVP+"'></p>"
-      formularioEditar += select
+      formularioEditar += "<p><label for='nombrecorto'><strong>Nombre corto: </strong></label><input name ='nombrecorto' id='nombrecorto' value='" + data.producto.nombre_corto + "'></p>"
+      formularioEditar += "<p><label for='descripcion'><strong>Descripcion: </strong></label><input name ='descripcion' id='descripcion' value='" + data.producto.descripcion + "'></p>"
+      formularioEditar += "<p><label for='pvp'><strong>PVP: </strong></label><input type='number' name='pvp' id='pvp' value='" + data.producto.PVP + "'></p>"
+      formularioEditar += "<p>"
+      formularioEditar += "<label for='familia'><strong>Familia: </strong></label>"
+      formularioEditar += "<select name='familia' id='familia'>"
+      $.each(familias, function (key, value) {
+        if (value.cod == data.producto.familia) {
+          formularioEditar += "<option selected value='" + value.cod + "'>" + value.nombre + "</option>"
+        } else {
+          formularioEditar += "<option value='" + value.cod + "'>" + value.nombre + "</option>"
+        }
+      })
+      formularioEditar += "</select>"
+      formularioEditar += "</p>"
       formularioEditar += "<button type='submit' name='editar'>Editar</button>"
       formularioEditar += "<p></p>"
       formularioEditar += "</form>"
@@ -109,6 +114,15 @@ function MostrarFormularioEditar(codigoProducto) {
   }).fail(function (estado, textoEstado) {
     $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
   })
+}
+
+const actualizarDatos = (codigoActualizar) => {
+  // comprobar los datos
+  let errorNombreCorto = $("input#nombrecorto").val() == ""
+  let errorPVP = $("input#PVP").val() == ""
+
+
+
 }
 
 function llamadaDelete(codigo) {
@@ -135,7 +149,6 @@ function llamadaDelete(codigo) {
 
 
 function llamadaGetDetalles(cod) {
-
 
   $.ajax({
 
@@ -266,7 +279,7 @@ function llamadaInsertar() {
     // comprobar que el nombre corto no este repetido
     $.ajax({
 
-      url: DIR_SERV.concat("/repetido/producto/nombre_corto/"+$("input#nombrecorto").val()),
+      url: DIR_SERV.concat("/repetido/producto/nombre_corto/" + $("input#nombrecorto").val()),
       dataType: "json",
       type: "get",
 
@@ -284,7 +297,7 @@ function llamadaInsertar() {
       $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
     })
 
-    
+
     if (!errorCodigo && !errorNombreCorto) {
 
       // llamada al insertar con los datos

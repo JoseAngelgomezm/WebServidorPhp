@@ -28,9 +28,7 @@ $app->get("/logueado", function ($request) {
     session_start();
 
     if (isset ($_SESSION["usuario"])) {
-        $datos["usuario"] = $_SESSION["usuario"];
-        $datos["clave"] = $_SESSION["clave"];
-        echo json_encode(logueado($datos));
+        echo json_encode(logueado());
     } else {
         echo json_encode(array ("no_auth" => "No tienes permisos para usar este servicio"));
     }
