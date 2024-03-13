@@ -1,4 +1,4 @@
-const DIR_SERV = "http://localhost/Proyectos/WebServidorPhp/Ejercicios_API_REST/Ejercicio1/servicios_rest"
+const DIR_SERV = "servicios_rest"
 
 const llamadaGetProductos = () => {
   $.ajax({
@@ -81,17 +81,18 @@ const MostrarFormularioEditarObtenerDatosProducto = (codigoProducto, familias) =
       $("#respuesta").html(data.mensaje)
     } else {
       let formularioEditar = "";
-      formularioEditar += "<form onsubmit='event.preventDefault(), actualizarDatos(\"" + data.producto.cod + "\") '>"
+      formularioEditar += "<form onsubmit='event.preventDefault(), actualizarDatos(\"" + data.producto.cod + "\",\"" + data.producto.nombre_corto + "\") '>"
       formularioEditar += "<h2>Editando el producto " + data.producto.cod + "</h2>"
+      formularioEditar += "<p><label for='codigo'><strong>Codigo: </strong></label><input name ='codigo' id='codigo' value='" + data.producto.cod + "'><span></span></p>"
       if (data.producto.nombre) {
-        formularioEditar += "<p><label for='nombre'><strong>Nombre: </strong></label><input name ='nombre' id='nombre' value='" + data.producto.nombre + "'></p>"
+        formularioEditar += "<p><label for='nombre'><strong>Nombre: </strong></label><input name ='nombre' id='nombre' value='" + data.producto.nombre + "'><span></span></p>"
       } else {
-        formularioEditar += "<p><label for='nombre'><strong>Nombre: </strong></label><input name ='nombre' id='nombre' value=''></p>"
+        formularioEditar += "<p><label for='nombre'><strong>Nombre: </strong></label><input name ='nombre' id='nombre' value=''><span></span></p>"
       }
 
-      formularioEditar += "<p><label for='nombrecorto'><strong>Nombre corto: </strong></label><input name ='nombrecorto' id='nombrecorto' value='" + data.producto.nombre_corto + "'></p>"
-      formularioEditar += "<p><label for='descripcion'><strong>Descripcion: </strong></label><input name ='descripcion' id='descripcion' value='" + data.producto.descripcion + "'></p>"
-      formularioEditar += "<p><label for='pvp'><strong>PVP: </strong></label><input type='number' name='pvp' id='pvp' value='" + data.producto.PVP + "'></p>"
+      formularioEditar += "<p><label for='nombrecorto'><strong>Nombre corto: </strong></label><input name ='nombrecorto' id='nombrecorto' value='" + data.producto.nombre_corto + "'><span></span></p>"
+      formularioEditar += "<p><label for='descripcion'><strong>Descripcion: </strong></label><input name ='descripcion' id='descripcion' value='" + data.producto.descripcion + "'><span></span></p>"
+      formularioEditar += "<p><label for='pvp'><strong>PVP: </strong></label><input type='number' name='pvp' id='pvp' value='" + data.producto.PVP + "'><span></span></p>"
       formularioEditar += "<p>"
       formularioEditar += "<label for='familia'><strong>Familia: </strong></label>"
       formularioEditar += "<select name='familia' id='familia'>"
@@ -116,13 +117,133 @@ const MostrarFormularioEditarObtenerDatosProducto = (codigoProducto, familias) =
   })
 }
 
-const actualizarDatos = (codigoActualizar) => {
+const actualizarDatos = (codigoActualizar, nombreCortoActualizar) => {
   // comprobar los datos
+  let errorCodigo = $("input#codigo").val() == ""
   let errorNombreCorto = $("input#nombrecorto").val() == ""
   let errorPVP = $("input#PVP").val() == ""
 
 
+  if (errorCodigo) {
+    $("input#codigo").next("span").text("Introduce un código")
+  }
 
+  if (errorNombreCorto) {
+    $("input#nombrecorto").next("span").text("Introduce un nombre corto")
+  }
+
+  if (errorPVP) {
+    $("input#pvp").next("span").text("Introduce un pvp valido")
+  }
+
+  let errorFormulario = errorCodigo || errorNombreCorto || errorPVP
+
+  if (!errorFormulario) {
+    // comprobar repetidos
+    comoprobarRepetidoEditar(codigoActualizar, nombreCortoActualizar)
+  }
+}
+
+function comoprobarRepetidoEditar(codigo, nombreCorto) {
+
+  $('input#codigo').next("span").html("")
+  $('input#nombrecorto').next("span").html("")
+
+
+  let codigoInsertado = $('input#codigo').val();
+  let nombreCortoInsertado = $('input#nombrecorto').val();
+
+
+  $.ajax({
+    url: encodeURI(DIR_SERV + "/repetido/producto/cod/" + codigoInsertado + "/cod/" + codigo + ""),
+    type: "GET",
+    dataType: "json"
+  })
+    .done(function (data) {
+      if (data.mensaje) {
+        $('#respuesta').html(data.mensaje)
+        $('#tablaProductos').html("")
+      }
+      else if (data.repetido) {
+        //Informo código repetido y compruebo también nombre corto  pero ya no inserto
+        $('input#codigo').next("span").html("Código repetido")
+
+        $.ajax({
+          url: encodeURI(DIR_SERV + "/repetido/producto/nombre_corto/" + nombreCortoInsertado + "/nombre_corto/" + nombreCorto),
+          type: "GET",
+          dataType: "json"
+        })
+          .done(function (data) {
+            if (data.mensaje) {
+              $('#respuesta').html(data.mensaje)
+              $('#tablaProductos').html("")
+            }
+            if (data.repetido) {
+              $('input#nombrecorto').next("span").html("Nombre corto repetido")
+            }
+          })
+          .fail(function (estado, textoEstado) {
+            $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
+            $('#tablaProductos').html("")
+          });
+      }
+      else {
+        //Compruebo nombre corto y si está repetido informo y no inserto, pero si no está repetido inserto
+        $.ajax({
+          url: encodeURI(DIR_SERV + "/repetido/producto/nombre_corto/" + nombreCortoInsertado + "/nombre_corto/"+nombreCorto),
+          type: "GET",
+          dataType: "json"
+        })
+          .done(function (data) {
+            if (data.mensaje) {
+              $('#respuesta').html(data.mensaje)
+              $('#tablaProductos').html("")
+            }
+            if (data.repetido) {
+              $('#error_nombre_corto').html("Nombre corto repetido");
+            }
+            else {
+              let nombre = $('#nombre').val();
+              let descripcion = $('#descripcion').val();
+              let PVP = $('#pvp').val();
+              let familia = $('#familia').val();
+
+              $.ajax({
+                url: DIR_SERV + "/producto/actualizar/" + codigo,
+                type: "put",
+                dataType: "json",
+                data: { "cod": codigoInsertado, "nombre": nombre, "nombre_corto": nombreCortoInsertado, "descripcion": descripcion, "PVP": PVP, "familia": familia }
+              })
+                .done(function (data) {
+                  if (data.error_actualizar) {
+                    $("#respuesta").html(data.error_actualizar)
+                    $('#tablaProductos').html("");
+                    llamadaGetProductos();
+                  }
+                  else {
+                    $('#respuesta').html("<p class='mensaje'>El producto con cod: <strong>" + codigo + "</strong> se ha actualizado con éxito<p>");
+                    llamadaGetProductos();
+                  }
+
+                })
+                .fail(function (estado, textoEstado) {
+                  $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
+                  $('#tablaProductos').html("");
+                });
+            }
+          })
+          .fail(function (estado, textoEstado) {
+            $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
+            $('#tablaProductos').html("");
+          });
+
+      }
+
+    })
+    .fail(function (estado, textoEstado) {
+      $("#respuesta").html(error_ajax_jquery(estado, textoEstado))
+      $('#tablaProductos').html("");
+    });
 }
 
 function llamadaDelete(codigo) {
@@ -228,6 +349,8 @@ function MostrarInsertar() {
   })
 
 }
+
+
 
 function llamadaInsertar() {
   // dejar los span de errores vacios

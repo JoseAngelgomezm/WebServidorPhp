@@ -123,7 +123,7 @@ function actualizarProducto($datos)
     if ($sentencia->rowCount() > 0) {
         $respuesta["mensaje"] = "El producto " . $datos["codigo"] . " se ha actualizado correctamente";
     } else {
-        $respuesta["mensaje"] = "El producto " . $datos["codigo"] . " no existe en la base de datos";
+        $respuesta["error_actualizar"] = "El producto " . $datos["codigo"] . " no existe en la base de datos , o no has modifcado los datos";
     }
 
 
